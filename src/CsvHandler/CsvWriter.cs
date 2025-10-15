@@ -8,6 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CsvHandler.Core;
 
+#if NETSTANDARD2_0
+using CsvHandler.Compat;
+#endif
+
 namespace CsvHandler;
 
 /// <summary>
@@ -28,7 +32,7 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     private readonly CsvWriterOptions _options;
     private readonly CsvContext? _context;
     private readonly object? _metadata; // CsvTypeMetadata<T> when T is class, stored as object to avoid constraint
-    private readonly System.Buffers.ArrayBufferWriter<byte> _bufferWriter;
+    private readonly ArrayBufferWriter<byte> _bufferWriter;
     private readonly bool _leaveOpen;
     private bool _disposed;
     private bool _headersWritten;
@@ -47,14 +51,18 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
 
     private CsvWriter(Stream stream, CsvWriterOptions options, CsvContext? context, bool leaveOpen)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(stream);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
+#endif
         if (!stream.CanWrite) throw new ArgumentException("Stream must be writable.", nameof(stream));
 
         _stream = stream;
         _options = options ?? CsvWriterOptions.Default;
         _options.Validate();
         _context = context;
-        _bufferWriter = new System.Buffers.ArrayBufferWriter<byte>(options.BufferSize);
+        _bufferWriter = new ArrayBufferWriter<byte>(_options.BufferSize);
         _leaveOpen = leaveOpen;
 
         // Try to get metadata from context (source-generated path)
@@ -68,7 +76,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
                 {
                     // Use reflection to call GetTypeMetadata<T> dynamically
                     var method = _context.GetType().GetMethod(nameof(CsvContext.GetTypeMetadata))?.MakeGenericMethod(type);
-                    _metadata = method?.Invoke(_context, null)!;
+                    var result = method?.Invoke(_context, null);
+                    _metadata = result!;
                 }
                 catch
                 {
@@ -115,8 +124,12 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// <returns>A new CSV writer instance.</returns>
     public static CsvWriter<T> Create(Stream stream, CsvContext context, bool leaveOpen = false)
     {
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(context);
-        return new CsvWriter<T>(stream, context.Options, context, leaveOpen);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
+        return new CsvWriter<T>(stream, ConvertToWriterOptions(context.Options), context, leaveOpen);
     }
 
     /// <summary>
@@ -129,7 +142,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// <returns>A new CSV writer instance.</returns>
     public static CsvWriter<T> Create(Stream stream, CsvWriterOptions options, CsvContext context, bool leaveOpen = false)
     {
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
         return new CsvWriter<T>(stream, options, context, leaveOpen);
     }
 
@@ -173,10 +190,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     {
         ThrowIfDisposed();
 
-        if (value == null)
-        {
-            throw new ArgumentNullException(nameof(value));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(value);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(value);
+#endif
 
         // Write headers if not already written
         if (!_headersWritten && _options.WriteHeaders)
@@ -215,10 +233,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     {
         ThrowIfDisposed();
 
-        if (values == null)
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+#endif
 
         // Write headers if not already written
         if (!_headersWritten && _options.WriteHeaders)
@@ -276,10 +295,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     {
         ThrowIfDisposed();
 
-        if (values == null)
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+#endif
 
         // Write headers if not already written
         if (!_headersWritten && _options.WriteHeaders)
@@ -355,6 +375,31 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     {
         // TODO: Implement reflection-based value writing
         throw new NotImplementedException("Reflection-based serialization will be implemented in a future update. Please use source-generated contexts for now.");
+    }
+
+    /// <summary>
+    /// Converts CsvOptions to CsvWriterOptions by mapping common properties.
+    /// </summary>
+    private static CsvWriterOptions ConvertToWriterOptions(CsvOptions options)
+    {
+        if (options == null)
+        {
+            return CsvWriterOptions.Default;
+        }
+
+        return new CsvWriterOptions
+        {
+            Delimiter = options.Delimiter,
+            Quote = options.Quote,
+            Escape = options.Escape,
+            Culture = options.Culture,
+            BufferSize = options.BufferSize,
+            WriteHeaders = options.HasHeaders,
+            // Use sensible defaults for writer-only properties
+            QuoteMode = Core.CsvQuoteMode.Minimal,
+            NewLine = "\r\n",
+            AutoFlush = false
+        };
     }
 
     private void ThrowIfDisposed()

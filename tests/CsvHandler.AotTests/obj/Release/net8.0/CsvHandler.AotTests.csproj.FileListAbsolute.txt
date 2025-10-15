@@ -1,0 +1,7 @@
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/.msCoverageSourceRootsMapping_CsvHandler.AotTests
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.csproj.AssemblyReference.cache
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.AssemblyInfoInputs.cache
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.AssemblyInfo.cs
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.csproj.CoreCompileInputs.cache
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/obj/Release/net8.0/CsvHandler.AotTests.sourcelink.json

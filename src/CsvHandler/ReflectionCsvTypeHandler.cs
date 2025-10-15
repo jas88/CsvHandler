@@ -72,8 +72,11 @@ internal sealed class ReflectionCsvTypeHandler<T> : ICsvTypeHandler<T>
 
     public T Deserialize(IReadOnlyList<string> fields, long lineNumber)
     {
-        if (fields == null)
-            throw new ArgumentNullException(nameof(fields));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(fields);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(fields);
+#endif
 
         // Check field count
         var expectedCount = _orderedProperties?.Length ?? _properties.Count;

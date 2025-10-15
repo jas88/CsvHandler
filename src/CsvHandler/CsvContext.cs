@@ -100,8 +100,11 @@ public abstract class CsvContext
     /// </remarks>
     public virtual CsvTypeInfo? GetTypeInfo(Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(type);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(type);
+#endif
 
         // This will be overridden by source-generated code to provide
         // efficient type lookup without reflection

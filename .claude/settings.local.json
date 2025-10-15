@@ -39,7 +39,12 @@
       "Bash(gh run view:*)",
       "Bash(gh label:*)",
       "Bash(gh pr list:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(dotnet nuget list:*)",
+      "WebFetch(domain:www.nuget.org)",
+      "WebFetch(domain:source.dot.net)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

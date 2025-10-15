@@ -65,10 +65,11 @@ public sealed class CsvSerializableAttribute : Attribute
     /// </exception>
     public CsvSerializableAttribute(Type type)
     {
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(type);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(type);
+#endif
 
         Type = type;
     }

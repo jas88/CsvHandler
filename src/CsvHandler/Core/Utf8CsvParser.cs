@@ -8,7 +8,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 #elif NET6_0_OR_GREATER
-// For net6.0, use SearchValues polyfill
+// For net6.0, use SearchValues polyfill from System.Buffers namespace
 #else
 using System.Numerics;
 #endif

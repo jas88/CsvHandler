@@ -71,8 +71,11 @@ public sealed class CsvReader<T> : IDisposable, IAsyncDisposable
         CsvContext context,
         bool leaveOpen = false)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
         var typeHandler = context.GetTypeHandler<T>();
         return new CsvReader<T>(stream, context.Options ?? CsvOptions.Default, typeHandler, leaveOpen);
@@ -91,8 +94,11 @@ public sealed class CsvReader<T> : IDisposable, IAsyncDisposable
         CsvOptions options,
         bool leaveOpen = false)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
         var typeHandler = context.GetTypeHandler<T>();
         return new CsvReader<T>(stream, options, typeHandler, leaveOpen);

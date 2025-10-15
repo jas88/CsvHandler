@@ -71,7 +71,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             // Refill buffer if needed
             if (_bufferPosition >= _bufferLength)
             {
-                _bufferLength = await _stream.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken).ConfigureAwait(false);
+                _bufferLength = await _stream.ReadAsync(_buffer.AsMemory(), cancellationToken).ConfigureAwait(false);
                 _bufferPosition = 0;
 
                 if (_bufferLength == 0)
@@ -124,7 +124,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
         // Skip comment lines if configured
-        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString()))
+        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString(), StringComparison.Ordinal))
             return await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
         return result;
@@ -193,7 +193,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return ReadRawLine();
 
         // Skip comment lines if configured
-        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString()))
+        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString(), StringComparison.Ordinal))
             return ReadRawLine();
 
         return result;

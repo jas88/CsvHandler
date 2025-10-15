@@ -227,6 +227,10 @@ namespace System.Runtime.CompilerServices
     /// This class should not be used by developers in source code.
     /// Used for init-only properties (C# 9.0).
     /// </summary>
+    /// <remarks>
+    /// Note: Modern C# compilers automatically generate this type in some contexts,
+    /// but we need to provide it explicitly for certain build configurations.
+    /// </remarks>
     internal static class IsExternalInit { }
 
     /// <summary>
@@ -271,6 +275,43 @@ namespace System.Diagnostics
     internal sealed class SetsRequiredMembersAttribute : Attribute { }
 }
 
+#endif
+
+// Polyfill for DoesNotReturnAttribute (netstandard2.0 only, net6.0 has it built-in)
+#if NETSTANDARD2_0
+namespace System.Diagnostics.CodeAnalysis
+{
+    /// <summary>
+    /// Indicates that a method does not return to the caller.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    internal sealed class DoesNotReturnAttribute : Attribute { }
+}
+#endif
+
+// Polyfill for ArgumentNullException.ThrowIfNull (netstandard2.0 and net6.0)
+// This adds ArgumentNullException.ThrowIfNull for pre-.NET 7 frameworks
+#if NETSTANDARD2_0 || NET6_0
+namespace System
+{
+    internal static class ArgumentNullExceptionPolyfill
+    {
+        /// <summary>
+        /// Throws an <see cref="ArgumentNullException"/> if <paramref name="argument"/> is null.
+        /// </summary>
+        /// <param name="argument">The reference type argument to validate as non-null.</param>
+        /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        public static void ThrowIfNull(
+            [System.Diagnostics.CodeAnalysis.NotNull] object? argument,
+            [System.Runtime.CompilerServices.CallerArgumentExpression("argument")] string? paramName = null)
+        {
+            if (argument is null)
+            {
+                throw new ArgumentNullException(paramName);
+            }
+        }
+    }
+}
 #endif
 
 // Polyfill for Range type (netstandard2.0)

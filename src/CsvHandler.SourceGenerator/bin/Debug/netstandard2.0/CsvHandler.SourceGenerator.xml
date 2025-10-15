@@ -4,6 +4,29 @@
         <name>CsvHandler.SourceGenerator</name>
     </assembly>
     <members>
+        <member name="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute">
+            <summary>
+            Indicates the name of the parameter that provides the argument.
+            Used for parameter validation messages.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+            Polyfill for init-only properties in netstandard2.0.
+            </summary>
+        </member>
+        <member name="M:System.ArgumentNullExceptionPolyfill.ThrowIfNull(System.Object,System.String)">
+            <summary>
+            Throws an <see cref="T:System.ArgumentNullException"/> if <paramref name="argument"/> is null.
+            </summary>
+            <param name="argument">The reference type argument to validate as non-null.</param>
+            <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        </member>
+        <member name="T:System.HashCode">
+            <summary>
+            Polyfill for HashCode in netstandard2.0.
+            </summary>
+        </member>
         <member name="T:CsvHandler.SourceGenerator.CodeEmitter">
             <summary>
             Encapsulates code generation logic for CSV reading and writing.
@@ -932,16 +955,6 @@
             <value>
             <c>true</c> to generate synchronous methods; otherwise, <c>false</c>. Default is <c>true</c>.
             </value>
-        </member>
-        <member name="T:System.HashCode">
-            <summary>
-            Polyfill for HashCode in netstandard2.0.
-            </summary>
-        </member>
-        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
-            <summary>
-            Polyfill for init-only properties in netstandard2.0.
-            </summary>
         </member>
     </members>
 </doc>
