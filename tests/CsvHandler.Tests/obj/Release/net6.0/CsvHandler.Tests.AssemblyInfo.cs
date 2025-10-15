@@ -10,7 +10,6 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyMetadata("IsTrimmable", "True")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("James A Sutherland")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright © 2025 James A Sutherland")]
@@ -19,7 +18,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-alpha.1+59156a589cf094b301cf72b58c85c79c7a51fe82")]
 [assembly: System.Reflection.AssemblyProductAttribute("CsvHandler")]
-[assembly: System.Reflection.AssemblyTitleAttribute("CsvHandler")]
+[assembly: System.Reflection.AssemblyTitleAttribute("CsvHandler.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]
 [assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://github.com/jas88/CsvHandler")]
 

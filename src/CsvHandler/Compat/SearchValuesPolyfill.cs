@@ -12,36 +12,17 @@ using System.Runtime.CompilerServices;
 namespace System.Buffers;
 
 /// <summary>
-/// Provides an efficient way to search for specific values in spans.
-/// This is a simplified polyfill for net6.0 that lacks the SIMD optimizations of .NET 8.0.
+/// Non-generic holder class for SearchValues instances.
+/// This matches the .NET 8.0 API design.
 /// </summary>
 /// <typeparam name="T">The type of values to search for.</typeparam>
 internal sealed class SearchValues<T> where T : IEquatable<T>
 {
     private readonly T[] _values;
 
-    private SearchValues(T[] values)
+    internal SearchValues(T[] values)
     {
         _values = values;
-    }
-
-    /// <summary>
-    /// Creates a SearchValues instance for the specified set of values.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SearchValues<T> Create(ReadOnlySpan<T> values)
-    {
-        T[] array = values.ToArray();
-        return new SearchValues<T>(array);
-    }
-
-    /// <summary>
-    /// Creates a SearchValues instance for the specified set of values.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static SearchValues<T> Create(T[] values)
-    {
-        return new SearchValues<T>(values);
     }
 
     /// <summary>
@@ -57,6 +38,32 @@ internal sealed class SearchValues<T> where T : IEquatable<T>
     /// Gets the values being searched for.
     /// </summary>
     internal ReadOnlySpan<T> Values => _values;
+}
+
+/// <summary>
+/// Static factory class for creating SearchValues instances.
+/// This matches the .NET 8.0 API where SearchValues is a non-generic static class.
+/// </summary>
+internal static class SearchValues
+{
+    /// <summary>
+    /// Creates a SearchValues instance for the specified set of values.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SearchValues<T> Create<T>(ReadOnlySpan<T> values) where T : IEquatable<T>
+    {
+        T[] array = values.ToArray();
+        return new SearchValues<T>(array);
+    }
+
+    /// <summary>
+    /// Creates a SearchValues instance for the specified set of values.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SearchValues<T> Create<T>(T[] values) where T : IEquatable<T>
+    {
+        return new SearchValues<T>(values);
+    }
 }
 
 /// <summary>
