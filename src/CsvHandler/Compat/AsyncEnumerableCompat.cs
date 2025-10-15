@@ -211,9 +211,9 @@ namespace CsvHandler.Compat
             /// <summary>
             /// Disposes the enumerator asynchronously.
             /// </summary>
-            public ConfiguredValueTaskAwaitable DisposeAsync()
+            public ValueTask DisposeAsync()
             {
-                return _enumerator.DisposeAsync().ConfigureAwait(_continueOnCapturedContext);
+                return _enumerator.DisposeAsync();
             }
         }
     }

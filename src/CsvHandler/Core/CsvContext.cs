@@ -47,22 +47,22 @@ public sealed class CsvTypeMetadata<T> where T : class
     /// <summary>
     /// Delegate for writing a value to CSV using the Utf8CsvWriter.
     /// </summary>
-    public delegate void WriteValueDelegate(ref Utf8CsvWriter writer, T value);
+    public delegate void WriteValue(ref Utf8CsvWriter writer, T value);
 
     /// <summary>
     /// Delegate for writing headers to CSV using the Utf8CsvWriter.
     /// </summary>
-    public delegate void WriteHeaderDelegate(ref Utf8CsvWriter writer);
+    public delegate void WriteHeader(ref Utf8CsvWriter writer);
 
     /// <summary>
     /// Gets the function to write a value to CSV.
     /// </summary>
-    public WriteValueDelegate? WriteValue { get; }
+    public WriteValue? WriteValueFunc { get; }
 
     /// <summary>
     /// Gets the function to write headers to CSV.
     /// </summary>
-    public WriteHeaderDelegate? WriteHeader { get; }
+    public WriteHeader? WriteHeaderFunc { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvTypeMetadata{T}"/> class.
@@ -70,13 +70,13 @@ public sealed class CsvTypeMetadata<T> where T : class
     public CsvTypeMetadata(
         Type type,
         CsvFieldMetadata[] fields,
-        WriteValueDelegate? writeValue,
-        WriteHeaderDelegate? writeHeader)
+        WriteValue? writeValue,
+        WriteHeader? writeHeader)
     {
         Type = type;
         Fields = fields;
-        WriteValue = writeValue;
-        WriteHeader = writeHeader;
+        WriteValueFunc = writeValue;
+        WriteHeaderFunc = writeHeader;
     }
 }
 

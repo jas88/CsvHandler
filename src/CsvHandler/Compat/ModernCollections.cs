@@ -8,14 +8,14 @@ using System.Runtime.CompilerServices;
 using System.Buffers;
 #endif
 
-namespace CsvHandler.Compat
+namespace CsvHandler.Compat;
+
+/// <summary>
+/// Compatibility layer for modern collection features.
+/// Uses SearchValues on .NET 8+, falls back to manual search on older platforms.
+/// </summary>
+internal static class ModernCollections
 {
-    /// <summary>
-    /// Compatibility layer for modern collection features.
-    /// Uses SearchValues on .NET 8+, falls back to manual search on older platforms.
-    /// </summary>
-    internal static class ModernCollections
-    {
 #if NET8_0_OR_GREATER
         // .NET 8+: Use highly optimized SearchValues
 
@@ -46,9 +46,8 @@ namespace CsvHandler.Compat
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int IndexOfDelimiterOrNewLine(ReadOnlySpan<byte> span, byte delimiter)
         {
-            // Create SearchValues for the specific delimiter + newline chars
-            var searchValues = SearchValues.Create(stackalloc byte[] { delimiter, (byte)'\n', (byte)'\r' });
-            return span.IndexOfAny(searchValues);
+            // Use IndexOfAny with up to 3 values (SIMD-optimized)
+            return span.IndexOfAny(delimiter, (byte)'\n', (byte)'\r');
         }
 
         /// <summary>
@@ -57,8 +56,7 @@ namespace CsvHandler.Compat
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int IndexOfQuoteOrNewLine(ReadOnlySpan<byte> span)
         {
-            var searchValues = SearchValues.Create(stackalloc byte[] { (byte)'"', (byte)'\n', (byte)'\r' });
-            return span.IndexOfAny(searchValues);
+            return span.IndexOfAny((byte)'"', (byte)'\n', (byte)'\r');
         }
 
 #elif NET6_0_OR_GREATER
@@ -71,8 +69,16 @@ namespace CsvHandler.Compat
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int IndexOfAnyDelimiterOrSpecialChar(ReadOnlySpan<byte> span)
         {
-            // IndexOfAny is SIMD-optimized on .NET 6+ for up to 5 values
-            return span.IndexOfAny((byte)',', (byte)';', (byte)'\t', (byte)'|', (byte)'"');
+            // Manually scan as IndexOfAny only supports up to 3 values on net6.0
+            for (int i = 0; i < span.Length; i++)
+            {
+                byte b = span[i];
+                if (b == ',' || b == ';' || b == '\t' || b == '|')
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         /// <summary>
@@ -222,4 +228,3 @@ namespace CsvHandler.Compat
             return -1; // Unknown
         }
     }
-}

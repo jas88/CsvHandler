@@ -33,7 +33,6 @@ public ref struct Utf8CsvParser
     private int _position;
     private int _currentLine;
     private int _recordStart;
-    private bool _isFirstRecord;
 
 #if NET6_0_OR_GREATER
     private readonly SearchValues<byte> _searchValues;
@@ -67,11 +66,10 @@ public ref struct Utf8CsvParser
         _position = 0;
         _currentLine = 1;
         _recordStart = 0;
-        _isFirstRecord = true;
 
 #if NET6_0_OR_GREATER
         // Pre-compute search values for SIMD acceleration
-        _searchValues = SearchValues.Create(new[] { options.Delimiter, options.Quote, (byte)'\r', (byte)'\n' });
+        _searchValues = SearchValues.Create(new byte[] { options.Delimiter, options.Quote, (byte)'\r', (byte)'\n' });
 #endif
     }
 
@@ -190,7 +188,6 @@ public ref struct Utf8CsvParser
         _position = 0;
         _currentLine = 1;
         _recordStart = 0;
-        _isFirstRecord = true;
     }
 
     // ============================================================================

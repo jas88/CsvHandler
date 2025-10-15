@@ -56,7 +56,7 @@ public sealed class CsvWriterOptions
     /// Gets or sets whether to flush automatically after each record.
     /// Enabling this can impact performance but ensures data is written immediately.
     /// </summary>
-    public bool AutoFlush { get; set; } = false;
+    public bool AutoFlush { get; set; }
 
     /// <summary>
     /// Gets or sets the encoding to use when writing text.

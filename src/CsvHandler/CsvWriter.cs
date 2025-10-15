@@ -27,8 +27,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     private readonly Stream _stream;
     private readonly CsvWriterOptions _options;
     private readonly CsvContext? _context;
-    private readonly object? _metadata; // CsvTypeMetadata<T> but stored as object to avoid constraint issues
-    private readonly ArrayBufferWriter<byte> _bufferWriter;
+    private readonly object? _metadata; // CsvTypeMetadata<T> when T is class, stored as object to avoid constraint
+    private readonly System.Buffers.ArrayBufferWriter<byte> _bufferWriter;
     private readonly bool _leaveOpen;
     private bool _disposed;
     private bool _headersWritten;
@@ -54,26 +54,27 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
         _options = options ?? CsvWriterOptions.Default;
         _options.Validate();
         _context = context;
-        _bufferWriter = new ArrayBufferWriter<byte>(options.BufferSize);
+        _bufferWriter = new System.Buffers.ArrayBufferWriter<byte>(options.BufferSize);
         _leaveOpen = leaveOpen;
 
         // Try to get metadata from context (source-generated path)
-        // Only works if T is a class due to CsvTypeMetadata constraint
-        if (_context != null && typeof(T).IsClass)
+        // Check if T is a reference type before calling GetTypeMetadata
+        if (_context != null)
         {
-            try
+            var type = typeof(T);
+            if (!type.IsValueType)
             {
-                var method = _context.GetType().GetMethod(nameof(CsvContext.GetTypeMetadata));
-                if (method != null)
+                try
                 {
-                    var genericMethod = method.MakeGenericMethod(typeof(T));
-                    _metadata = genericMethod.Invoke(_context, null);
+                    // Use reflection to call GetTypeMetadata<T> dynamically
+                    var method = _context.GetType().GetMethod(nameof(CsvContext.GetTypeMetadata))?.MakeGenericMethod(type);
+                    _metadata = method?.Invoke(_context, null)!;
                 }
-            }
-            catch
-            {
-                // If reflection fails, metadata remains null and we'll use the reflection path
-                _metadata = null;
+                catch
+                {
+                    // Ignore if type is not supported
+                    _metadata = null;
+                }
             }
         }
     }
@@ -114,7 +115,7 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// <returns>A new CSV writer instance.</returns>
     public static CsvWriter<T> Create(Stream stream, CsvContext context, bool leaveOpen = false)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
         return new CsvWriter<T>(stream, context.Options, context, leaveOpen);
     }
 
@@ -128,7 +129,7 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// <returns>A new CSV writer instance.</returns>
     public static CsvWriter<T> Create(Stream stream, CsvWriterOptions options, CsvContext context, bool leaveOpen = false)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
         return new CsvWriter<T>(stream, options, context, leaveOpen);
     }
 
@@ -145,11 +146,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
             return;
         }
 
-        if (_metadata is CsvTypeMetadata<T> metadata && metadata.WriteHeader != null)
+        if (_metadata is CsvTypeMetadata<T> metadata && metadata.WriteHeaderFunc != null)
         {
             // Source-generated path
             var writer = new Utf8CsvWriter(_bufferWriter, _options);
-            metadata.WriteHeader(ref writer);
+            metadata.WriteHeaderFunc(ref writer);
             writer.WriteEndOfRecord();
             _bytesWritten += writer.BytesWritten;
         }
@@ -183,11 +184,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
             await WriteHeaderAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        if (_metadata != null && _metadata.WriteValue != null)
+        if (_metadata is Core.CsvTypeMetadata<T> metadata && metadata.WriteValueFunc != null)
         {
             // Source-generated path
             var writer = new Utf8CsvWriter(_bufferWriter, _options);
-            metadata.WriteValue(ref writer, value);
+            metadata.WriteValueFunc(ref writer, value);
             writer.WriteEndOfRecord();
             _bytesWritten += writer.BytesWritten;
             _recordsWritten++;
@@ -229,11 +230,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
         {
             if (value == null) continue;
 
-            if (_metadata != null && _metadata.WriteValue != null)
+            if (_metadata is Core.CsvTypeMetadata<T> metadata && metadata.WriteValueFunc != null)
             {
                 // Source-generated path
                 var writer = new Utf8CsvWriter(_bufferWriter, _options);
-                _metadata.WriteValue(writer, value);
+                metadata.WriteValueFunc(ref writer, value);
                 writer.WriteEndOfRecord();
                 _bytesWritten += writer.BytesWritten;
                 _recordsWritten++;
@@ -290,11 +291,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
         {
             if (value == null) continue;
 
-            if (_metadata != null && _metadata.WriteValue != null)
+            if (_metadata is Core.CsvTypeMetadata<T> metadata && metadata.WriteValueFunc != null)
             {
                 // Source-generated path
                 var writer = new Utf8CsvWriter(_bufferWriter, _options);
-                _metadata.WriteValue(writer, value);
+                metadata.WriteValueFunc(ref writer, value);
                 writer.WriteEndOfRecord();
                 _bytesWritten += writer.BytesWritten;
                 _recordsWritten++;

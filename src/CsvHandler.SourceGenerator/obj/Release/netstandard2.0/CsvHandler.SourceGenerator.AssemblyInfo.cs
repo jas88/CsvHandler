@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Source generator for CsvHandler library providing compile-time CSV serialization " +
     "code generation"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-alpha.1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-alpha.1+c48db5b561137a348cd7f1a3b870f326b825ab7b")]
 [assembly: System.Reflection.AssemblyProductAttribute("CsvHandler")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CsvHandler.SourceGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]
