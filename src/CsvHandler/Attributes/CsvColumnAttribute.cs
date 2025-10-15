@@ -4,7 +4,12 @@ namespace CsvHandler.Attributes;
 /// Specifies CSV column mapping for a property.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-public sealed class CsvColumnAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvColumnAttribute : Attribute
 {
     /// <summary>
     /// Gets or sets the column name in the CSV file.

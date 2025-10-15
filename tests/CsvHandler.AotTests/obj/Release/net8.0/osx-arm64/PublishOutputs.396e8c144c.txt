@@ -1,0 +1,7 @@
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/xunit.runner.visualstudio.testadapter.dll
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/xunit.runner.reporters.netcoreapp10.dll
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/xunit.runner.utility.netcoreapp10.dll
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests.pdb
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.xml
+/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests.xml

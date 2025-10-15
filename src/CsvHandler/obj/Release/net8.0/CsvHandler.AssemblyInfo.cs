@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("High-performance CSV reader/writer with source generation support, AOT compilatio" +
     "n, and trimming compatibility"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-alpha.1+998f210c25b1c0e67f4df952a8f1e2cfffc7569e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0-alpha.1+7fd99192ba4efd22529cbf00d936521c48fe678e")]
 [assembly: System.Reflection.AssemblyProductAttribute("CsvHandler")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CsvHandler")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]

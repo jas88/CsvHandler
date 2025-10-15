@@ -53,7 +53,12 @@ namespace CsvHandler.Attributes;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-public sealed class CsvSerializableAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvSerializableAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvSerializableAttribute"/> class.

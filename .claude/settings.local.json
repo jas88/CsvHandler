@@ -44,7 +44,9 @@
       "Bash(dotnet nuget list:*)",
       "WebFetch(domain:www.nuget.org)",
       "WebFetch(domain:source.dot.net)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests)"
     ],
     "deny": [],
     "ask": []

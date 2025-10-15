@@ -35,7 +35,12 @@ namespace CsvHandler.Attributes;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-public sealed class CsvIgnoreAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvIgnoreAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvIgnoreAttribute"/> class.

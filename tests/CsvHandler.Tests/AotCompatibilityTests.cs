@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHandler.Attributes;
 using FluentAssertions;
 using Xunit;
 

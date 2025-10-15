@@ -101,7 +101,12 @@ namespace CsvHandler.Attributes;
 /// </example>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field,
     AllowMultiple = false, Inherited = true)]
-public sealed class CsvConverterAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvConverterAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvConverterAttribute"/> class.

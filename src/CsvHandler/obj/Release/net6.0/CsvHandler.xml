@@ -210,7 +210,7 @@
             If both <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> and <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> are specified, <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> takes precedence.
             If neither is specified, fields are ordered by declaration order.
             </remarks>
-            <value>The zero-based column index, or null to use <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> or declaration order.</value>
+            <value>The zero-based column index, or -1 to use <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> or declaration order.</value>
         </member>
         <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Order">
             <summary>
@@ -221,7 +221,7 @@
             Lower values appear first. Fields with the same order value are ordered by declaration order.
             This is ignored if <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> is specified.
             </remarks>
-            <value>The relative order value, or null to use declaration order.</value>
+            <value>The relative order value, or -1 to use declaration order.</value>
         </member>
         <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Format">
             <summary>

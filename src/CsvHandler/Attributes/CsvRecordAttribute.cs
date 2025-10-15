@@ -24,7 +24,12 @@ namespace CsvHandler.Attributes;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
-public sealed class CsvRecordAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvRecordAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvRecordAttribute"/> class.
