@@ -1,0 +1,77 @@
+# Codecov Configuration
+# https://docs.codecov.com/docs/codecov-yaml
+
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 5%
+        base: auto
+        if_ci_failed: error
+        informational: false
+
+    patch:
+      default:
+        target: 80%
+        threshold: 10%
+        base: auto
+        if_ci_failed: error
+
+    changes:
+      default:
+        if_ci_failed: error
+
+comment:
+  layout: "header, diff, files, footer"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches:
+    - main
+
+ignore:
+  - "tests/**/*"
+  - "**/*.Tests/**/*"
+  - "**/*.AotTests/**/*"
+  - "**/GeneratorTest/**/*"
+  - "**/StandaloneGeneratorTest/**/*"
+  - "examples/**/*"
+  - "docs/**/*"
+  - "**/*.AssemblyInfo.cs"
+  - "**/AssemblyAttributes.cs"
+  - "**/*.Designer.cs"
+  - "**/*.g.cs"
+  - "**/*.g.i.cs"
+
+flag_management:
+  default_rules:
+    carryforward: true
+
+flags:
+  unittests:
+    paths:
+      - src/
+    carryforward: true
+
+component_management:
+  individual_components:
+    - component_id: csvhandler_core
+      name: CsvHandler Core
+      paths:
+        - src/CsvHandler/**
+
+    - component_id: source_generator
+      name: Source Generator
+      paths:
+        - src/CsvHandler.SourceGenerator/**

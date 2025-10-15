@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CsvHandler.SourceGenerator\CsvHandler.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- Manually include parser dependencies -->
+  <ItemGroup>
+    <Compile Include="..\..\src\CsvHandler\Core\Utf8CsvParser.cs" Link="Core\Utf8CsvParser.cs" />
+    <Compile Include="..\..\src\CsvHandler\Core\Utf8CsvParserOptions.cs" Link="Core\Utf8CsvParserOptions.cs" />
+    <Compile Include="..\..\src\CsvHandler\Core\CsvParseMode.cs" Link="Core\CsvParseMode.cs" />
+  </ItemGroup>
+
+</Project>

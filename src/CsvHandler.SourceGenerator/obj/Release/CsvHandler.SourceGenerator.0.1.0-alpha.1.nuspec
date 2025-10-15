@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>CsvHandler.SourceGenerator</id>
+    <version>0.1.0-alpha.1</version>
+    <title>CsvHandler Source Generator</title>
+    <authors>James A Sutherland</authors>
+    <developmentDependency>true</developmentDependency>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jas88/CsvHandler</projectUrl>
+    <description>Source generator for CsvHandler library providing compile-time CSV serialization code generation</description>
+    <copyright>Copyright © 2025 James A Sutherland</copyright>
+    <tags>csv parser serialization source-generator aot trimming performance</tags>
+    <repository type="git" url="https://github.com/jas88/CsvHandler" />
+  </metadata>
+  <files>
+    <file src="/Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/bin/Release/netstandard2.0/CsvHandler.SourceGenerator.dll" target="analyzers/dotnet/cs/CsvHandler.SourceGenerator.dll" />
+    <file src="/Users/jas88/Developer/CsvHandler/README.md" target="/README.md" />
+    <file src="/Users/jas88/Developer/CsvHandler/LICENSE" target="/LICENSE" />
+    <file src="/Users/jas88/Developer/CsvHandler/icon.png" target="/icon.png" />
+  </files>
+</package>

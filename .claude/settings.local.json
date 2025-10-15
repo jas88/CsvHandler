@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:joshclose.github.io)",
+      "WebFetch(domain:andrewlock.net)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:kevinmontrose.com)",
+      "WebFetch(domain:specterops.io)",
+      "WebFetch(domain:www.joelverhagen.com)",
+      "WebFetch(domain:www.thinktecture.com)",
+      "Bash(mate:*)",
+      "WebFetch(domain:aaronstannard.com)",
+      "Bash(dotnet --version)",
+      "Bash(dotnet new sln:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet sln add:*)",
+      "Bash(dotnet restore)",
+      "Bash(tree:*)",
+      "Bash(dotnet clean)",
+      "Bash(awk:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet run)",
+      "Bash(dotnet run:*)",
+      "Bash(xargs ls:*)",
+      "Bash(test:*)",
+      "Bash(find:*)",
+      "Bash(dotnet format:*)",
+      "Bash(dotnet pack:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

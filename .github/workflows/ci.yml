@@ -1,0 +1,167 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  CI: true
+
+jobs:
+  build-and-test:
+    name: Build and Test - ${{ matrix.os }} - .NET ${{ matrix.dotnet }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet: ['6.0.x', '8.0.x']
+        include:
+          - os: ubuntu-latest
+            dotnet: '8.0.x'
+            coverage: true
+            publish-artifacts: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+    - name: Setup .NET ${{ matrix.dotnet }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+
+    - name: Setup .NET (global.json)
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+
+    - name: Display .NET Info
+      run: dotnet --info
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Test (without coverage)
+      if: ${{ !matrix.coverage }}
+      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+    - name: Test with Coverage
+      if: ${{ matrix.coverage }}
+      run: |
+        dotnet test --configuration Release --no-build --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage \
+          --logger "trx;LogFileName=test-results.trx" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura,json,lcov
+
+    - name: Upload Coverage to Codecov
+      if: ${{ matrix.coverage }}
+      uses: codecov/codecov-action@v4
+      with:
+        directory: ./coverage
+        files: '**/coverage.cobertura.xml'
+        flags: unittests
+        name: CsvHandler-${{ matrix.os }}
+        fail_ci_if_error: false
+        verbose: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.dotnet }}
+        path: '**/test-results.trx'
+
+    - name: Test AOT Compilation
+      if: matrix.publish-artifacts
+      run: dotnet publish tests/CsvHandler.AotTests/CsvHandler.AotTests.csproj -c Release
+
+    - name: Pack NuGet Packages
+      if: matrix.publish-artifacts
+      run: dotnet pack --configuration Release --no-build --output ./artifacts --include-symbols -p:SymbolPackageFormat=snupkg
+
+    - name: Upload NuGet Artifacts
+      if: matrix.publish-artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./artifacts/*.nupkg
+        retention-days: 7
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Run Format Check
+      run: dotnet format --verify-no-changes --verbosity diagnostic
+
+    - name: Run Analyzers
+      run: dotnet build --configuration Release --no-restore /p:EnforceCodeStyleInBuild=true /p:TreatWarningsAsErrors=true
+
+  publish-nuget:
+    name: Publish to NuGet.org
+    needs: [build-and-test, code-quality]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://www.nuget.org/packages/CsvHandler
+
+    steps:
+    - name: Download NuGet Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./artifacts
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Publish to NuGet
+      run: |
+        for package in ./artifacts/*.nupkg; do
+          echo "Publishing $package..."
+          dotnet nuget push "$package" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+        done
+
+    - name: Create Release Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./artifacts/*.nupkg
+        token: ${{ secrets.GITHUB_TOKEN }}

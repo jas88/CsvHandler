@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dgSpecHash": "F2M4Twq2Z4A=",
+  "success": true,
+  "projectFilePath": "/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/StandaloneGeneratorTest.csproj",
+  "expectedPackageFiles": [
+    "/Users/jas88/.nuget/packages/dotnet.reproduciblebuilds/1.1.1/dotnet.reproduciblebuilds.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.build.tasks.git/8.0.0/microsoft.build.tasks.git.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.azurerepos.git/1.1.1/microsoft.sourcelink.azurerepos.git.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.bitbucket.git/1.1.1/microsoft.sourcelink.bitbucket.git.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.common/8.0.0/microsoft.sourcelink.common.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.github/8.0.0/microsoft.sourcelink.github.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.gitlab/1.1.1/microsoft.sourcelink.gitlab.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.netcore.app.ref/8.0.21/microsoft.netcore.app.ref.8.0.21.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.21/microsoft.aspnetcore.app.ref.8.0.21.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.21/microsoft.netcore.app.host.osx-arm64.8.0.21.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,14 @@
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/bin/Debug/net8.0/StandaloneGeneratorTest
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/bin/Debug/net8.0/StandaloneGeneratorTest.deps.json
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/bin/Debug/net8.0/StandaloneGeneratorTest.runtimeconfig.json
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/bin/Debug/net8.0/StandaloneGeneratorTest.dll
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/bin/Debug/net8.0/StandaloneGeneratorTest.xml
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.AssemblyInfoInputs.cache
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.AssemblyInfo.cs
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.csproj.CoreCompileInputs.cache
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.dll
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/refint/StandaloneGeneratorTest.dll
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.xml
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/StandaloneGeneratorTest.genruntimeconfig.cache
+/Users/jas88/Developer/CsvHandler/tests/StandaloneGeneratorTest/obj/Debug/net8.0/ref/StandaloneGeneratorTest.dll

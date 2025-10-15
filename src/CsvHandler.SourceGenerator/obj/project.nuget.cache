@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "dgSpecHash": "M8MKZISy6m0=",
+  "success": true,
+  "projectFilePath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/CsvHandler.SourceGenerator.csproj",
+  "expectedPackageFiles": [
+    "/Users/jas88/.nuget/packages/dotnet.reproduciblebuilds/1.1.1/dotnet.reproduciblebuilds.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.build.tasks.git/8.0.0/microsoft.build.tasks.git.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.4/microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.codeanalysis.common/4.4.0/microsoft.codeanalysis.common.4.4.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.codeanalysis.csharp/4.4.0/microsoft.codeanalysis.csharp.4.4.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.azurerepos.git/1.1.1/microsoft.sourcelink.azurerepos.git.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.bitbucket.git/1.1.1/microsoft.sourcelink.bitbucket.git.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.common/8.0.0/microsoft.sourcelink.common.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.github/8.0.0/microsoft.sourcelink.github.8.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.sourcelink.gitlab/1.1.1/microsoft.sourcelink.gitlab.1.1.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.collections.immutable/6.0.0/system.collections.immutable.6.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.memory/4.5.5/system.memory.4.5.5.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.numerics.vectors/4.4.0/system.numerics.vectors.4.4.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.reflection.metadata/5.0.0/system.reflection.metadata.5.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.text.encoding.codepages/6.0.0/system.text.encoding.codepages.6.0.0.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}

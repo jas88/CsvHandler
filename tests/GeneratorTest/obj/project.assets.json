@@ -1,0 +1,507 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "DotNet.ReproducibleBuilds/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.SourceLink.AzureRepos.Git": "1.1.1",
+          "Microsoft.SourceLink.Bitbucket.Git": "1.1.1",
+          "Microsoft.SourceLink.GitHub": "1.1.1",
+          "Microsoft.SourceLink.GitLab": "1.1.1"
+        },
+        "build": {
+          "build/DotNet.ReproducibleBuilds.props": {},
+          "build/DotNet.ReproducibleBuilds.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/DotNet.ReproducibleBuilds.props": {},
+          "buildMultiTargeting/DotNet.ReproducibleBuilds.targets": {}
+        }
+      },
+      "Microsoft.Build.Tasks.Git/8.0.0": {
+        "type": "package",
+        "build": {
+          "build/Microsoft.Build.Tasks.Git.props": {},
+          "build/Microsoft.Build.Tasks.Git.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.Build.Tasks.Git.props": {},
+          "buildMultiTargeting/Microsoft.Build.Tasks.Git.targets": {}
+        }
+      },
+      "Microsoft.SourceLink.AzureRepos.Git/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        },
+        "build": {
+          "build/Microsoft.SourceLink.AzureRepos.Git.props": {},
+          "build/Microsoft.SourceLink.AzureRepos.Git.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.SourceLink.AzureRepos.Git.props": {},
+          "buildMultiTargeting/Microsoft.SourceLink.AzureRepos.Git.targets": {}
+        }
+      },
+      "Microsoft.SourceLink.Bitbucket.Git/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        },
+        "build": {
+          "build/Microsoft.SourceLink.Bitbucket.Git.props": {},
+          "build/Microsoft.SourceLink.Bitbucket.Git.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.SourceLink.Bitbucket.Git.props": {},
+          "buildMultiTargeting/Microsoft.SourceLink.Bitbucket.Git.targets": {}
+        }
+      },
+      "Microsoft.SourceLink.Common/8.0.0": {
+        "type": "package",
+        "build": {
+          "build/Microsoft.SourceLink.Common.props": {},
+          "build/Microsoft.SourceLink.Common.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.SourceLink.Common.props": {},
+          "buildMultiTargeting/Microsoft.SourceLink.Common.targets": {}
+        }
+      },
+      "Microsoft.SourceLink.GitHub/8.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "8.0.0",
+          "Microsoft.SourceLink.Common": "8.0.0"
+        },
+        "build": {
+          "build/Microsoft.SourceLink.GitHub.props": {},
+          "build/Microsoft.SourceLink.GitHub.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.SourceLink.GitHub.props": {},
+          "buildMultiTargeting/Microsoft.SourceLink.GitHub.targets": {}
+        }
+      },
+      "Microsoft.SourceLink.GitLab/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        },
+        "build": {
+          "build/Microsoft.SourceLink.GitLab.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.SourceLink.GitLab.targets": {}
+        }
+      },
+      "CsvHandler/0.1.0-alpha": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/CsvHandler.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CsvHandler.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "DotNet.ReproducibleBuilds/1.1.1": {
+      "sha512": "+H2t/t34h6mhEoUvHi8yGXyuZ2GjSovcGYehJrS2MDm2XgmPfZL2Sdxg+uL2lKgZ4M6tTwKHIlxOob2bgh0NRQ==",
+      "type": "package",
+      "path": "dotnet.reproduciblebuilds/1.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/DotNet.ReproducibleBuilds.props",
+        "build/DotNet.ReproducibleBuilds.targets",
+        "buildMultiTargeting/DotNet.ReproducibleBuilds.props",
+        "buildMultiTargeting/DotNet.ReproducibleBuilds.targets",
+        "dotnet.reproduciblebuilds.1.1.1.nupkg.sha512",
+        "dotnet.reproduciblebuilds.nuspec"
+      ]
+    },
+    "Microsoft.Build.Tasks.Git/8.0.0": {
+      "sha512": "bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ==",
+      "type": "package",
+      "path": "microsoft.build.tasks.git/8.0.0",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/Microsoft.Build.Tasks.Git.props",
+        "build/Microsoft.Build.Tasks.Git.targets",
+        "buildMultiTargeting/Microsoft.Build.Tasks.Git.props",
+        "buildMultiTargeting/Microsoft.Build.Tasks.Git.targets",
+        "microsoft.build.tasks.git.8.0.0.nupkg.sha512",
+        "microsoft.build.tasks.git.nuspec",
+        "tools/core/Microsoft.Build.Tasks.Git.dll",
+        "tools/core/cs/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/de/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/es/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/fr/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/it/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/ja/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/ko/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/pl/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/pt-BR/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/ru/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/tr/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/zh-Hans/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/core/zh-Hant/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/Microsoft.Build.Tasks.Git.dll",
+        "tools/net472/System.Collections.Immutable.dll",
+        "tools/net472/cs/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/de/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/es/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/fr/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/it/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/ja/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/ko/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/pl/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/pt-BR/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/ru/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/tr/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.Build.Tasks.Git.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.Build.Tasks.Git.resources.dll"
+      ]
+    },
+    "Microsoft.SourceLink.AzureRepos.Git/1.1.1": {
+      "sha512": "qB5urvw9LO2bG3eVAkuL+2ughxz2rR7aYgm2iyrB8Rlk9cp2ndvGRCvehk3rNIhRuNtQaeKwctOl1KvWiklv5w==",
+      "type": "package",
+      "path": "microsoft.sourcelink.azurerepos.git/1.1.1",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/Microsoft.SourceLink.AzureRepos.Git.props",
+        "build/Microsoft.SourceLink.AzureRepos.Git.targets",
+        "buildMultiTargeting/Microsoft.SourceLink.AzureRepos.Git.props",
+        "buildMultiTargeting/Microsoft.SourceLink.AzureRepos.Git.targets",
+        "microsoft.sourcelink.azurerepos.git.1.1.1.nupkg.sha512",
+        "microsoft.sourcelink.azurerepos.git.nuspec",
+        "tools/core/Microsoft.SourceLink.AzureRepos.Git.dll",
+        "tools/core/cs/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/de/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/es/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/fr/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/it/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/ja/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/ko/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/pl/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/pt-BR/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/ru/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/tr/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/zh-Hans/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/core/zh-Hant/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/Microsoft.SourceLink.AzureRepos.Git.dll",
+        "tools/net472/cs/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/de/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/es/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/fr/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/it/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/ja/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/ko/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/pl/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/pt-BR/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/ru/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/tr/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.SourceLink.AzureRepos.Git.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.SourceLink.AzureRepos.Git.resources.dll"
+      ]
+    },
+    "Microsoft.SourceLink.Bitbucket.Git/1.1.1": {
+      "sha512": "cDzxXwlyWpLWaH0em4Idj0H3AmVo3L/6xRXKssYemx+7W52iNskj/SQ4FOmfCb8YQt39otTDNMveCZzYtMoucQ==",
+      "type": "package",
+      "path": "microsoft.sourcelink.bitbucket.git/1.1.1",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/Microsoft.SourceLink.Bitbucket.Git.props",
+        "build/Microsoft.SourceLink.Bitbucket.Git.targets",
+        "buildMultiTargeting/Microsoft.SourceLink.Bitbucket.Git.props",
+        "buildMultiTargeting/Microsoft.SourceLink.Bitbucket.Git.targets",
+        "microsoft.sourcelink.bitbucket.git.1.1.1.nupkg.sha512",
+        "microsoft.sourcelink.bitbucket.git.nuspec",
+        "tools/core/Microsoft.SourceLink.Bitbucket.Git.dll",
+        "tools/core/cs/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/de/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/es/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/fr/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/it/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/ja/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/ko/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/pl/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/pt-BR/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/ru/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/tr/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/zh-Hans/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/core/zh-Hant/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/Microsoft.SourceLink.Bitbucket.Git.dll",
+        "tools/net472/cs/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/de/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/es/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/fr/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/it/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/ja/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/ko/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/pl/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/pt-BR/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/ru/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/tr/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.SourceLink.Bitbucket.Git.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.SourceLink.Bitbucket.Git.resources.dll"
+      ]
+    },
+    "Microsoft.SourceLink.Common/8.0.0": {
+      "sha512": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw==",
+      "type": "package",
+      "path": "microsoft.sourcelink.common/8.0.0",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/InitializeSourceControlInformation.targets",
+        "build/Microsoft.SourceLink.Common.props",
+        "build/Microsoft.SourceLink.Common.targets",
+        "buildMultiTargeting/Microsoft.SourceLink.Common.props",
+        "buildMultiTargeting/Microsoft.SourceLink.Common.targets",
+        "microsoft.sourcelink.common.8.0.0.nupkg.sha512",
+        "microsoft.sourcelink.common.nuspec",
+        "tools/core/Microsoft.SourceLink.Common.dll",
+        "tools/core/cs/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/de/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/es/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/fr/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/it/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/ja/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/ko/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/pl/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/pt-BR/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/ru/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/tr/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/zh-Hans/Microsoft.SourceLink.Common.resources.dll",
+        "tools/core/zh-Hant/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/Microsoft.SourceLink.Common.dll",
+        "tools/net472/cs/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/de/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/es/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/fr/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/it/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/ja/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/ko/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/pl/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/pt-BR/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/ru/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/tr/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.SourceLink.Common.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.SourceLink.Common.resources.dll"
+      ]
+    },
+    "Microsoft.SourceLink.GitHub/8.0.0": {
+      "sha512": "G5q7OqtwIyGTkeIOAc3u2ZuV/kicQaec5EaRnc0pIeSnh9LUjj+PYQrJYBURvDt7twGl2PKA7nSN0kz1Zw5bnQ==",
+      "type": "package",
+      "path": "microsoft.sourcelink.github/8.0.0",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/Microsoft.SourceLink.GitHub.props",
+        "build/Microsoft.SourceLink.GitHub.targets",
+        "buildMultiTargeting/Microsoft.SourceLink.GitHub.props",
+        "buildMultiTargeting/Microsoft.SourceLink.GitHub.targets",
+        "microsoft.sourcelink.github.8.0.0.nupkg.sha512",
+        "microsoft.sourcelink.github.nuspec",
+        "tools/core/Microsoft.SourceLink.GitHub.dll",
+        "tools/core/cs/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/de/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/es/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/fr/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/it/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/ja/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/ko/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/pl/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/pt-BR/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/ru/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/tr/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/zh-Hans/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/core/zh-Hant/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/Microsoft.SourceLink.GitHub.dll",
+        "tools/net472/cs/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/de/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/es/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/fr/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/it/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/ja/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/ko/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/pl/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/pt-BR/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/ru/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/tr/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.SourceLink.GitHub.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.SourceLink.GitHub.resources.dll"
+      ]
+    },
+    "Microsoft.SourceLink.GitLab/1.1.1": {
+      "sha512": "tvsg47DDLqqedlPeYVE2lmiTpND8F0hkrealQ5hYltSmvruy/Gr5nHAKSsjyw5L3NeM/HLMI5ORv7on/M4qyZw==",
+      "type": "package",
+      "path": "microsoft.sourcelink.gitlab/1.1.1",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "build/Microsoft.SourceLink.GitLab.targets",
+        "buildMultiTargeting/Microsoft.SourceLink.GitLab.targets",
+        "microsoft.sourcelink.gitlab.1.1.1.nupkg.sha512",
+        "microsoft.sourcelink.gitlab.nuspec",
+        "tools/core/Microsoft.SourceLink.GitLab.dll",
+        "tools/core/cs/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/de/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/es/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/fr/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/it/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/ja/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/ko/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/pl/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/pt-BR/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/ru/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/tr/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/zh-Hans/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/core/zh-Hant/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/Microsoft.SourceLink.GitLab.dll",
+        "tools/net472/cs/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/de/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/es/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/fr/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/it/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/ja/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/ko/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/pl/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/pt-BR/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/ru/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/tr/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/zh-Hans/Microsoft.SourceLink.GitLab.resources.dll",
+        "tools/net472/zh-Hant/Microsoft.SourceLink.GitLab.resources.dll"
+      ]
+    },
+    "CsvHandler/0.1.0-alpha": {
+      "type": "project",
+      "path": "../../src/CsvHandler/CsvHandler.csproj",
+      "msbuildProject": "../../src/CsvHandler/CsvHandler.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "CsvHandler >= 0.1.0-alpha",
+      "DotNet.ReproducibleBuilds >= 1.1.1",
+      "Microsoft.SourceLink.GitHub >= 8.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/jas88/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "0.1.0-alpha",
+    "restore": {
+      "projectUniqueName": "/Users/jas88/Developer/CsvHandler/tests/GeneratorTest/GeneratorTest.csproj",
+      "projectName": "GeneratorTest",
+      "projectPath": "/Users/jas88/Developer/CsvHandler/tests/GeneratorTest/GeneratorTest.csproj",
+      "packagesPath": "/Users/jas88/.nuget/packages/",
+      "outputPath": "/Users/jas88/Developer/CsvHandler/tests/GeneratorTest/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/jas88/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "/usr/local/share/dotnet/library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj": {
+              "projectPath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "allWarningsAsErrors": true,
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "dependencies": {
+          "DotNet.ReproducibleBuilds": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[1.1.1, )"
+          },
+          "Microsoft.SourceLink.GitHub": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[8.0.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          }
+        ],
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.306/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

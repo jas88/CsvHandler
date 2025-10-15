@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StandaloneGeneratorTest</name>
+    </assembly>
+    <members>
+        <member name="T:StandaloneGeneratorTest.Person">
+            <summary>
+            Auto-generated CSV handler for Person.
+            </summary>
+        </member>
+        <member name="M:StandaloneGeneratorTest.Person.ReadFromCsv(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Parses a single CSV line into a record instance.
+            </summary>
+            <param name="csvLine">The UTF-8 encoded CSV line data.</param>
+            <returns>A new record instance populated from the CSV data.</returns>
+        </member>
+        <member name="M:StandaloneGeneratorTest.Person.ReadAllFromCsvAsync(System.IO.Stream,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Reads all records from a CSV stream asynchronously.
+            </summary>
+            <param name="stream">The stream containing CSV data.</param>
+            <param name="skipHeader">Whether to skip the first line as a header.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An async enumerable of record instances.</returns>
+        </member>
+        <member name="M:StandaloneGeneratorTest.Person.WriteToCsv(System.Buffers.IBufferWriter{System.Byte},StandaloneGeneratorTest.Person)">
+            <summary>
+            Writes a record instance to a CSV buffer.
+            </summary>
+            <param name="writer">The buffer writer to write to.</param>
+            <param name="value">The record instance to serialize.</param>
+        </member>
+        <member name="M:StandaloneGeneratorTest.Person.WriteToCsvAsync(System.IO.Stream,StandaloneGeneratorTest.Person,System.Threading.CancellationToken)">
+            <summary>
+            Writes a record instance to a CSV stream asynchronously.
+            </summary>
+            <param name="stream">The stream to write to.</param>
+            <param name="value">The record instance to serialize.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:CsvHandler.Core.Utf8CsvParser">
+            <summary>
+            High-performance UTF-8 CSV parser implemented as a ref struct for zero-allocation parsing.
+            Supports RFC 4180 strict mode and lenient parsing modes.
+            </summary>
+            <remarks>
+            Performance characteristics:
+            - Zero allocations in hot path
+            - SIMD-accelerated scanning (10+ GB/s on modern hardware with .NET 6+)
+            - Vectorized fallback for .NET Standard 2.0 (5+ GB/s)
+            - Span-based API for maximum efficiency
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.CurrentLine">
+            <summary>
+            Gets the current line number (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.Position">
+            <summary>
+            Gets the current byte position in the input.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.IsEndOfStream">
+            <summary>
+            Gets whether the parser has reached the end of the input stream.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.#ctor(System.ReadOnlySpan{System.Byte},CsvHandler.Core.Utf8CsvParserOptions)">
+            <summary>
+            Initializes a new UTF-8 CSV parser with the specified input and options.
+            </summary>
+            <param name="input">The UTF-8 encoded CSV data to parse.</param>
+            <param name="options">Parser configuration options.</param>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.TryReadField(System.ReadOnlySpan{System.Byte}@)">
+            <summary>
+            Attempts to read the next field from the current record.
+            </summary>
+            <param name="field">The field data as a UTF-8 byte span. May contain quotes that need unescaping.</param>
+            <returns>True if a field was read; false if the end of record or stream is reached.</returns>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.TryReadRecord(System.Span{System.Range})">
+            <summary>
+            Attempts to read an entire record into the provided field ranges.
+            </summary>
+            <param name="fields">A span to receive the field ranges. Each Range indicates start..end in the input.</param>
+            <returns>The number of fields read, or -1 if end of stream.</returns>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.SkipRecord">
+            <summary>
+            Skips the current record, advancing to the start of the next record.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.Reset">
+            <summary>
+            Resets the parser to the beginning of the input.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.Utf8CsvParserOptions">
+            <summary>
+            Configuration options for the UTF-8 CSV parser.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Delimiter">
+            <summary>
+            The field delimiter byte. Default is comma (44, ',').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Quote">
+            <summary>
+            The quote character byte. Default is double-quote (34, '"').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Escape">
+            <summary>
+            The escape character byte. Default is double-quote (34, '"').
+            In RFC 4180, quotes are escaped by doubling them.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.HasHeaders">
+            <summary>
+            Indicates whether the first record contains header names.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.TrimFields">
+            <summary>
+            Indicates whether to trim leading and trailing whitespace from unquoted fields.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.AllowComments">
+            <summary>
+            Indicates whether to allow comment lines starting with CommentPrefix.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.CommentPrefix">
+            <summary>
+            The comment prefix byte. Default is hash/pound (35, '#').
+            Only used when AllowComments is true.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Mode">
+            <summary>
+            The parsing mode to use for handling CSV data.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Default">
+            <summary>
+            Creates a new instance with RFC 4180 defaults.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Lenient">
+            <summary>
+            Creates a new instance with lenient parsing mode.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Tsv">
+            <summary>
+            Creates a new instance for tab-separated values (TSV).
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvParseMode">
+            <summary>
+            Specifies the parsing mode for CSV field processing.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.Rfc4180">
+            <summary>
+            Strict RFC 4180 compliance. Requires proper quoting and escaping.
+            Fails on malformed input.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.Lenient">
+            <summary>
+            Lenient parsing mode. Makes best-effort attempt to parse malformed CSV.
+            Tolerates unescaped quotes and other format violations.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.IgnoreQuotes">
+            <summary>
+            Ignores quote characters entirely. Treats all characters as literals.
+            Useful for simple delimited data without quoting.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvRecordAttribute">
+            <summary>
+            Marks a type for CSV source generation.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvRecordAttribute.Delimiter">
+            <summary>
+            CSV delimiter character (default: ',').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvRecordAttribute.HasHeader">
+            <summary>
+            Whether the CSV includes a header row (default: true).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvRecordAttribute.StrictMode">
+            <summary>
+            Whether to use strict mode and throw on format errors (default: false).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvRecordAttribute.CultureName">
+            <summary>
+            Culture name for parsing (e.g., "en-US"). Null uses invariant culture.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvRecordAttribute.TrimWhitespace">
+            <summary>
+            Whether to trim whitespace from fields (default: true).
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvFieldAttribute">
+            <summary>
+            Marks a field or property for CSV serialization.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldAttribute.Order">
+            <summary>
+            Order/index of this field in the CSV (0-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldAttribute.Name">
+            <summary>
+            CSV column name (defaults to member name).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldAttribute.Format">
+            <summary>
+            Format string for serialization (e.g., date format).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldAttribute.ConverterType">
+            <summary>
+            Custom converter type (must implement ICsvConverter of T).
+            </summary>
+        </member>
+    </members>
+</doc>
