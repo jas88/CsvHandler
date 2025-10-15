@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
+
 namespace CsvHandler.Tests;
 
 /// <summary>

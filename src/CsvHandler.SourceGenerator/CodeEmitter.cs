@@ -341,6 +341,7 @@ internal static class CodeEmitter
         var specialType = typeSymbol.SpecialType;
         var typeName = typeSymbol.ToDisplayString();
         var varName = $"fieldBytes{fieldIndex}";
+        var bytesWrittenVar = $"bytesWritten{fieldIndex}";
 
         // Use custom converter if specified
         if (field.ConverterType != null)
@@ -383,9 +384,9 @@ internal static class CodeEmitter
         {
             var valueAccess = field.IsNullable ? $"value.{field.MemberName}.Value" : $"value.{field.MemberName}";
 
-            code.AppendLine($"if (global::System.Buffers.Text.Utf8Formatter.TryFormat({valueAccess}, span.Slice(written), out int bytesWritten))");
+            code.AppendLine($"if (global::System.Buffers.Text.Utf8Formatter.TryFormat({valueAccess}, span.Slice(written), out int {bytesWrittenVar}))");
             code.OpenBrace();
-            code.AppendLine("written += bytesWritten;");
+            code.AppendLine($"written += {bytesWrittenVar};");
             code.CloseBrace();
         }
         else

@@ -162,7 +162,7 @@ public class PolyfillTests
             csv,
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
         var count = parser.TryReadRecord(ranges);
 
         count.Should().Be(5);
@@ -252,7 +252,7 @@ public class PolyfillTests
         #endif
 
         // Just verify the check doesn't throw (hardware dependent)
-        isAccelerated.Should().BeOneOf(true, false);
+        (isAccelerated == true || isAccelerated == false).Should().BeTrue();
     }
 
     #endregion

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators
+
 namespace CsvHandler.Tests;
 
 /// <summary>
@@ -37,10 +39,13 @@ public class IntegrationTests
 
         // Act
         var records = new List<List<string>>();
-        Span<Range> ranges = stackalloc Range[10];
 
-        while (parser.TryReadRecord(ranges) is int count and > 0)
+        while (true)
         {
+            Range[] ranges = new Range[10];
+            int count = parser.TryReadRecord(ranges);
+            if (count <= 0) break;
+
             var record = new List<string>();
             for (int i = 0; i < count; i++)
             {
@@ -97,16 +102,21 @@ public class IntegrationTests
 
         // Act
         var fieldCount = 0;
-        var exception = Record.Exception(() =>
+        bool exceptionThrown = false;
+        try
         {
             while (parser.TryReadField(out _))
             {
                 fieldCount++;
             }
-        });
+        }
+        catch
+        {
+            exceptionThrown = true;
+        }
 
         // Assert
-        exception.Should().BeNull(); // Lenient mode should not throw
+        exceptionThrown.Should().BeFalse(); // Lenient mode should not throw
         fieldCount.Should().BeGreaterThan(0);
     }
 
@@ -153,10 +163,13 @@ public class IntegrationTests
 
         // Act
         var records = new List<List<string>>();
-        Span<Range> ranges = stackalloc Range[10];
 
-        while (parser.TryReadRecord(ranges) is int count and > 0)
+        while (true)
         {
+            Range[] ranges = new Range[10];
+            int count = parser.TryReadRecord(ranges);
+            if (count <= 0) break;
+
             var record = new List<string>();
             for (int i = 0; i < count; i++)
             {
@@ -223,10 +236,11 @@ public class IntegrationTests
         // Act
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var recordCount = 0;
-        Span<Range> ranges = stackalloc Range[10];
 
-        while (parser.TryReadRecord(ranges) > 0)
+        while (true)
         {
+            Range[] ranges = new Range[10];
+            if (parser.TryReadRecord(ranges) <= 0) break;
             recordCount++;
         }
 
@@ -295,10 +309,13 @@ Eve,Simple again,500";
 
         // Act
         var records = new List<List<string>>();
-        Span<Range> ranges = stackalloc Range[10];
 
-        while (parser.TryReadRecord(ranges) is int count and > 0)
+        while (true)
         {
+            Range[] ranges = new Range[10];
+            int count = parser.TryReadRecord(ranges);
+            if (count <= 0) break;
+
             var record = new List<string>();
             for (int i = 0; i < count; i++)
             {
@@ -403,10 +420,13 @@ Eve,Simple again,500";
 
         // Act
         var records = new List<List<string>>();
-        Span<Range> ranges = stackalloc Range[10];
 
-        while (parser.TryReadRecord(ranges) is int count and > 0)
+        while (true)
         {
+            Range[] ranges = new Range[10];
+            int count = parser.TryReadRecord(ranges);
+            if (count <= 0) break;
+
             var record = new List<string>();
             for (int i = 0; i < count; i++)
             {
@@ -495,7 +515,8 @@ Eve,Simple again,500";
 
         // Assert - Performance should be consistent
         var avgTime = times.Average();
-        times.Should().AllSatisfy(t => Math.Abs(t - avgTime) < avgTime * 2); // Within 2x of average
+        var deviationCheck = times.All(t => Math.Abs(t - avgTime) < avgTime * 2);
+        deviationCheck.Should().BeTrue(); // All times within 2x of average
     }
 
     #endregion

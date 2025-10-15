@@ -420,4 +420,31 @@ public static class CsvReaderExtensions
             await action(item).ConfigureAwait(false);
         }
     }
+
+    /// <summary>
+    /// Converts an async enumerable to a list asynchronously.
+    /// </summary>
+    /// <typeparam name="T">The type of elements.</typeparam>
+    /// <param name="source">The async enumerable source.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list containing all elements.</returns>
+    public static async Task<List<T>> ToListAsync<T>(
+        this IAsyncEnumerable<T> source,
+        CancellationToken cancellationToken = default)
+    {
+        #if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(source);
+        #else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(source);
+        #endif
+
+        var list = new List<T>();
+
+        await foreach (var item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+        {
+            list.Add(item);
+        }
+
+        return list;
+    }
 }

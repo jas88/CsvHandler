@@ -273,8 +273,18 @@ public class ParserTests
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
 
         // Act & Assert
-        var exception = Assert.Throws<FormatException>(() => parser.TryReadField(out _));
-        exception.Message.Should().Contain("Unterminated quoted field");
+        // Cannot use Assert.Throws with ref struct, must test directly
+        bool exceptionThrown = false;
+        try
+        {
+            parser.TryReadField(out _);
+        }
+        catch (FormatException ex)
+        {
+            exceptionThrown = true;
+            ex.Message.Should().Contain("Unterminated quoted field");
+        }
+        exceptionThrown.Should().BeTrue();
     }
 
     [Fact]
@@ -403,7 +413,7 @@ public class ParserTests
         // Arrange
         var csv = "A,B,C\nD,E,F"u8.ToArray();
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
 
         // Act
         var count1 = parser.TryReadRecord(ranges);
@@ -420,7 +430,7 @@ public class ParserTests
         // Arrange
         var csv = "A,B"u8.ToArray();
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
 
         // Act
         parser.TryReadRecord(ranges);
@@ -436,7 +446,7 @@ public class ParserTests
         // Arrange
         var csv = "A,B\nC,D"u8.ToArray();
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
 
         // Act
         var count = parser.TryReadRecord(ranges);
@@ -550,7 +560,7 @@ public class ParserTests
     public void TryReadField_IgnoreQuotesMode_TreatsQuotesAsLiteral()
     {
         // Arrange
-        var options = Utf8CsvParserOptions.Default with { Mode = CsvParseMode.IgnoreQuotes };
+        var options = Utf8CsvParserOptions.Default with { Mode = Core.CsvParseMode.IgnoreQuotes };
         var csv = "\"A\",\"B\""u8.ToArray();
         var parser = new Utf8CsvParser(csv, options);
 

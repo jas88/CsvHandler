@@ -1860,6 +1860,54 @@
             <param name="action">The async action to execute for each row.</param>
             <param name="cancellationToken">Cancellation token.</param>
         </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ToListAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.Threading.CancellationToken)">
+            <summary>
+            Converts an async enumerable to a list asynchronously.
+            </summary>
+            <typeparam name="T">The type of elements.</typeparam>
+            <param name="source">The async enumerable source.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A list containing all elements.</returns>
+        </member>
+        <member name="T:CsvHandler.CsvReadError">
+            <summary>
+            Represents an error that occurred while reading CSV data.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.Message">
+            <summary>
+            Gets the error message describing what went wrong.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.LineNumber">
+            <summary>
+            Gets the line number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.ColumnNumber">
+            <summary>
+            Gets the column number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.RawData">
+            <summary>
+            Gets the raw CSV data that caused the error, if available.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReadError.#ctor(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.CsvReadError"/> class.
+            </summary>
+            <param name="message">The error message.</param>
+            <param name="lineNumber">The line number where the error occurred.</param>
+            <param name="columnNumber">The column number where the error occurred.</param>
+            <param name="rawData">The raw CSV data that caused the error.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReadError.ToString">
+            <summary>
+            Returns a string representation of the error.
+            </summary>
+        </member>
         <member name="T:CsvHandler.CsvStreamReader">
             <summary>
             Low-level CSV stream reader that handles parsing CSV format into fields.

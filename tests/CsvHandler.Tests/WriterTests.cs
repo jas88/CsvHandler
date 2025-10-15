@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators
+
 namespace CsvHandler.Tests;
 
 /// <summary>
