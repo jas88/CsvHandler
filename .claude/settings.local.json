@@ -27,7 +27,13 @@
       "Bash(find:*)",
       "Bash(dotnet format:*)",
       "Bash(dotnet pack:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: CsvHandler - Modern CSV library for .NET\n\nFeatures:\n- UTF-8 direct processing with SIMD acceleration (2-3× faster than CsvHelper)\n- Source generators for zero-reflection, compile-time type safety\n- Native AOT and assembly trimming support (net7.0+)\n- Multi-target: netstandard2.0, net6.0, net8.0\n- Async streaming with IAsyncEnumerable<T>\n- Comprehensive test suite (136 tests)\n- CI/CD pipeline with code coverage\n- NuGet packaging ready\n\nArchitecture:\n- Core UTF-8 CSV parser (Utf8CsvParser)\n- Source generator with incremental compilation\n- CsvReader<T> and CsvWriter<T> APIs\n- CsvContext for AOT compatibility\n- Complete polyfill infrastructure for netstandard2.0\n\nDocumentation:\n- 25+ comprehensive documents\n- Architecture guides, API references, migration guides\n- Performance benchmarks and optimization strategies\n\n🤖 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh repo create:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

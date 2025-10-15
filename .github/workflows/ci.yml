@@ -104,6 +104,39 @@ jobs:
         path: ./artifacts/*.nupkg
         retention-days: 7
 
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+        queries: security-extended,security-and-quality
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+
+    - name: Restore and Build
+      run: |
+        dotnet restore
+        dotnet build --configuration Release --no-restore
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:csharp"
+
   code-quality:
     name: Code Quality Analysis
     runs-on: ubuntu-latest
@@ -131,7 +164,7 @@ jobs:
 
   publish-nuget:
     name: Publish to NuGet.org
-    needs: [build-and-test, code-quality]
+    needs: [build-and-test, codeql-analysis, code-quality]
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     environment:
