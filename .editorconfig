@@ -164,3 +164,7 @@ csharp_preserve_single_line_blocks = true
 dotnet_diagnostic.CA1068.severity = none
 dotnet_diagnostic.CA1855.severity = none
 dotnet_diagnostic.CA2201.severity = none
+
+# Allow underscores in test method names (standard test naming pattern)
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none

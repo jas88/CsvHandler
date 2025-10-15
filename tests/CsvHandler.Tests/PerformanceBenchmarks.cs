@@ -273,7 +273,7 @@ public class PerformanceBenchmarks
     }
 
     [Benchmark(Description = "Options Creation Overhead")]
-    public Utf8CsvParserOptions CreateOptions()
+    public static Utf8CsvParserOptions CreateOptions()
     {
         return new Utf8CsvParserOptions
         {

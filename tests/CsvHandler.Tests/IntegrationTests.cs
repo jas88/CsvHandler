@@ -328,7 +328,7 @@ Eve,Simple again,500";
         records.Should().HaveCount(6); // Header + 5 data rows
         records[2].Should().Contain(f => f.Contains("Quoted, field with comma"));
         records[3].Should().Contain(f => f.Contains("embedded"));
-        records[4].Should().Contain(f => f.Contains("\n"));
+        records[4].Should().Contain(f => f.Contains('\n'));
     }
 
     [Fact]
@@ -361,7 +361,7 @@ Eve,Simple again,500";
             }
 
             // Assert
-            fields.Should().Equal(new[] { "A", "B", "C" }, $"Failed for {testCase.Name}");
+            fields.Should().Equal(["A", "B", "C"], $"Failed for {testCase.Name}");
         }
     }
 
@@ -386,7 +386,7 @@ Eve,Simple again,500";
         }
 
         // Assert
-        fields.Should().Equal(new[] { "Name", "Age", "City" });
+        fields.Should().Equal(["Name", "Age", "City"]);
     }
 
     [Fact]
@@ -406,7 +406,7 @@ Eve,Simple again,500";
         }
 
         // Assert
-        values.Should().Equal(new[] { "Column1", "Value1", "Value2", "Value3" });
+        values.Should().Equal(["Column1", "Value1", "Value2", "Value3"]);
     }
 
     [Fact]
