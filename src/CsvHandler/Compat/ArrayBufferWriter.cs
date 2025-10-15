@@ -8,9 +8,9 @@ using System;
 using System.Buffers;
 using System.Diagnostics;
 
-namespace CsvHandler.Compat
-{
-    /// <summary>
+namespace CsvHandler.Compat;
+
+/// <summary>
     /// Represents a heap-based, array-backed output sink into which <typeparamref name="T"/> data can be written.
     /// </summary>
     /// <typeparam name="T">The type of items in the buffer.</typeparam>
@@ -216,7 +216,6 @@ namespace CsvHandler.Compat
         private static void ThrowOutOfMemoryException(uint capacity)
         {
             throw new OutOfMemoryException($"Cannot allocate a buffer of size {capacity}.");
-        }
     }
 }
 

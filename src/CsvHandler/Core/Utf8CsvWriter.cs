@@ -109,7 +109,11 @@ public ref struct Utf8CsvWriter
 
         try
         {
+#if NETSTANDARD2_0
+            int bytesWritten = Encoding.UTF8.GetBytes(field.ToArray(), 0, field.Length, buffer, 0);
+#else
             int bytesWritten = Encoding.UTF8.GetBytes(field, buffer);
+#endif
             ReadOnlySpan<byte> fieldUtf8 = buffer.AsSpan(0, bytesWritten);
 
             bool needsQuoting = ShouldQuoteField(fieldUtf8);

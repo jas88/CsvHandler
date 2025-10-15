@@ -74,10 +74,14 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
             {
                 try
                 {
+#pragma warning disable IL2075 // Reflection usage is intentional for fallback context lookup
+#pragma warning disable IL2060 // MakeGenericMethod is intentional for fallback context lookup
                     // Use reflection to call GetTypeMetadata<T> dynamically
                     var method = _context.GetType().GetMethod(nameof(CsvContext.GetTypeMetadata))?.MakeGenericMethod(type);
                     var result = method?.Invoke(_context, null);
                     _metadata = result!;
+#pragma warning restore IL2060
+#pragma warning restore IL2075
                 }
                 catch
                 {
@@ -245,7 +249,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
             await WriteHeaderAsync(cancellationToken).ConfigureAwait(false);
         }
 
+#if NETSTANDARD2_0
+        await foreach (var value in Compat.AsyncEnumerableCompat.WithCancellation(values, cancellationToken).ConfigureAwait(false))
+#else
         await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
+#endif
         {
             if (value == null) continue;
 
@@ -354,7 +362,14 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     {
         if (_bufferWriter.WrittenCount > 0)
         {
+#if NETSTANDARD2_0
+            var writtenSpan = _bufferWriter.WrittenSpan;
+            byte[] tempBuffer = new byte[writtenSpan.Length];
+            writtenSpan.CopyTo(tempBuffer);
+            await _stream.WriteAsync(tempBuffer, 0, tempBuffer.Length, cancellationToken).ConfigureAwait(false);
+#else
             await _stream.WriteAsync(_bufferWriter.WrittenMemory, cancellationToken).ConfigureAwait(false);
+#endif
             _bufferWriter.Clear();
         }
 
@@ -434,7 +449,13 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// <summary>
     /// Asynchronously disposes the writer and flushes any remaining data.
     /// </summary>
-    public async ValueTask DisposeAsync()
+    public
+#if NETSTANDARD2_0
+        async ValueTask
+#else
+        async ValueTask
+#endif
+        DisposeAsync()
     {
         if (_disposed) return;
 
@@ -446,7 +467,11 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
         {
             if (!_leaveOpen)
             {
+#if NETSTANDARD2_0
+                _stream.Dispose();
+#else
                 await _stream.DisposeAsync().ConfigureAwait(false);
+#endif
             }
             _disposed = true;
         }

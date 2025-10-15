@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
     <LangVersion>13.0</LangVersion>
     <IsPackable>true</IsPackable>
     <PackageId>CsvHandler</PackageId>
@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <!-- Exclude incompatible compat files for modern frameworks -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
     <Compile Remove="Compat\PolyfillAttributes.cs" />
     <Compile Remove="Compat\AsyncEnumerableCompat.cs" />
     <Compile Remove="Compat\Utf8Helpers.cs" />
@@ -56,6 +56,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <DefineConstants>$(DefineConstants);NET8_0_OR_GREATER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <DefineConstants>$(DefineConstants);NET9_0_OR_GREATER</DefineConstants>
   </PropertyGroup>
 
 </Project>

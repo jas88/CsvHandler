@@ -4,9 +4,9 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace CsvHandler.Compat
-{
-    /// <summary>
+namespace CsvHandler.Compat;
+
+/// <summary>
     /// UTF-8 helper utilities with multi-targeting support.
     /// On net6.0+, uses u8 literals. On netstandard2.0, uses pre-encoded byte arrays.
     /// </summary>
@@ -188,6 +188,5 @@ namespace CsvHandler.Compat
         internal static bool IsAlphanumeric(byte value)
         {
             return IsDigit(value) || IsLetter(value);
-        }
     }
 }

@@ -171,8 +171,13 @@ internal sealed class ReflectionCsvTypeHandler<T> : ICsvTypeHandler<T>
         if (_options.TrimOptions.HasFlag(CsvTrimOptions.UnquotedOnly))
         {
             // Only trim if not quoted
+#if NETSTANDARD2_0
+            if (value.Length >= 2 && value[0] == _options.Quote && value[value.Length - 1] == _options.Quote)
+                return value;
+#else
             if (value.Length >= 2 && value[0] == _options.Quote && value[^1] == _options.Quote)
                 return value;
+#endif
 
             return value.Trim();
         }

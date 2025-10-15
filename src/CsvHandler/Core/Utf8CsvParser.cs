@@ -301,7 +301,14 @@ public ref struct Utf8CsvParser
 
             while (i <= remaining.Length - Vector<byte>.Count)
             {
+#if NETSTANDARD2_0
+                // Create array for vector constructor on netstandard2.0
+                byte[] vecBuffer = new byte[Vector<byte>.Count];
+                remaining.Slice(i, Vector<byte>.Count).CopyTo(vecBuffer);
+                Vector<byte> current = new Vector<byte>(vecBuffer);
+#else
                 Vector<byte> current = new Vector<byte>(remaining.Slice(i));
+#endif
 
                 if (Vector.EqualsAny(current, vDelim) ||
                     Vector.EqualsAny(current, vQuote) ||
@@ -355,7 +362,14 @@ public ref struct Utf8CsvParser
 
             while (i <= remaining.Length - Vector<byte>.Count)
             {
+#if NETSTANDARD2_0
+                // Create array for vector constructor on netstandard2.0
+                byte[] vecBuffer = new byte[Vector<byte>.Count];
+                remaining.Slice(i, Vector<byte>.Count).CopyTo(vecBuffer);
+                Vector<byte> current = new Vector<byte>(vecBuffer);
+#else
                 Vector<byte> current = new Vector<byte>(remaining.Slice(i));
+#endif
                 if (Vector.EqualsAny(current, vQuote))
                 {
                     break;

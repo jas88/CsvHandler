@@ -6,9 +6,9 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace CsvHandler.Compat
-{
-    /// <summary>
+namespace CsvHandler.Compat;
+
+/// <summary>
     /// Span helper methods for netstandard2.0 compatibility.
     /// These polyfills provide missing APIs that are built-in on modern .NET.
     /// </summary>
@@ -273,7 +273,6 @@ namespace CsvHandler.Compat
                 return false;
 
             return span.Slice(span.Length - value.Length).SequenceEqual(value);
-        }
     }
 }
 
