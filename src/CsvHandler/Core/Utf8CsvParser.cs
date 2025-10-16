@@ -126,8 +126,8 @@ public ref struct Utf8CsvParser
         field = _input.Slice(start, length);
         _position = fieldEnd;
 
-        // Skip delimiter if present
-        if (!IsEndOfStream && _input[_position] == _options.Delimiter)
+        // Skip delimiter if present (but not if we're at a newline)
+        if (!IsEndOfStream && !IsAtNewline() && _input[_position] == _options.Delimiter)
         {
             _position++;
         }
