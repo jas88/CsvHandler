@@ -314,7 +314,7 @@ namespace System
 }
 #endif
 
-// Polyfill for Range type (netstandard2.0)
+// Polyfill for Range and Index types (netstandard2.0)
 #if NETSTANDARD2_0
 namespace System
 {
@@ -323,14 +323,150 @@ namespace System
     /// </summary>
     public readonly struct Range
     {
-        public Range(int start, int end)
+        /// <summary>
+        /// Initializes a new Range with the specified start and end indexes.
+        /// </summary>
+        public Range(Index start, Index end)
         {
             Start = start;
             End = end;
         }
 
-        public int Start { get; }
-        public int End { get; }
+        /// <summary>
+        /// Gets the inclusive start index of the range.
+        /// </summary>
+        public Index Start { get; }
+
+        /// <summary>
+        /// Gets the exclusive end index of the range.
+        /// </summary>
+        public Index End { get; }
+
+        /// <summary>
+        /// Gets the offset and length for a given collection length.
+        /// </summary>
+        public (int Offset, int Length) GetOffsetAndLength(int length)
+        {
+            int start = Start.IsFromEnd ? length - Start.Value : Start.Value;
+            int end = End.IsFromEnd ? length - End.Value : End.Value;
+
+            if ((uint)start > (uint)length || (uint)end > (uint)length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            return (start, end - start);
+        }
+
+        /// <summary>
+        /// Creates a Range from the start index to the end.
+        /// </summary>
+        public static Range StartAt(Index start) => new Range(start, Index.End);
+
+        /// <summary>
+        /// Creates a Range from the start to the end index.
+        /// </summary>
+        public static Range EndAt(Index end) => new Range(Index.Start, end);
+
+        /// <summary>
+        /// Creates a Range that represents all elements.
+        /// </summary>
+        public static Range All => new Range(Index.Start, Index.End);
+    }
+
+    /// <summary>
+    /// Represents an index that can be from the start or end of a collection.
+    /// </summary>
+    public readonly struct Index
+    {
+        private readonly int _value;
+
+        /// <summary>
+        /// Initializes a new Index with the specified value and direction.
+        /// </summary>
+        public Index(int value, bool fromEnd = false)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "Index must be non-negative.");
+            }
+
+            _value = fromEnd ? ~value : value;
+        }
+
+        /// <summary>
+        /// Gets the index value.
+        /// </summary>
+        public int Value => _value < 0 ? ~_value : _value;
+
+        /// <summary>
+        /// Returns true if the index is from the end.
+        /// </summary>
+        public bool IsFromEnd => _value < 0;
+
+        /// <summary>
+        /// Gets the offset for a given collection length.
+        /// </summary>
+        public int GetOffset(int length)
+        {
+            int offset = _value;
+            if (IsFromEnd)
+            {
+                offset += length + 1;
+            }
+            return offset;
+        }
+
+        /// <summary>
+        /// Implicit conversion from int to Index.
+        /// </summary>
+        public static implicit operator Index(int value) => new Index(value);
+
+        /// <summary>
+        /// Gets an Index representing the start of a collection.
+        /// </summary>
+        public static Index Start => new Index(0);
+
+        /// <summary>
+        /// Gets an Index representing the end of a collection.
+        /// </summary>
+        public static Index End => new Index(~0);
+
+        /// <summary>
+        /// Creates an Index from the end of a collection.
+        /// </summary>
+        public static Index FromStart(int value) => new Index(value, false);
+
+        /// <summary>
+        /// Creates an Index from the start of a collection.
+        /// </summary>
+        public static Index FromEnd(int value) => new Index(value, true);
+    }
+}
+
+namespace System.Runtime.CompilerServices
+{
+    /// <summary>
+    /// Extension methods to support Range indexing on arrays and strings.
+    /// </summary>
+    internal static class RuntimeHelpers
+    {
+        /// <summary>
+        /// Gets a subarray using Range indexing.
+        /// </summary>
+        public static T[] GetSubArray<T>(T[] array, Range range)
+        {
+            var (offset, length) = range.GetOffsetAndLength(array.Length);
+
+            if (length == 0)
+            {
+                return Array.Empty<T>();
+            }
+
+            T[] result = new T[length];
+            Array.Copy(array, offset, result, 0, length);
+            return result;
+        }
     }
 }
 #endif
