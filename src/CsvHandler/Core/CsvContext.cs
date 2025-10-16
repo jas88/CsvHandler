@@ -25,6 +25,19 @@ public abstract class CsvContext
     /// <typeparam name="T">The type to get metadata for.</typeparam>
     /// <returns>The type metadata, or null if the type is not registered in this context.</returns>
     public abstract CsvTypeMetadata<T>? GetTypeMetadata<T>() where T : class;
+
+    /// <summary>
+    /// Gets a type handler for reading CSV data.
+    /// Source-generated contexts should override this to provide type-specific handlers.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize.</typeparam>
+    /// <returns>The type handler, or null if not available in this context.</returns>
+    public virtual ICsvTypeHandler<T>? GetTypeHandler<T>()
+    {
+        // Base implementation returns null - source generator will override this
+        // to return generated type handlers for registered types
+        return null;
+    }
 }
 
 /// <summary>
