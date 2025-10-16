@@ -6,6 +6,6 @@
 /Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.AssemblyInfoInputs.cache
 /Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.AssemblyInfo.cs
 /Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.csproj.CoreCompileInputs.cache
+/Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.sourcelink.json
 /Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.dll
 /Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.xml
-/Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/obj/Release/netstandard2.0/CsvHandler.SourceGenerator.sourcelink.json

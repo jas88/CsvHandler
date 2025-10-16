@@ -46,7 +46,9 @@
       "WebFetch(domain:source.dot.net)",
       "Bash(tee:*)",
       "Bash(dotnet publish:*)",
-      "Bash(/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests)"
+      "Bash(/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests)",
+      "Bash(dotnet clean:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
