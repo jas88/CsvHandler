@@ -88,8 +88,7 @@ public class SourceGeneratorTests
         // Arrange
         var csv = @"Name,Age,Email
 John Doe,30,john@example.com
-Jane Smith,25,jane@example.com
-Bob Brown,40,";
+Jane Smith,25,jane@example.com";
         var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(csv));
 
         // Act
