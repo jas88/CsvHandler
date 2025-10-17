@@ -365,7 +365,7 @@ public class ReaderTests
 
     #region Performance Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_LargeFile_ProcessesEfficiently()
     {
         // Arrange
@@ -376,15 +376,13 @@ public class ReaderTests
 
         // Act
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Person>.Create(stream);
+        var people = await reader.ReadAllAsync().ToListAsync();
         stopwatch.Stop();
 
         // Assert
-        // people.Should().HaveCount(100000);
-        // stopwatch.ElapsedMilliseconds.Should().BeLessThan(5000); // Should process 100k rows in < 5 seconds
+        people.Should().HaveCount(100000);
+        stopwatch.ElapsedMilliseconds.Should().BeLessThan(5000); // Should process 100k rows in < 5 seconds
     }
 
     #endregion
