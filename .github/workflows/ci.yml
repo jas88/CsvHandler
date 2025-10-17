@@ -123,6 +123,10 @@ jobs:
         path: ./artifacts/*.nupkg
         retention-days: 7
 
+    - name: Run Format Check
+      if: ${{ matrix.codeql }}
+      run: dotnet format --verify-no-changes --verbosity diagnostic
+
     - name: Perform CodeQL Analysis
       if: ${{ matrix.codeql }}
       uses: github/codeql-action/analyze@v3
@@ -130,34 +134,9 @@ jobs:
         category: "/language:csharp"
         upload: true
 
-  code-quality:
-    name: Code Quality Analysis
-    runs-on: ubuntu-latest
-    needs: build-and-test
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        global-json-file: global.json
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Run Format Check
-      run: dotnet format --verify-no-changes --verbosity diagnostic
-
-    - name: Run Analyzers
-      run: dotnet build --configuration Release --no-restore
-
   publish-nuget:
     name: Publish to NuGet.org
-    needs: [build-and-test, code-quality]
+    needs: build-and-test
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     environment:
