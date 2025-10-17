@@ -170,7 +170,8 @@ public class ReaderTests
     public async Task ReadAllAsync_DateTimeFormats_ParsesCorrectly()
     {
         // Arrange
-        var csv = "FullName,Department,Salary,HireDate,IsActive\nAlice,Engineering,75000.00,2024-01-15,true"u8.ToArray();
+        // Note: Using property names (not [CsvField] names) since reflection API doesn't support attributes
+        var csv = "Name,Department,Salary,HireDate,IsActive\nAlice,Engineering,75000.00,2024-01-15,true"u8.ToArray();
         var stream = new MemoryStream(csv);
 
         // Act
