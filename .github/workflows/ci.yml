@@ -50,22 +50,21 @@ jobs:
         queries: security-extended,security-and-quality
         ram: 8192
 
-    - name: Setup .NET ${{ matrix.dotnet }}
+    # Install all required SDKs for multi-targeting (net6.0, net8.0, netstandard2.0)
+    - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: '6.0.x'
+
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
 
     - name: Setup .NET (global.json)
       uses: actions/setup-dotnet@v4
       with:
         global-json-file: global.json
-
-    # Install all target framework SDKs for multi-targeting
-    - name: Setup .NET 6.0 (for multi-targeting)
-      if: matrix.dotnet != '6.0.x'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '6.0.x'
 
     - name: Display .NET Info
       run: dotnet --info
