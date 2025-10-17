@@ -44,7 +44,8 @@ public class IntegrationTests
         {
             Range[] ranges = new Range[10];
             int count = parser.TryReadRecord(ranges);
-            if (count <= 0) break;
+            if (count <= 0)
+                break;
 
             var record = new List<string>();
             for (int i = 0; i < count; i++)
@@ -168,7 +169,8 @@ public class IntegrationTests
         {
             Range[] ranges = new Range[10];
             int count = parser.TryReadRecord(ranges);
-            if (count <= 0) break;
+            if (count <= 0)
+                break;
 
             var record = new List<string>();
             for (int i = 0; i < count; i++)
@@ -240,7 +242,8 @@ public class IntegrationTests
         while (true)
         {
             Range[] ranges = new Range[10];
-            if (parser.TryReadRecord(ranges) <= 0) break;
+            if (parser.TryReadRecord(ranges) <= 0)
+                break;
             recordCount++;
         }
 
@@ -315,7 +318,8 @@ Eve,Simple again,500";
         {
             Range[] ranges = new Range[10];
             int count = parser.TryReadRecord(ranges);
-            if (count <= 0) break;
+            if (count <= 0)
+                break;
 
             var record = new List<string>();
             for (int i = 0; i < count; i++)
@@ -426,7 +430,8 @@ Eve,Simple again,500";
         {
             Range[] ranges = new Range[10];
             int count = parser.TryReadRecord(ranges);
-            if (count <= 0) break;
+            if (count <= 0)
+                break;
 
             var record = new List<string>();
             for (int i = 0; i < count; i++)
@@ -508,7 +513,8 @@ Eve,Simple again,500";
                 csv,
                 CsvHandler.Core.Utf8CsvParserOptions.Default);
 
-            while (parser.TryReadField(out _)) { }
+            while (parser.TryReadField(out _))
+            { }
 
             stopwatch.Stop();
             times.Add(stopwatch.ElapsedTicks);

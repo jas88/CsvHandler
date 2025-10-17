@@ -166,30 +166,30 @@ public class AotCompatibilityTests
     public void SourceGenerator_SupportsNet6_GeneratesCode()
     {
         // Verify code works on .NET 6
-        #if NET6_0
+#if NET6_0
         var context = new TestCsvContext();
         context.Should().NotBeNull();
-        #endif
+#endif
     }
 
     [Fact]
     public void SourceGenerator_SupportsNet8_GeneratesCode()
     {
         // Verify code works on .NET 8
-        #if NET8_0
+#if NET8_0
         var context = new TestCsvContext();
         context.Should().NotBeNull();
-        #endif
+#endif
     }
 
     [Fact]
     public void SourceGenerator_SupportsNetStandard20_GeneratesCode()
     {
         // Verify code works on .NET Standard 2.0
-        #if NETSTANDARD2_0
+#if NETSTANDARD2_0
         var context = new TestCsvContext();
         context.Should().NotBeNull();
-        #endif
+#endif
     }
 
     #endregion
@@ -288,7 +288,8 @@ public class AotCompatibilityTests
 
         foreach (var type in reflectionFallbackTypes)
         {
-            if (type == null) continue;
+            if (type == null)
+                continue;
 
             var attributes = type.GetCustomAttributes(false);
             attributes.Should().Contain(a =>
