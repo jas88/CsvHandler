@@ -91,14 +91,14 @@ internal static class CodeEmitter
         code.Unindent();
         code.AppendLine();
 
-        code.AppendLine("if (isFirstLine && skipHeader)");
+        code.AppendLine("if (isFirstLine)");
         code.OpenBrace();
         code.AppendLine("isFirstLine = false;");
+        code.AppendLine("if (skipHeader)");
+        code.Indent();
         code.AppendLine("continue;");
+        code.Unindent();
         code.CloseBrace();
-        code.AppendLine();
-
-        code.AppendLine("isFirstLine = false;");
         code.AppendLine();
 
         code.AppendLine("if (string.IsNullOrWhiteSpace(line))");

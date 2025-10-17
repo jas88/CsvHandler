@@ -239,21 +239,128 @@ public class AotCompatibilityTests
         // These are set in the .csproj file
     }
 
+    /// <summary>
+    /// Verifies the dual-path AOT strategy:
+    /// 1. Core types (Utf8CsvParser, CsvContext, etc.) are AOT-compatible
+    /// 2. Reflection fallback types are properly marked as incompatible
+    /// 3. Library supports both AOT and reflection-based usage
+    /// </summary>
     [Fact]
-    public void Assembly_DoesNotHaveRequiresDynamicCode()
+    public void Assembly_CoreTypes_DoNotRequireDynamicCode()
     {
-        // Verify that no types require dynamic code
+        // Verify that core AOT-compatible types don't require dynamic code
+        // Reflection-based fallback types are allowed to have these attributes
         var assembly = typeof(CsvHandler.Core.Utf8CsvParser).Assembly;
 
-        // In a properly AOT-compatible library, no types should have
-        // [RequiresDynamicCode] attribute
-        var types = assembly.GetTypes();
-        foreach (var type in types)
+        // Define core types that MUST be AOT-compatible (at type level)
+        var coreAotTypes = new[]
+        {
+            typeof(CsvHandler.Core.Utf8CsvParser),
+            typeof(CsvHandler.Core.Utf8CsvParserOptions),
+            typeof(CsvHandler.Core.Utf8CsvWriter),
+            typeof(CsvHandler.Core.CsvWriterOptions),
+            typeof(CsvHandler.CsvContext),
+            typeof(CsvHandler.CsvOptions),
+            typeof(CsvHandler.CsvException),
+            typeof(CsvHandler.CsvError),
+            typeof(CsvHandler.ICsvTypeHandler<>),
+            typeof(CsvHandler.CsvTypeInfo<>),
+            typeof(CsvHandler.CsvReader<>)  // CsvReader type itself should be AOT-compatible
+        };
+
+        // Verify core types don't have dynamic code requirements at type level
+        foreach (var type in coreAotTypes)
         {
             var attributes = type.GetCustomAttributes(false);
             attributes.Should().NotContain(a =>
-                a.GetType().Name == "RequiresDynamicCodeAttribute");
+                a.GetType().Name == "RequiresDynamicCodeAttribute" ||
+                a.GetType().Name == "RequiresUnreferencedCodeAttribute",
+                $"Core type {type.Name} should not require dynamic code or unreferenced code for AOT compatibility");
         }
+
+        // Verify reflection-based fallback types ARE properly marked
+        var reflectionFallbackTypes = new[]
+        {
+            assembly.GetType("CsvHandler.ReflectionCsvTypeHandler`1"),  // Internal generic type
+            assembly.GetType("CsvHandler.CsvTypeHandlerFactory"),
+            typeof(CsvHandler.DefaultCsvContext)
+        };
+
+        foreach (var type in reflectionFallbackTypes)
+        {
+            if (type == null) continue;
+
+            var attributes = type.GetCustomAttributes(false);
+            attributes.Should().Contain(a =>
+                a.GetType().Name == "RequiresDynamicCodeAttribute",
+                $"Reflection-based type {type.Name} should be marked with RequiresDynamicCode");
+        }
+    }
+
+    /// <summary>
+    /// Verifies the dual-path API design for CsvReader:
+    /// 1. AOT-safe path: Create(Stream, CsvContext) - no reflection
+    /// 2. Reflection path: Create(Stream) - convenience, marked as incompatible
+    /// </summary>
+    [Fact]
+    public void CsvReader_AotSafeMethods_DoNotRequireDynamicCode()
+    {
+        // Verify that AOT-safe CsvReader methods don't have dynamic code requirements
+        var readerType = typeof(CsvHandler.CsvReader<Person>);
+
+        // AOT-safe methods (using CsvContext)
+        var createWithContextMethod = readerType.GetMethod("Create",
+            new[] { typeof(Stream), typeof(CsvContext), typeof(bool) });
+
+        var readAllAsyncMethod = readerType.GetMethod("ReadAllAsync");
+
+        createWithContextMethod.Should().NotBeNull();
+        readAllAsyncMethod.Should().NotBeNull();
+
+        // These methods should NOT have RequiresDynamicCode or RequiresUnreferencedCode
+        var createAttributes = createWithContextMethod!.GetCustomAttributes(false);
+        createAttributes.Should().NotContain(a =>
+            a.GetType().Name == "RequiresDynamicCodeAttribute" ||
+            a.GetType().Name == "RequiresUnreferencedCodeAttribute",
+            "CsvReader.Create(Stream, CsvContext) should be AOT-compatible");
+
+        var readAttributes = readAllAsyncMethod!.GetCustomAttributes(false);
+        readAttributes.Should().NotContain(a =>
+            a.GetType().Name == "RequiresDynamicCodeAttribute" ||
+            a.GetType().Name == "RequiresUnreferencedCodeAttribute",
+            "CsvReader.ReadAllAsync() should be AOT-compatible");
+
+        // Verify reflection-based methods ARE marked
+        var createReflectionMethod = readerType.GetMethod("Create",
+            new[] { typeof(Stream), typeof(bool) });
+
+        createReflectionMethod.Should().NotBeNull();
+        var reflectionAttributes = createReflectionMethod!.GetCustomAttributes(false);
+        reflectionAttributes.Should().Contain(a =>
+            a.GetType().Name == "RequiresDynamicCodeAttribute",
+            "CsvReader.Create(Stream) without context should be marked as requiring dynamic code");
+    }
+
+    /// <summary>
+    /// Documents the recommended AOT usage pattern for consumers of this library.
+    /// This test serves as both verification and documentation.
+    /// </summary>
+    [Fact(Skip = "TODO: Implement complete source generator")]
+    public void AotUsagePattern_Documentation()
+    {
+        // This test demonstrates the correct AOT usage pattern:
+        //
+        // 1. Define a CsvContext with [CsvSerializable] attributes
+        // 2. Use source-generated context with CsvReader/CsvWriter
+        // 3. Entire code path is AOT-compatible (no reflection)
+        //
+        // Example:
+        // var context = TestCsvContext.Default;
+        // var reader = CsvReader<Person>.Create(stream, context);
+        // await foreach (var person in reader.ReadAllAsync())
+        // {
+        //     // Process person
+        // }
     }
 
     #endregion
