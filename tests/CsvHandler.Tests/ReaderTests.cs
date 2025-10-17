@@ -23,24 +23,22 @@ public class ReaderTests
 
     #region Basic Reading Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_SimpleCsv_ReturnsExpectedData()
     {
         // Arrange
         var csv = "Name,Age,City\nAlice,30,NYC\nBob,25,LA"u8.ToArray();
         var stream = new MemoryStream(csv);
 
-        // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        // Act - Using reflection-based API since source generator context not yet implemented
+        await using var reader = CsvReader<Person>.Create(stream);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // people.Should().HaveCount(2);
-        // people[0].Name.Should().Be("Alice");
-        // people[0].Age.Should().Be(30);
-        // people[0].City.Should().Be("NYC");
+        people.Should().HaveCount(2);
+        people[0].Name.Should().Be("Alice");
+        people[0].Age.Should().Be(30);
+        people[0].City.Should().Be("NYC");
     }
 
     [Fact(Skip = "TODO: Uncomment implementation code")]
