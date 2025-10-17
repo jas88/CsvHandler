@@ -291,13 +291,16 @@ internal static class CodeEmitter
     /// </summary>
     private static void EmitUtf8ParserCall(FieldModel field, CodeBuilder code, string typeName, string? format, string varName)
     {
+        // Generate unique variable name based on field member name to avoid collisions
+        var parsedVarName = $"parsed{field.MemberName}";
+
         // DateTime and DateTimeOffset require special handling because Utf8Parser.TryParse doesn't support them properly
         if (typeName == "global::System.DateTime" || typeName == "System.DateTime")
         {
             code.AppendLine($"var dateString = global::System.Text.Encoding.UTF8.GetString({varName});");
-            code.AppendLine($"if (global::System.DateTime.TryParse(dateString, out {typeName} parsedValue))");
+            code.AppendLine($"if (global::System.DateTime.TryParse(dateString, out {typeName} {parsedVarName}))");
             code.OpenBrace();
-            code.AppendLine($"result.{field.MemberName} = parsedValue;");
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
             code.CloseBrace();
             code.AppendLine("else");
             code.OpenBrace();
@@ -307,9 +310,9 @@ internal static class CodeEmitter
         else if (typeName == "global::System.DateTimeOffset" || typeName == "System.DateTimeOffset")
         {
             code.AppendLine($"var dateString = global::System.Text.Encoding.UTF8.GetString({varName});");
-            code.AppendLine($"if (global::System.DateTimeOffset.TryParse(dateString, out {typeName} parsedValue))");
+            code.AppendLine($"if (global::System.DateTimeOffset.TryParse(dateString, out {typeName} {parsedVarName}))");
             code.OpenBrace();
-            code.AppendLine($"result.{field.MemberName} = parsedValue;");
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
             code.CloseBrace();
             code.AppendLine("else");
             code.OpenBrace();
@@ -318,9 +321,9 @@ internal static class CodeEmitter
         }
         else
         {
-            code.AppendLine($"if (global::System.Buffers.Text.Utf8Parser.TryParse({varName}, out {typeName} parsedValue, out _))");
+            code.AppendLine($"if (global::System.Buffers.Text.Utf8Parser.TryParse({varName}, out {typeName} {parsedVarName}, out _))");
             code.OpenBrace();
-            code.AppendLine($"result.{field.MemberName} = parsedValue;");
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
             code.CloseBrace();
             code.AppendLine("else");
             code.OpenBrace();

@@ -69,7 +69,10 @@ public ref struct Utf8CsvParser
 
 #if NET6_0_OR_GREATER
         // Pre-compute search values for SIMD acceleration
-        _searchValues = SearchValues.Create(new byte[] { options.Delimiter, options.Quote, (byte)'\r', (byte)'\n' });
+        // Only include Quote character when not in IgnoreQuotes mode
+        _searchValues = options.Mode == CsvParseMode.IgnoreQuotes
+            ? SearchValues.Create(new byte[] { options.Delimiter, (byte)'\r', (byte)'\n' })
+            : SearchValues.Create(new byte[] { options.Delimiter, options.Quote, (byte)'\r', (byte)'\n' });
 #endif
     }
 
@@ -82,6 +85,12 @@ public ref struct Utf8CsvParser
     public bool TryReadField(out ReadOnlySpan<byte> field)
     {
         field = default;
+
+        // Check if we're at a newline - this means end of record was already reached
+        if (!IsEndOfStream && (_input[_position] == '\r' || _input[_position] == '\n'))
+        {
+            return false;
+        }
 
         // Skip leading whitespace if trimming is enabled
         if (_options.TrimFields && !IsEndOfStream)
@@ -101,7 +110,8 @@ public ref struct Utf8CsvParser
         if (_options.AllowComments && _position == _recordStart && currentByte == _options.CommentPrefix)
         {
             SkipRecord();
-            return false;
+            // Recursively try to read the next field after skipping the comment line
+            return TryReadField(out field);
         }
 
         // Handle quoted field
@@ -126,10 +136,18 @@ public ref struct Utf8CsvParser
         field = _input.Slice(start, length);
         _position = fieldEnd;
 
-        // Skip delimiter if present (but not if we're at a newline)
-        if (!IsEndOfStream && !IsAtNewline() && _input[_position] == _options.Delimiter)
+        // Check what character we're positioned at after the field
+        if (!IsEndOfStream)
         {
-            _position++;
+            byte endByte = _input[_position];
+
+            // If at delimiter, skip it to move to next field
+            if (endByte == _options.Delimiter)
+            {
+                _position++;
+            }
+            // If at newline, we've reached end of record - don't skip it yet
+            // TryReadRecord will handle skipping the newline
         }
 
         return true;
@@ -295,7 +313,7 @@ public ref struct Utf8CsvParser
         if (Vector.IsHardwareAccelerated && remaining.Length >= Vector<byte>.Count)
         {
             Vector<byte> vDelim = new Vector<byte>(_options.Delimiter);
-            Vector<byte> vQuote = new Vector<byte>(_options.Quote);
+            Vector<byte> vQuote = _options.Mode != CsvParseMode.IgnoreQuotes ? new Vector<byte>(_options.Quote) : default;
             Vector<byte> vCR = new Vector<byte>((byte)'\r');
             Vector<byte> vLF = new Vector<byte>((byte)'\n');
 
@@ -310,10 +328,17 @@ public ref struct Utf8CsvParser
                 Vector<byte> current = new Vector<byte>(remaining.Slice(i));
 #endif
 
-                if (Vector.EqualsAny(current, vDelim) ||
-                    Vector.EqualsAny(current, vQuote) ||
-                    Vector.EqualsAny(current, vCR) ||
-                    Vector.EqualsAny(current, vLF))
+                bool match = Vector.EqualsAny(current, vDelim) ||
+                             Vector.EqualsAny(current, vCR) ||
+                             Vector.EqualsAny(current, vLF);
+
+                // Only check for quote if not in IgnoreQuotes mode
+                if (_options.Mode != CsvParseMode.IgnoreQuotes)
+                {
+                    match = match || Vector.EqualsAny(current, vQuote);
+                }
+
+                if (match)
                 {
                     // Found a match, scan byte-by-byte from here
                     break;
@@ -327,7 +352,15 @@ public ref struct Utf8CsvParser
         for (; i < remaining.Length; i++)
         {
             byte b = remaining[i];
-            if (b == _options.Delimiter || b == _options.Quote || b == '\r' || b == '\n')
+            bool isSpecial = b == _options.Delimiter || b == '\r' || b == '\n';
+
+            // Only check for quote if not in IgnoreQuotes mode
+            if (_options.Mode != CsvParseMode.IgnoreQuotes)
+            {
+                isSpecial = isSpecial || b == _options.Quote;
+            }
+
+            if (isSpecial)
             {
                 break;
             }
