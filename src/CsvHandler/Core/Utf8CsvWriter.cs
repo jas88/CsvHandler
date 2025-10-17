@@ -389,7 +389,8 @@ public ref struct Utf8CsvWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsNumericField(ReadOnlySpan<byte> field)
     {
-        if (field.IsEmpty) return false;
+        if (field.IsEmpty)
+            return false;
 
         // Simple check: all digits, possibly with leading minus or decimal point
         for (int i = 0; i < field.Length; i++)
@@ -462,7 +463,8 @@ public ref struct Utf8CsvWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WriteRawBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.IsEmpty) return;
+        if (bytes.IsEmpty)
+            return;
 
         Span<byte> buffer = _output.GetSpan(bytes.Length);
         bytes.CopyTo(buffer);

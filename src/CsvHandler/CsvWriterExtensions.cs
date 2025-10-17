@@ -32,7 +32,8 @@ public static class CsvWriterExtensions
 #else
         ArgumentNullExceptionPolyfill.ThrowIfNull(values);
 #endif
-        if (string.IsNullOrEmpty(filePath)) throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+        if (string.IsNullOrEmpty(filePath))
+            throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
 
 #if NETSTANDARD2_0
         using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
@@ -65,7 +66,8 @@ public static class CsvWriterExtensions
         ArgumentNullExceptionPolyfill.ThrowIfNull(values);
         ArgumentNullExceptionPolyfill.ThrowIfNull(context);
 #endif
-        if (string.IsNullOrEmpty(filePath)) throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+        if (string.IsNullOrEmpty(filePath))
+            throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
 
 #if NETSTANDARD2_0
         using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);

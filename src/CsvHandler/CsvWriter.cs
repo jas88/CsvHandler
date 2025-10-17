@@ -56,7 +56,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
 #else
         ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
 #endif
-        if (!stream.CanWrite) throw new ArgumentException("Stream must be writable.", nameof(stream));
+        if (!stream.CanWrite)
+            throw new ArgumentException("Stream must be writable.", nameof(stream));
 
         _stream = stream;
         _options = options ?? CsvWriterOptions.Default;
@@ -255,7 +256,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
         await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
 #endif
         {
-            if (value == null) continue;
+            if (value == null)
+                continue;
 
             if (_metadata is Core.CsvTypeMetadata<T> metadata && metadata.WriteValueFunc != null)
             {
@@ -317,7 +319,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
 
         foreach (var value in values)
         {
-            if (value == null) continue;
+            if (value == null)
+                continue;
 
             if (_metadata is Core.CsvTypeMetadata<T> metadata && metadata.WriteValueFunc != null)
             {
@@ -430,7 +433,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+            return;
 
         try
         {
@@ -457,7 +461,8 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
 #endif
         DisposeAsync()
     {
-        if (_disposed) return;
+        if (_disposed)
+            return;
 
         try
         {

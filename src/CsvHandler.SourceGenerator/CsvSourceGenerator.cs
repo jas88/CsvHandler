@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using CsvHandler.SourceGenerator.Helpers;
+using CsvHandler.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CsvHandler.SourceGenerator.Models;
-using CsvHandler.SourceGenerator.Helpers;
 
 namespace CsvHandler.SourceGenerator;
 

@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using CsvHandler.SourceGenerator.Helpers;
 using CsvHandler.SourceGenerator.Models;
+using Microsoft.CodeAnalysis;
 
 namespace CsvHandler.SourceGenerator;
 

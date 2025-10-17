@@ -23,11 +23,11 @@ public static class CsvReaderExtensions
         this CsvReader<T> reader,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
 
         var list = new List<T>();
 
@@ -50,11 +50,11 @@ public static class CsvReaderExtensions
         this CsvReader<T> reader,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
 
         var list = await ToListAsync(reader, cancellationToken).ConfigureAwait(false);
         return list.ToArray();
@@ -71,11 +71,11 @@ public static class CsvReaderExtensions
         this CsvReader<T> reader,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -116,11 +116,11 @@ public static class CsvReaderExtensions
         this CsvReader<T> reader,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
 
         int count = 0;
 
@@ -145,16 +145,16 @@ public static class CsvReaderExtensions
         Func<T, bool> predicate,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(predicate);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(predicate);
-        #endif
+#endif
 
         int count = 0;
 
@@ -180,16 +180,16 @@ public static class CsvReaderExtensions
         Func<T, bool> predicate,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(predicate);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(predicate);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -212,16 +212,16 @@ public static class CsvReaderExtensions
         Func<T, TResult> selector,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(selector);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(selector);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -242,11 +242,11 @@ public static class CsvReaderExtensions
         int count,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
         if (count < 0)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must be non-negative.");
 
@@ -277,11 +277,11 @@ public static class CsvReaderExtensions
         int count,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
+#endif
         if (count < 0)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must be non-negative.");
 
@@ -310,16 +310,16 @@ public static class CsvReaderExtensions
         Func<T, bool> predicate,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(predicate);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(predicate);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -343,16 +343,16 @@ public static class CsvReaderExtensions
         Func<T, bool> predicate,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(predicate);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(predicate);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -375,16 +375,16 @@ public static class CsvReaderExtensions
         Action<T> action,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(action);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(action);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -404,16 +404,16 @@ public static class CsvReaderExtensions
         Func<T, Task> action,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(reader);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(reader);
-        #endif
-        #if NET7_0_OR_GREATER
+#endif
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(action);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(action);
-        #endif
+#endif
 
         await foreach (var item in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -432,11 +432,11 @@ public static class CsvReaderExtensions
         this IAsyncEnumerable<T> source,
         CancellationToken cancellationToken = default)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(source);
-        #else
+#else
         ArgumentNullExceptionPolyfill.ThrowIfNull(source);
-        #endif
+#endif
 
         var list = new List<T>();
 
