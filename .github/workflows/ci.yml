@@ -109,7 +109,7 @@ jobs:
 
     - name: Test AOT Compilation
       if: matrix.publish-artifacts
-      run: dotnet publish tests/CsvHandler.AotTests/CsvHandler.AotTests.csproj -c Release
+      run: dotnet publish tests/CsvHandler.AotTests/CsvHandler.AotTests.csproj -c Release -r linux-x64
 
     - name: Pack NuGet Packages
       if: matrix.publish-artifacts
