@@ -2,11 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
-    <PackageId>CsvHandler.SourceGenerator</PackageId>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <IsPackable>false</IsPackable>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -27,12 +23,5 @@
   <ItemGroup>
     <Compile Include="..\CsvHandler\Attributes\*.cs" Link="SharedAttributes\%(Filename)%(Extension)" />
   </ItemGroup>
-
-  <!-- Pack as Analyzer - use target to ensure DLL exists at pack time -->
-  <Target Name="IncludeAnalyzerDll" BeforeTargets="GenerateNuspec">
-    <ItemGroup>
-      <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    </ItemGroup>
-  </Target>
 
 </Project>
