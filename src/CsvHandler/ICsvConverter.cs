@@ -78,7 +78,11 @@ public abstract class CsvConverter<T> : ICsvConverter<T>
     /// </summary>
     protected static string GetString(ReadOnlySpan<byte> data)
     {
+#if NETSTANDARD2_0
+        return System.Text.Encoding.UTF8.GetString(data.ToArray());
+#else
         return System.Text.Encoding.UTF8.GetString(data);
+#endif
     }
 
     /// <summary>

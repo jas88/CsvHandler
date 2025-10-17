@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 using CsvHandler.SourceGenerator.Helpers;
 using CsvHandler.SourceGenerator.Models;
+using Microsoft.CodeAnalysis;
 
 namespace CsvHandler.SourceGenerator;
 
@@ -91,14 +91,14 @@ internal static class CodeEmitter
         code.Unindent();
         code.AppendLine();
 
-        code.AppendLine("if (isFirstLine && skipHeader)");
+        code.AppendLine("if (isFirstLine)");
         code.OpenBrace();
         code.AppendLine("isFirstLine = false;");
+        code.AppendLine("if (skipHeader)");
+        code.Indent();
         code.AppendLine("continue;");
+        code.Unindent();
         code.CloseBrace();
-        code.AppendLine();
-
-        code.AppendLine("isFirstLine = false;");
         code.AppendLine();
 
         code.AppendLine("if (string.IsNullOrWhiteSpace(line))");
@@ -291,14 +291,45 @@ internal static class CodeEmitter
     /// </summary>
     private static void EmitUtf8ParserCall(FieldModel field, CodeBuilder code, string typeName, string? format, string varName)
     {
-        code.AppendLine($"if (global::System.Buffers.Text.Utf8Parser.TryParse({varName}, out {typeName} parsedValue, out _))");
-        code.OpenBrace();
-        code.AppendLine($"result.{field.MemberName} = parsedValue;");
-        code.CloseBrace();
-        code.AppendLine("else");
-        code.OpenBrace();
-        code.AppendLine($"result.{field.MemberName} = default!;");
-        code.CloseBrace();
+        // Generate unique variable name based on field member name to avoid collisions
+        var parsedVarName = $"parsed{field.MemberName}";
+
+        // DateTime and DateTimeOffset require special handling because Utf8Parser.TryParse doesn't support them properly
+        if (typeName == "global::System.DateTime" || typeName == "System.DateTime")
+        {
+            code.AppendLine($"var dateString = global::System.Text.Encoding.UTF8.GetString({varName});");
+            code.AppendLine($"if (global::System.DateTime.TryParse(dateString, out {typeName} {parsedVarName}))");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
+            code.CloseBrace();
+            code.AppendLine("else");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = default!;");
+            code.CloseBrace();
+        }
+        else if (typeName == "global::System.DateTimeOffset" || typeName == "System.DateTimeOffset")
+        {
+            code.AppendLine($"var dateString = global::System.Text.Encoding.UTF8.GetString({varName});");
+            code.AppendLine($"if (global::System.DateTimeOffset.TryParse(dateString, out {typeName} {parsedVarName}))");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
+            code.CloseBrace();
+            code.AppendLine("else");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = default!;");
+            code.CloseBrace();
+        }
+        else
+        {
+            code.AppendLine($"if (global::System.Buffers.Text.Utf8Parser.TryParse({varName}, out {typeName} {parsedVarName}, out _))");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = {parsedVarName};");
+            code.CloseBrace();
+            code.AppendLine("else");
+            code.OpenBrace();
+            code.AppendLine($"result.{field.MemberName} = default!;");
+            code.CloseBrace();
+        }
     }
 
     /// <summary>
@@ -341,6 +372,7 @@ internal static class CodeEmitter
         var specialType = typeSymbol.SpecialType;
         var typeName = typeSymbol.ToDisplayString();
         var varName = $"fieldBytes{fieldIndex}";
+        var bytesWrittenVar = $"bytesWritten{fieldIndex}";
 
         // Use custom converter if specified
         if (field.ConverterType != null)
@@ -383,9 +415,9 @@ internal static class CodeEmitter
         {
             var valueAccess = field.IsNullable ? $"value.{field.MemberName}.Value" : $"value.{field.MemberName}";
 
-            code.AppendLine($"if (global::System.Buffers.Text.Utf8Formatter.TryFormat({valueAccess}, span.Slice(written), out int bytesWritten))");
+            code.AppendLine($"if (global::System.Buffers.Text.Utf8Formatter.TryFormat({valueAccess}, span.Slice(written), out int {bytesWrittenVar}))");
             code.OpenBrace();
-            code.AppendLine("written += bytesWritten;");
+            code.AppendLine($"written += {bytesWrittenVar};");
             code.CloseBrace();
         }
         else

@@ -59,6 +59,34 @@ public abstract class CsvContext
     public abstract CsvTypeInfo<T>? GetTypeInfo<T>() where T : class;
 
     /// <summary>
+    /// Gets a type handler for CSV serialization/deserialization.
+    /// </summary>
+    /// <typeparam name="T">The type to get a handler for.</typeparam>
+    /// <returns>
+    /// An <see cref="ICsvTypeHandler{T}"/> instance for the specified type,
+    /// or <c>null</c> if the type is not registered in this context.
+    /// </returns>
+    public virtual ICsvTypeHandler<T>? GetTypeHandler<T>()
+    {
+        // Default implementation returns null; source generators override this
+        return null;
+    }
+
+    /// <summary>
+    /// Gets type metadata for CSV writing operations.
+    /// </summary>
+    /// <typeparam name="T">The type to get metadata for.</typeparam>
+    /// <returns>
+    /// A <see cref="Core.CsvTypeMetadata{T}"/> instance for the specified type,
+    /// or <c>null</c> if the type is not registered in this context.
+    /// </returns>
+    public virtual Core.CsvTypeMetadata<T>? GetTypeMetadata<T>() where T : class
+    {
+        // Default implementation returns null; source generators override this
+        return null;
+    }
+
+    /// <summary>
     /// Gets type metadata for the specified type using non-generic access.
     /// </summary>
     /// <param name="type">The type to get metadata for.</param>
@@ -72,8 +100,11 @@ public abstract class CsvContext
     /// </remarks>
     public virtual CsvTypeInfo? GetTypeInfo(Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(type);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(type);
+#endif
 
         // This will be overridden by source-generated code to provide
         // efficient type lookup without reflection

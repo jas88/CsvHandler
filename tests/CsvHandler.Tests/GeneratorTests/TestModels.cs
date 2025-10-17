@@ -1,4 +1,5 @@
 using CsvHandler;
+using CsvHandler.Attributes;
 
 namespace CsvHandler.Tests.GeneratorTests;
 
@@ -21,7 +22,7 @@ public partial class TestPerson
 /// <summary>
 /// Test model with various data types.
 /// </summary>
-[CsvRecord(Delimiter = '\t', StrictMode = true)]
+[CsvRecord(Delimiter = '\t')]
 public partial class ComplexRecord
 {
     [CsvField(Order = 0)]
@@ -46,7 +47,7 @@ public partial class ComplexRecord
 /// <summary>
 /// Test model with custom configuration.
 /// </summary>
-[CsvRecord(HasHeader = false, TrimWhitespace = false)]
+[CsvRecord(HasHeaders = false, TrimWhitespace = false)]
 public partial class ConfiguredRecord
 {
     [CsvField(Order = 0, Name = "first_name")]

@@ -1,0 +1,2454 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CsvHandler</name>
+    </assembly>
+    <members>
+        <member name="T:CsvHandler.Attributes.CsvColumnAttribute">
+            <summary>
+            Specifies CSV column mapping for a property.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvColumnAttribute.Name">
+            <summary>
+            Gets or sets the column name in the CSV file.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvColumnAttribute.Order">
+            <summary>
+            Gets or sets the column order (0-based index).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvColumnAttribute.Required">
+            <summary>
+            Gets or sets whether this column is required.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvColumnAttribute.DefaultValue">
+            <summary>
+            Gets or sets the default value if the column is missing or empty.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Attributes.CsvConverterAttribute">
+             <summary>
+             Specifies a custom converter type for CSV serialization and deserialization.
+             </summary>
+             <remarks>
+             <para>
+             This attribute can be applied to types or individual properties/fields to specify
+             a custom converter that handles serialization and deserialization logic.
+             </para>
+             <para>
+             The converter type must implement the appropriate converter interface (to be defined)
+             and must have a public parameterless constructor.
+             </para>
+             <para>
+             When applied to a type, all instances of that type use the specified converter
+             unless overridden at the property/field level.
+             </para>
+             </remarks>
+             <example>
+             <code>
+             // Custom converter implementation
+             public class CustomDateTimeConverter : ICsvConverter&lt;DateTime&gt;
+             {
+                 public string Serialize(DateTime value)
+                 {
+                     return value.ToString("O"); // ISO 8601 format
+                 }
+            
+                 public DateTime Deserialize(string value)
+                 {
+                     return DateTime.Parse(value, null, DateTimeStyles.RoundtripKind);
+                 }
+             }
+            
+             // Apply to a type
+             [CsvRecord]
+             [CsvConverter(typeof(CustomDateTimeConverter))]
+             public partial class Event
+             {
+                 [CsvField(Order = 0)]
+                 public string Name { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 public DateTime Timestamp { get; set; } // Uses CustomDateTimeConverter
+             }
+            
+             // Apply to a specific property
+             [CsvRecord]
+             public partial class Schedule
+             {
+                 [CsvField(Order = 0)]
+                 public string Title { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 [CsvConverter(typeof(CustomDateTimeConverter))]
+                 public DateTime StartTime { get; set; }
+            
+                 [CsvField(Order = 2)]
+                 public DateTime EndTime { get; set; } // Uses default DateTime converter
+             }
+            
+             // Custom enum converter
+             public class StatusConverter : ICsvConverter&lt;Status&gt;
+             {
+                 public string Serialize(Status value)
+                 {
+                     return value switch
+                     {
+                         Status.Active => "A",
+                         Status.Inactive => "I",
+                         Status.Pending => "P",
+                         _ => throw new ArgumentException($"Unknown status: {value}")
+                     };
+                 }
+            
+                 public Status Deserialize(string value)
+                 {
+                     return value switch
+                     {
+                         "A" or "Active" => Status.Active,
+                         "I" or "Inactive" => Status.Inactive,
+                         "P" or "Pending" => Status.Pending,
+                         _ => throw new ArgumentException($"Invalid status code: {value}")
+                     };
+                 }
+             }
+            
+             [CsvRecord]
+             public partial class User
+             {
+                 [CsvField(Order = 0)]
+                 public string Name { get; set; }
+            
+                 [CsvField(Order = 1, Converter = typeof(StatusConverter))]
+                 public Status CurrentStatus { get; set; }
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvConverterAttribute.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvConverterAttribute"/> class.
+            </summary>
+            <param name="converterType">The type of the converter to use.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="converterType"/> is null.</exception>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvConverterAttribute.ConverterType">
+            <summary>
+            Gets the type of the converter.
+            </summary>
+            <value>
+            The converter type, which must implement the appropriate converter interface
+            and have a public parameterless constructor.
+            </value>
+        </member>
+        <member name="T:CsvHandler.Attributes.CsvFieldAttribute">
+             <summary>
+             Marks a property or field for CSV serialization and specifies its mapping configuration.
+             </summary>
+             <remarks>
+             This attribute controls how a property or field is mapped to and from CSV columns.
+             Properties and fields without this attribute are included by default unless marked with <see cref="T:CsvHandler.Attributes.CsvIgnoreAttribute"/>.
+             </remarks>
+             <example>
+             <code>
+             [CsvRecord]
+             public partial class Product
+             {
+                 // Custom column name and order
+                 [CsvField(Name = "Product ID", Order = 0)]
+                 public int Id { get; set; }
+            
+                 // Specific column index (0-based)
+                 [CsvField(Index = 1)]
+                 public string Name { get; set; }
+            
+                 // Custom format for DateTime
+                 [CsvField(Order = 2, Format = "yyyy-MM-dd")]
+                 public DateTime ReleaseDate { get; set; }
+            
+                 // Custom format for decimal
+                 [CsvField(Order = 3, Format = "F2")]
+                 public decimal Price { get; set; }
+            
+                 // Custom converter
+                 [CsvField(Order = 4, Converter = typeof(CustomStatusConverter))]
+                 public Status CurrentStatus { get; set; }
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvFieldAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvFieldAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvFieldAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvFieldAttribute"/> class with the specified column name.
+            </summary>
+            <param name="name">The name of the CSV column.</param>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Name">
+            <summary>
+            Gets or sets the name of the CSV column.
+            </summary>
+            <remarks>
+            If not specified, the property or field name is used as the column name.
+            This is used for header matching when <see cref="P:CsvHandler.Attributes.CsvRecordAttribute.HasHeaders"/> is true.
+            </remarks>
+            <value>The CSV column name, or null to use the member name.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Index">
+            <summary>
+            Gets or sets the zero-based index of the CSV column.
+            </summary>
+            <remarks>
+            This specifies the exact column position in the CSV file.
+            If both <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> and <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> are specified, <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> takes precedence.
+            If neither is specified, fields are ordered by declaration order.
+            </remarks>
+            <value>The zero-based column index, or -1 to use <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> or declaration order.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Order">
+            <summary>
+            Gets or sets the relative order of this field in the CSV output.
+            </summary>
+            <remarks>
+            Fields are ordered by this value during serialization.
+            Lower values appear first. Fields with the same order value are ordered by declaration order.
+            This is ignored if <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> is specified.
+            </remarks>
+            <value>The relative order value, or -1 to use declaration order.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Format">
+            <summary>
+            Gets or sets the format string for formatting the field value.
+            </summary>
+            <remarks>
+            This is used when converting values to strings during serialization.
+            The format string is passed to the type's ToString method or string.Format.
+            Common examples:
+            <list type="bullet">
+            <item><description>DateTime: "yyyy-MM-dd", "MM/dd/yyyy HH:mm:ss"</description></item>
+            <item><description>Decimal/Double: "F2" (2 decimal places), "N0" (no decimals with thousands separator)</description></item>
+            <item><description>Integer: "D5" (5 digits with leading zeros), "X" (hexadecimal)</description></item>
+            </list>
+            </remarks>
+            <value>The format string, or null to use default formatting.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Converter">
+            <summary>
+            Gets or sets the type of a custom converter for this field.
+            </summary>
+            <remarks>
+            The converter type must implement the appropriate converter interface and have a parameterless constructor.
+            Custom converters override default serialization and deserialization logic.
+            </remarks>
+            <value>The converter type, or null to use default conversion.</value>
+            <seealso cref="T:CsvHandler.Attributes.CsvConverterAttribute"/>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Ignore">
+            <summary>
+            Gets or sets a value indicating whether this field should be ignored during CSV operations.
+            </summary>
+            <remarks>
+            This is equivalent to applying the <see cref="T:CsvHandler.Attributes.CsvIgnoreAttribute"/> attribute.
+            Ignored fields are not read from or written to CSV files.
+            </remarks>
+            <value>
+            <c>true</c> to ignore this field; otherwise, <c>false</c>. Default is <c>false</c>.
+            </value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Required">
+            <summary>
+            Gets or sets a value indicating whether this field is required during deserialization.
+            </summary>
+            <remarks>
+            When true, deserialization fails if the field is missing or empty.
+            This validation is performed before type conversion.
+            </remarks>
+            <value>
+            <c>true</c> if the field is required; otherwise, <c>false</c>. Default is <c>false</c>.
+            </value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvFieldAttribute.DefaultValue">
+            <summary>
+            Gets or sets the default value to use when the field is empty or missing during deserialization.
+            </summary>
+            <remarks>
+            This value is used only if the field is not <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Required"/>.
+            The value must be compatible with the field's type or will cause a conversion error.
+            </remarks>
+            <value>The default value, or null if no default is specified.</value>
+        </member>
+        <member name="T:CsvHandler.Attributes.CsvIgnoreAttribute">
+             <summary>
+             Marks a property or field to be excluded from CSV serialization and deserialization.
+             </summary>
+             <remarks>
+             Properties and fields marked with this attribute are completely ignored during CSV operations.
+             This is useful for internal state, computed properties, or data that should not be persisted.
+             </remarks>
+             <example>
+             <code>
+             [CsvRecord]
+             public partial class User
+             {
+                 [CsvField(Order = 0)]
+                 public string Username { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 public string Email { get; set; }
+            
+                 // This property is not included in CSV
+                 [CsvIgnore]
+                 public string PasswordHash { get; set; }
+            
+                 // Computed properties can be ignored
+                 [CsvIgnore]
+                 public string DisplayName => $"{FirstName} {LastName}";
+            
+                 // Internal state
+                 [CsvIgnore]
+                 public DateTime LastModified { get; set; }
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvIgnoreAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvIgnoreAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Attributes.CsvRecordAttribute">
+             <summary>
+             Marks a class or struct for CSV serialization and deserialization.
+             The type must be declared as partial to allow source generation.
+             </summary>
+             <remarks>
+             This attribute enables automatic generation of CSV serialization code for the target type.
+             The source generator will create methods to read from and write to CSV format.
+             </remarks>
+             <example>
+             <code>
+             [CsvRecord(HasHeaders = true, Delimiter = ',')]
+             public partial class Person
+             {
+                 [CsvField(Order = 0)]
+                 public string Name { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 public int Age { get; set; }
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvRecordAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvRecordAttribute"/> class.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.Delimiter">
+            <summary>
+            Gets or sets the delimiter character used to separate fields in the CSV.
+            </summary>
+            <remarks>
+            Common delimiters include:
+            <list type="bullet">
+            <item><description>Comma (,) - Default and most common</description></item>
+            <item><description>Tab (\t) - For TSV files</description></item>
+            <item><description>Semicolon (;) - Common in European locales</description></item>
+            <item><description>Pipe (|) - For data with many commas</description></item>
+            </list>
+            </remarks>
+            <value>The delimiter character. Default is comma (,).</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.Quote">
+            <summary>
+            Gets or sets the quote character used to enclose fields containing special characters.
+            </summary>
+            <remarks>
+            Fields containing the delimiter, newlines, or the quote character itself
+            will be enclosed in quotes. Quote characters within fields are escaped by doubling.
+            </remarks>
+            <value>The quote character. Default is double quote (").</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.HasHeaders">
+            <summary>
+            Gets or sets a value indicating whether the CSV file has a header row.
+            </summary>
+            <remarks>
+            When true, the first row is treated as column headers during deserialization
+            and headers are written during serialization. Field names can be customized
+            using the <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Name"/> property.
+            </remarks>
+            <value>
+            <c>true</c> if the CSV has headers; otherwise, <c>false</c>. Default is <c>true</c>.
+            </value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.Escape">
+            <summary>
+            Gets or sets the escape character used for special characters in fields.
+            </summary>
+            <remarks>
+            If not set, quote doubling is used as the escape mechanism.
+            Setting this enables backslash-style escaping (e.g., \" for quotes).
+            </remarks>
+            <value>The escape character, or null to use quote doubling.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.TrimWhitespace">
+            <summary>
+            Gets or sets a value indicating whether to trim whitespace from field values.
+            </summary>
+            <remarks>
+            When true, leading and trailing whitespace is removed from field values
+            during deserialization. This does not affect values within quoted fields.
+            </remarks>
+            <value>
+            <c>true</c> to trim whitespace; otherwise, <c>false</c>. Default is <c>false</c>.
+            </value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvRecordAttribute.SkipEmptyLines">
+            <summary>
+            Gets or sets a value indicating whether to skip empty lines during deserialization.
+            </summary>
+            <remarks>
+            When true, completely empty lines are ignored during CSV parsing.
+            Lines containing only whitespace are considered empty if <see cref="P:CsvHandler.Attributes.CsvRecordAttribute.TrimWhitespace"/> is true.
+            </remarks>
+            <value>
+            <c>true</c> to skip empty lines; otherwise, <c>false</c>. Default is <c>true</c>.
+            </value>
+        </member>
+        <member name="T:CsvHandler.Attributes.CsvSerializableAttribute">
+             <summary>
+             Registers a CSV-serializable type with a CSV context class for ahead-of-time (AOT) compilation.
+             </summary>
+             <remarks>
+             <para>
+             This attribute is applied to context classes that manage CSV serialization metadata.
+             It triggers source generation for the specified types, enabling fast, AOT-friendly serialization.
+             </para>
+             <para>
+             Context classes should be partial and can aggregate multiple CSV-serializable types.
+             The source generator creates optimized serialization code for all registered types.
+             </para>
+             </remarks>
+             <example>
+             <code>
+             // Define CSV record types
+             [CsvRecord]
+             public partial class Person
+             {
+                 [CsvField(Order = 0)]
+                 public string Name { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 public int Age { get; set; }
+             }
+            
+             [CsvRecord]
+             public partial class Product
+             {
+                 [CsvField(Order = 0)]
+                 public int Id { get; set; }
+            
+                 [CsvField(Order = 1)]
+                 public string Name { get; set; }
+             }
+            
+             // Register types in a context
+             [CsvSerializable(typeof(Person))]
+             [CsvSerializable(typeof(Product))]
+             public partial class MyCsvContext
+             {
+                 // The source generator will add serialization methods here
+             }
+            
+             // Usage
+             var context = new MyCsvContext();
+             var people = context.DeserializePerson(csvContent);
+             var csv = context.SerializePerson(people);
+             </code>
+             </example>
+        </member>
+        <member name="M:CsvHandler.Attributes.CsvSerializableAttribute.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Attributes.CsvSerializableAttribute"/> class.
+            </summary>
+            <param name="type">The type to register for CSV serialization.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="type"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="type"/> is not marked with <see cref="T:CsvHandler.Attributes.CsvRecordAttribute"/>.
+            </exception>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvSerializableAttribute.Type">
+            <summary>
+            Gets the type registered for CSV serialization.
+            </summary>
+            <value>The registered type that must be marked with <see cref="T:CsvHandler.Attributes.CsvRecordAttribute"/>.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvSerializableAttribute.TypeName">
+            <summary>
+            Gets or sets the name used to identify this serializable type in generated code.
+            </summary>
+            <remarks>
+            If not specified, the type name is used. This is useful when the context manages
+            multiple types with the same name from different namespaces.
+            Generated methods will use this name (e.g., Serialize{TypeName}, Deserialize{TypeName}).
+            </remarks>
+            <value>The type name for generated code, or null to use the actual type name.</value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvSerializableAttribute.GenerateAsync">
+            <summary>
+            Gets or sets a value indicating whether to generate async methods for this type.
+            </summary>
+            <remarks>
+            When true, generates async methods like SerializeAsync and DeserializeAsync
+            that work with Stream and StreamReader/StreamWriter.
+            </remarks>
+            <value>
+            <c>true</c> to generate async methods; otherwise, <c>false</c>. Default is <c>true</c>.
+            </value>
+        </member>
+        <member name="P:CsvHandler.Attributes.CsvSerializableAttribute.GenerateSync">
+            <summary>
+            Gets or sets a value indicating whether to generate synchronous methods for this type.
+            </summary>
+            <remarks>
+            When true, generates synchronous methods like Serialize and Deserialize
+            that work with string and TextReader/TextWriter.
+            </remarks>
+            <value>
+            <c>true</c> to generate synchronous methods; otherwise, <c>false</c>. Default is <c>true</c>.
+            </value>
+        </member>
+        <member name="T:CsvHandler.Compat.ModernCollections">
+            <summary>
+            Compatibility layer for modern collection features.
+            Uses SearchValues on .NET 8+, falls back to manual search on older platforms.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.IndexOfAnyDelimiterOrSpecialChar(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Searches for any CSV-related special character (delimiters, quotes, line breaks).
+            Uses built-in IndexOfAny with SIMD on .NET 6+.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.IndexOfDelimiterOrNewLine(System.ReadOnlySpan{System.Byte},System.Byte)">
+            <summary>
+            Searches for a specific delimiter or line break characters.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.IndexOfQuoteOrNewLine(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Searches for quote or line break characters.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.IndexOfLineEnd(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Searches for the end of a line (LF or CRLF).
+            Returns the index of the line feed character, or -1 if not found.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.StartsWithBom(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Checks if the span starts with a BOM (Byte Order Mark).
+            UTF-8 BOM: 0xEF 0xBB 0xBF
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.StripBom(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Strips the UTF-8 BOM if present at the start of the span.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.CountLines(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Counts the number of lines in a CSV span (counts line feed characters).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Compat.ModernCollections.DetectLineEnding(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Determines the line ending style used in the CSV data.
+            Returns: 0 for LF, 1 for CRLF, -1 for unknown/mixed.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvContext">
+            <summary>
+            Base class for source-generated CSV serialization contexts.
+            Provides metadata and converters for CSV operations in an AOT-safe manner.
+            </summary>
+            <remarks>
+            This class is used by the source generator to create type-safe, reflection-free
+            CSV serialization code. User code should not derive from this class directly;
+            instead, use the [CsvSerializable] attribute to generate a context automatically.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.Core.CsvContext.Options">
+            <summary>
+            Gets the default options for this context.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.CsvContext.GetTypeMetadata``1">
+            <summary>
+            Gets metadata for a specific type in this context.
+            </summary>
+            <typeparam name="T">The type to get metadata for.</typeparam>
+            <returns>The type metadata, or null if the type is not registered in this context.</returns>
+        </member>
+        <member name="T:CsvHandler.Core.CsvTypeMetadata`1">
+            <summary>
+            Metadata describing how a type should be serialized to/from CSV.
+            Generated by the source generator for each [CsvRecord] type.
+            Supports reference types, value types, and record structs.
+            </summary>
+            <typeparam name="T">The type this metadata describes.</typeparam>
+        </member>
+        <member name="P:CsvHandler.Core.CsvTypeMetadata`1.Type">
+            <summary>
+            Gets the type being described.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvTypeMetadata`1.Fields">
+            <summary>
+            Gets the field metadata for all CSV fields in this type.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvTypeMetadata`1.WriteValue">
+            <summary>
+            Delegate for writing a value to CSV using the Utf8CsvWriter.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvTypeMetadata`1.WriteHeader">
+            <summary>
+            Delegate for writing headers to CSV using the Utf8CsvWriter.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvTypeMetadata`1.WriteValueFunc">
+            <summary>
+            Gets the function to write a value to CSV.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvTypeMetadata`1.WriteHeaderFunc">
+            <summary>
+            Gets the function to write headers to CSV.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.CsvTypeMetadata`1.#ctor(System.Type,CsvHandler.Core.CsvFieldMetadata[],CsvHandler.Core.CsvTypeMetadata{`0}.WriteValue,CsvHandler.Core.CsvTypeMetadata{`0}.WriteHeader)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Core.CsvTypeMetadata`1"/> class.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvFieldMetadata">
+            <summary>
+            Metadata describing a single CSV field.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvFieldMetadata.Name">
+            <summary>
+            Gets the field name as it appears in the CSV header.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvFieldMetadata.Order">
+            <summary>
+            Gets the field order/index in the CSV.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvFieldMetadata.FieldType">
+            <summary>
+            Gets the field's .NET type.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvFieldMetadata.IsRequired">
+            <summary>
+            Gets whether this field is required (non-nullable).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.CsvFieldMetadata.#ctor(System.String,System.Int32,System.Type,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.Core.CsvFieldMetadata"/> class.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvParseMode">
+            <summary>
+            Specifies the parsing mode for CSV field processing.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.Rfc4180">
+            <summary>
+            Strict RFC 4180 compliance. Requires proper quoting and escaping.
+            Fails on malformed input.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.Lenient">
+            <summary>
+            Lenient parsing mode. Makes best-effort attempt to parse malformed CSV.
+            Tolerates unescaped quotes and other format violations.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvParseMode.IgnoreQuotes">
+            <summary>
+            Ignores quote characters entirely. Treats all characters as literals.
+            Useful for simple delimited data without quoting.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvWriterOptions">
+            <summary>
+            Configuration options for CSV writing operations.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Delimiter">
+            <summary>
+            Gets or sets the field delimiter character. Default is comma (',').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Quote">
+            <summary>
+            Gets or sets the quote character. Default is double-quote ('"').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Escape">
+            <summary>
+            Gets or sets the escape character. Default is double-quote ('"').
+            In RFC 4180, quotes are escaped by doubling them.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.WriteHeaders">
+            <summary>
+            Gets or sets whether to write a header row with field names.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.QuoteMode">
+            <summary>
+            Gets or sets the quote mode determining when fields should be quoted.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Culture">
+            <summary>
+            Gets or sets the culture to use for formatting values.
+            Default is InvariantCulture for consistent cross-platform behavior.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.NewLine">
+            <summary>
+            Gets or sets the newline sequence. Default is "\r\n" (CRLF) per RFC 4180.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.BufferSize">
+            <summary>
+            Gets or sets the buffer size in bytes for writing operations.
+            Default is 65536 (64 KB) for optimal performance.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.AutoFlush">
+            <summary>
+            Gets or sets whether to flush automatically after each record.
+            Enabling this can impact performance but ensures data is written immediately.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Encoding">
+            <summary>
+            Gets or sets the encoding to use when writing text.
+            Default is UTF-8 without BOM.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Default">
+            <summary>
+            Creates a new instance with RFC 4180 defaults.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Tsv">
+            <summary>
+            Creates a new instance configured for tab-separated values (TSV).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.CsvWriterOptions.Semicolon">
+            <summary>
+            Creates a new instance configured for semicolon-delimited values (common in European locales).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.CsvWriterOptions.Validate">
+            <summary>
+            Validates the options and throws if any are invalid.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.CsvQuoteMode">
+            <summary>
+            Specifies when fields should be enclosed in quotes during CSV writing.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvQuoteMode.None">
+            <summary>
+            Never quote fields. Use only when data is known to not contain special characters.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvQuoteMode.Minimal">
+            <summary>
+            Quote only fields that contain delimiters, quotes, or newlines (RFC 4180 compliant).
+            This is the recommended mode for most scenarios.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvQuoteMode.All">
+            <summary>
+            Quote all fields regardless of content.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.Core.CsvQuoteMode.NonNumeric">
+            <summary>
+            Quote all non-numeric fields. Numeric fields (int, double, etc.) are not quoted.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.Utf8CsvParser">
+            <summary>
+            High-performance UTF-8 CSV parser implemented as a ref struct for zero-allocation parsing.
+            Supports RFC 4180 strict mode and lenient parsing modes.
+            </summary>
+            <remarks>
+            Performance characteristics:
+            - Zero allocations in hot path
+            - SIMD-accelerated scanning (10+ GB/s on modern hardware with .NET 6+)
+            - Vectorized fallback for .NET Standard 2.0 (5+ GB/s)
+            - Span-based API for maximum efficiency
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.CurrentLine">
+            <summary>
+            Gets the current line number (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.Position">
+            <summary>
+            Gets the current byte position in the input.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParser.IsEndOfStream">
+            <summary>
+            Gets whether the parser has reached the end of the input stream.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.#ctor(System.ReadOnlySpan{System.Byte},CsvHandler.Core.Utf8CsvParserOptions)">
+            <summary>
+            Initializes a new UTF-8 CSV parser with the specified input and options.
+            </summary>
+            <param name="input">The UTF-8 encoded CSV data to parse.</param>
+            <param name="options">Parser configuration options.</param>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.TryReadField(System.ReadOnlySpan{System.Byte}@)">
+            <summary>
+            Attempts to read the next field from the current record.
+            </summary>
+            <param name="field">The field data as a UTF-8 byte span. May contain quotes that need unescaping.</param>
+            <returns>True if a field was read; false if the end of record or stream is reached.</returns>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.TryReadRecord(System.Span{System.Range})">
+            <summary>
+            Attempts to read an entire record into the provided field ranges.
+            </summary>
+            <param name="fields">A span to receive the field ranges. Each Range indicates start..end in the input.</param>
+            <returns>The number of fields read, or -1 if end of stream.</returns>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.SkipRecord">
+            <summary>
+            Skips the current record, advancing to the start of the next record.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvParser.Reset">
+            <summary>
+            Resets the parser to the beginning of the input.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.Utf8CsvParserOptions">
+            <summary>
+            Configuration options for the UTF-8 CSV parser.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Delimiter">
+            <summary>
+            The field delimiter byte. Default is comma (44, ',').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Quote">
+            <summary>
+            The quote character byte. Default is double-quote (34, '"').
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Escape">
+            <summary>
+            The escape character byte. Default is double-quote (34, '"').
+            In RFC 4180, quotes are escaped by doubling them.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.HasHeaders">
+            <summary>
+            Indicates whether the first record contains header names.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.TrimFields">
+            <summary>
+            Indicates whether to trim leading and trailing whitespace from unquoted fields.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.AllowComments">
+            <summary>
+            Indicates whether to allow comment lines starting with CommentPrefix.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.CommentPrefix">
+            <summary>
+            The comment prefix byte. Default is hash/pound (35, '#').
+            Only used when AllowComments is true.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Mode">
+            <summary>
+            The parsing mode to use for handling CSV data.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Default">
+            <summary>
+            Creates a new instance with RFC 4180 defaults.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Lenient">
+            <summary>
+            Creates a new instance with lenient parsing mode.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvParserOptions.Tsv">
+            <summary>
+            Creates a new instance for tab-separated values (TSV).
+            </summary>
+        </member>
+        <member name="T:CsvHandler.Core.Utf8CsvWriter">
+            <summary>
+            High-performance UTF-8 CSV writer implemented as a ref struct for zero-allocation writing.
+            Writes directly to an IBufferWriter&lt;byte&gt; for optimal throughput.
+            </summary>
+            <remarks>
+            Performance characteristics:
+            - Zero allocations in hot path
+            - SIMD-accelerated quote detection (5+ GB/s on .NET 6+)
+            - Vectorized fallback for .NET Standard 2.0 (3+ GB/s)
+            - Direct UTF-8 encoding without intermediate string allocation
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvWriter.RecordsWritten">
+            <summary>
+            Gets the number of records written so far.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.Core.Utf8CsvWriter.BytesWritten">
+            <summary>
+            Gets the approximate number of bytes written so far.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.#ctor(System.Buffers.IBufferWriter{System.Byte},CsvHandler.Core.CsvWriterOptions)">
+            <summary>
+            Initializes a new UTF-8 CSV writer with the specified output and options.
+            </summary>
+            <param name="output">The buffer writer to write CSV data to.</param>
+            <param name="options">Writer configuration options.</param>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Writes a field as UTF-8 bytes.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Writes a field as UTF-16 characters (auto-converts to UTF-8).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.String)">
+            <summary>
+            Writes a string field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Int32)">
+            <summary>
+            Writes an integer field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Int64)">
+            <summary>
+            Writes a long integer field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Double)">
+            <summary>
+            Writes a double-precision floating-point field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Decimal)">
+            <summary>
+            Writes a decimal field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.DateTime)">
+            <summary>
+            Writes a DateTime field in ISO 8601 format.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.DateTimeOffset)">
+            <summary>
+            Writes a DateTimeOffset field in ISO 8601 format.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Boolean)">
+            <summary>
+            Writes a boolean field as "true" or "false".
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteField(System.Guid)">
+            <summary>
+            Writes a GUID field.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Core.Utf8CsvWriter.WriteEndOfRecord">
+            <summary>
+            Writes the end-of-record marker (newline).
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvContext">
+             <summary>
+             Base context class for CSV serialization with Native AOT support.
+             Provides metadata and serialization delegates for types registered via source generation.
+             </summary>
+             <remarks>
+             <para>
+             CsvContext serves as the foundation for AOT-compatible CSV serialization by:
+             </para>
+             <list type="bullet">
+             <item>Providing compile-time type metadata through source generation</item>
+             <item>Eliminating reflection-based serialization</item>
+             <item>Enabling full trimming and AOT compilation</item>
+             <item>Offering type-safe serialization through strongly-typed delegates</item>
+             </list>
+             <para>
+             Usage:
+             </para>
+             <code>
+             [CsvSerializable(typeof(Person))]
+             [CsvSerializable(typeof(Order))]
+             public partial class AppCsvContext : CsvContext
+             {
+                 // Implementation generated by source generator
+             }
+            
+             // Use context with CsvReader/Writer
+             var reader = CsvReader&lt;Person&gt;.Create(stream, AppCsvContext.Default);
+             </code>
+             </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvContext.Options">
+            <summary>
+            Gets the default CSV options for this context.
+            Can be overridden in derived classes to provide custom defaults.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvContext.GetTypeInfo``1">
+            <summary>
+            Gets type metadata and serialization delegates for the specified type.
+            </summary>
+            <typeparam name="T">The type to get metadata for.</typeparam>
+            <returns>
+            A <see cref="T:CsvHandler.CsvTypeInfo`1"/> instance containing serialization metadata and delegates,
+            or <c>null</c> if the type is not registered in this context.
+            </returns>
+            <remarks>
+            This method is typically implemented by source generators to provide compile-time
+            type metadata without reflection. Each registered type returns a pre-configured
+            CsvTypeInfo instance with serialization delegates.
+            </remarks>
+        </member>
+        <member name="M:CsvHandler.CsvContext.GetTypeHandler``1">
+            <summary>
+            Gets a type handler for CSV serialization/deserialization.
+            </summary>
+            <typeparam name="T">The type to get a handler for.</typeparam>
+            <returns>
+            An <see cref="T:CsvHandler.ICsvTypeHandler`1"/> instance for the specified type,
+            or <c>null</c> if the type is not registered in this context.
+            </returns>
+        </member>
+        <member name="M:CsvHandler.CsvContext.GetTypeMetadata``1">
+            <summary>
+            Gets type metadata for CSV writing operations.
+            </summary>
+            <typeparam name="T">The type to get metadata for.</typeparam>
+            <returns>
+            A <see cref="T:CsvHandler.Core.CsvTypeMetadata`1"/> instance for the specified type,
+            or <c>null</c> if the type is not registered in this context.
+            </returns>
+        </member>
+        <member name="M:CsvHandler.CsvContext.GetTypeInfo(System.Type)">
+            <summary>
+            Gets type metadata for the specified type using non-generic access.
+            </summary>
+            <param name="type">The type to get metadata for.</param>
+            <returns>
+            A <see cref="T:CsvHandler.CsvTypeInfo"/> instance containing serialization metadata,
+            or <c>null</c> if the type is not registered in this context.
+            </returns>
+            <remarks>
+            This method provides runtime type access to metadata. It uses the generic
+            <see cref="M:CsvHandler.CsvContext.GetTypeInfo``1"/> method internally through reflection-free delegation.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvContext.DefaultInstance">
+            <summary>
+            Gets or creates a default context instance.
+            </summary>
+            <remarks>
+            Derived classes should override this to provide a singleton instance:
+            <code>
+            private static AppCsvContext? s_default;
+            public static new AppCsvContext Default => s_default ??= new AppCsvContext();
+            </code>
+            </remarks>
+        </member>
+        <member name="T:CsvHandler.DefaultCsvContext">
+            <summary>
+            Default CSV context that uses reflection for types without source generation.
+            </summary>
+            <remarks>
+            This context is provided for backwards compatibility and convenience, but requires
+            reflection and is not compatible with Native AOT. For AOT scenarios, use a source-generated
+            context derived from <see cref="T:CsvHandler.CsvContext"/>.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.DefaultCsvContext.Default">
+            <summary>
+            Gets the default instance of the reflection-based context.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.DefaultCsvContext.GetTypeInfo``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:CsvHandler.DefaultCsvContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:CsvHandler.CsvFieldReader">
+            <summary>
+            Delegate for reading a CSV field from a UTF-8 byte span and converting it to a typed object.
+            </summary>
+            <param name="fieldData">The UTF-8 encoded field data from the CSV.</param>
+            <returns>The parsed object value, or null.</returns>
+        </member>
+        <member name="T:CsvHandler.CsvFieldReader`1">
+            <summary>
+            Delegate for reading a CSV field from a UTF-8 byte span and converting it to a typed value.
+            </summary>
+            <typeparam name="T">The type to convert the field data to.</typeparam>
+            <param name="fieldData">The UTF-8 encoded field data from the CSV.</param>
+            <returns>The parsed value of type T.</returns>
+        </member>
+        <member name="T:CsvHandler.CsvError">
+            <summary>
+            Represents an error encountered during CSV reading.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.LineNumber">
+            <summary>
+            Gets the line number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.Position">
+            <summary>
+            Gets the character position within the line where the error occurred (0-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.Message">
+            <summary>
+            Gets the error message describing what went wrong.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.ErrorType">
+            <summary>
+            Gets the type of error that occurred.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.RawLine">
+            <summary>
+            Gets the raw line content where the error occurred, if available.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.FieldName">
+            <summary>
+            Gets the field name associated with the error, if applicable.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvError.InnerException">
+            <summary>
+            Gets the inner exception that caused this error, if any.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvError.#ctor(System.Int64,System.Int32,System.String,CsvHandler.CsvErrorType,System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.CsvError"/> class.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvError.ToString">
+            <summary>
+            Returns a string representation of this error.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvErrorType">
+            <summary>
+            Specifies the type of CSV reading error.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.MalformedField">
+            <summary>
+            A field is malformed (e.g., unclosed quote, invalid escaping).
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.TypeConversion">
+            <summary>
+            A value could not be converted to the target type.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.MissingField">
+            <summary>
+            A required field is missing from the CSV data.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.InvalidHeader">
+            <summary>
+            The header row is invalid or missing.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.FieldCountMismatch">
+            <summary>
+            The row has too many or too few fields.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.UnexpectedEndOfFile">
+            <summary>
+            An unexpected end of file was encountered.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorType.ParsingError">
+            <summary>
+            A general parsing error occurred.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvException">
+            <summary>
+            Exception thrown when CSV parsing or deserialization fails.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvException.LineNumber">
+            <summary>
+            Gets the line number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvException.Position">
+            <summary>
+            Gets the character position within the line where the error occurred (0-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvException.ErrorType">
+            <summary>
+            Gets the type of CSV error.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvException.FieldName">
+            <summary>
+            Gets the field name associated with the error, if applicable.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvException.RawLine">
+            <summary>
+            Gets the raw line content where the error occurred, if available.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvException.#ctor(System.String,System.Int64,System.Int32,CsvHandler.CsvErrorType,System.String,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.CsvException"/> class.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvException.ToCsvError">
+            <summary>
+            Converts this exception to a <see cref="T:CsvHandler.CsvError"/> instance.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvException.ToString">
+            <summary>
+            Returns a string representation of this exception.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvFieldInfo">
+            <summary>
+            Metadata for a single field in a CSV type.
+            </summary>
+            <remarks>
+            <para>
+            CsvFieldInfo provides compile-time metadata about CSV fields including:
+            </para>
+            <list type="bullet">
+            <item>Field naming and ordering in the CSV output</item>
+            <item>Type information and format specifications</item>
+            <item>Custom converters and default values</item>
+            <item>Required field validation</item>
+            <item>Individual field reading/writing delegates</item>
+            </list>
+            <para>
+            Instances are created by source generators and stored in CsvTypeInfo.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Name">
+            <summary>
+            Gets the CLR property or field name.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.CsvName">
+            <summary>
+            Gets the name used in CSV headers and data.
+            If null, uses the CLR name.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.EffectiveCsvName">
+            <summary>
+            Gets the effective CSV name, preferring CsvName over Name.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Order">
+            <summary>
+            Gets the zero-based position of this field in CSV output.
+            Used to determine field ordering in CSV rows.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Index">
+            <summary>
+            Gets the zero-based index used for parsing.
+            Typically matches Order unless custom mapping is used.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.FieldType">
+            <summary>
+            Gets the CLR type of the field.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Format">
+            <summary>
+            Gets the format string for value serialization.
+            Used for types like DateTime, decimal, etc.
+            </summary>
+            <example>
+            "yyyy-MM-dd" for dates, "F2" for decimals with 2 decimal places
+            </example>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.IsRequired">
+            <summary>
+            Gets whether this field is required to be present in CSV data.
+            If true, parsing will fail if the field is missing or empty.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.DefaultValue">
+            <summary>
+            Gets the default value to use if the field is missing or empty.
+            Only used when IsRequired is false.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Ignore">
+            <summary>
+            Gets whether to ignore this field during serialization.
+            Useful for computed or internal properties.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.ConverterType">
+            <summary>
+            Gets the custom converter type for this field.
+            Must implement ICsvConverter&lt;T&gt; for the field type.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Reader">
+            <summary>
+            Delegate for reading this field from a CSV data span.
+            </summary>
+            <remarks>
+            Takes the field data as a UTF-8 span and returns the parsed value.
+            Generated by source generators to provide efficient, type-specific parsing.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvFieldInfo.Writer">
+            <summary>
+            Delegate for writing this field to a buffer writer.
+            </summary>
+            <remarks>
+            Takes the field value and writes it to an IBufferWriter in CSV format.
+            Generated by source generators to provide efficient, type-specific serialization.
+            </remarks>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfo.#ctor">
+            <summary>
+            Creates a new CsvFieldInfo instance.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfo.Validate">
+            <summary>
+            Validates that this field info is properly configured.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfo.ToString">
+            <summary>
+            Returns a string representation of this field info.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvFieldInfoBuilder">
+            <summary>
+            Builder for constructing CsvFieldInfo instances.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithName(System.String)">
+            <summary>
+            Sets the CLR property or field name.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithCsvName(System.String)">
+            <summary>
+            Sets the CSV column name.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithOrder(System.Int32)">
+            <summary>
+            Sets the field order in CSV output.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithIndex(System.Int32)">
+            <summary>
+            Sets the field index for parsing.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithFieldType(System.Type)">
+            <summary>
+            Sets the field type.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithFormat(System.String)">
+            <summary>
+            Sets the format string.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.AsRequired(System.Boolean)">
+            <summary>
+            Marks the field as required.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithDefaultValue(System.Object)">
+            <summary>
+            Sets the default value.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.AsIgnored(System.Boolean)">
+            <summary>
+            Marks the field to be ignored.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithConverter(System.Type)">
+            <summary>
+            Sets the custom converter type.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithReader(CsvHandler.CsvFieldReader)">
+            <summary>
+            Sets the reader delegate.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.WithWriter(System.Action{System.Buffers.IBufferWriter{System.Byte},System.Object})">
+            <summary>
+            Sets the writer delegate.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvFieldInfoBuilder.Build">
+            <summary>
+            Builds and validates the final CsvFieldInfo instance.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvOptions">
+            <summary>
+            Configuration options for CSV reading.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.Default">
+            <summary>
+            Gets the default CSV options (comma-delimited, double-quote, has headers).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.Delimiter">
+            <summary>
+            Gets or sets the field delimiter character. Default is comma (,).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.Quote">
+            <summary>
+            Gets or sets the quote character used to enclose fields. Default is double-quote (").
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.Escape">
+            <summary>
+            Gets or sets the escape character used within quoted fields. Default is double-quote (").
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.HasHeaders">
+            <summary>
+            Gets or sets whether the CSV file has a header row. Default is true.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.TrimOptions">
+            <summary>
+            Gets or sets the trimming behavior for field values. Default is None.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.ParseMode">
+            <summary>
+            Gets or sets the parsing mode for handling malformed CSV. Default is Strict.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.Culture">
+            <summary>
+            Gets or sets the culture used for parsing values. Default is InvariantCulture.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.ErrorHandling">
+            <summary>
+            Gets or sets how errors are handled during reading. Default is Throw.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.OnError">
+            <summary>
+            Gets or sets an optional callback invoked when an error occurs.
+            Return true to continue processing, false to stop.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.BufferSize">
+            <summary>
+            Gets or sets the buffer size for reading. Default is 4096 bytes.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.AllowJaggedRows">
+            <summary>
+            Gets or sets whether to allow jagged rows (rows with different field counts). Default is false.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.SkipEmptyLines">
+            <summary>
+            Gets or sets whether to skip empty lines. Default is true.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.CommentCharacter">
+            <summary>
+            Gets or sets the comment character. Lines starting with this character are ignored. Default is null (no comments).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvOptions.MaxErrorCount">
+            <summary>
+            Gets or sets the maximum number of errors to collect when ErrorHandling is Collect. Default is 100.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvOptions.Validate">
+            <summary>
+            Validates the options and throws if invalid.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvOptions.Clone">
+            <summary>
+            Creates a shallow copy of the current options.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvTrimOptions">
+            <summary>
+            Specifies how field values should be trimmed.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvTrimOptions.None">
+            <summary>
+            Do not trim whitespace.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvTrimOptions.UnquotedOnly">
+            <summary>
+            Trim leading whitespace from unquoted fields.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvTrimOptions.All">
+            <summary>
+            Trim leading and trailing whitespace from all fields.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvTrimOptions.InsideQuotes">
+            <summary>
+            Trim whitespace inside quotes as well.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvParseMode">
+            <summary>
+            Specifies the parsing mode for handling malformed CSV.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvParseMode.Strict">
+            <summary>
+            Strict RFC 4180 compliance. Throw on any malformed data.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvParseMode.Lenient">
+            <summary>
+            Lenient mode. Attempt to recover from common formatting issues.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvParseMode.Tolerant">
+            <summary>
+            Tolerant mode. Accept most variations and attempt best-effort parsing.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvErrorHandling">
+            <summary>
+            Specifies how errors should be handled during CSV reading.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorHandling.Throw">
+            <summary>
+            Throw an exception immediately when an error occurs.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorHandling.Skip">
+            <summary>
+            Skip the problematic row and continue processing. Errors are logged.
+            </summary>
+        </member>
+        <member name="F:CsvHandler.CsvErrorHandling.Collect">
+            <summary>
+            Collect errors in the Errors property and continue processing up to MaxErrorCount.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvReader`1">
+            <summary>
+            Provides high-performance CSV reading with dual-path design (source-generated + reflection).
+            </summary>
+            <typeparam name="T">The type to deserialize CSV rows into.</typeparam>
+        </member>
+        <member name="P:CsvHandler.CsvReader`1.LineNumber">
+            <summary>
+            Gets the current line number (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReader`1.BytesRead">
+            <summary>
+            Gets the number of bytes read from the stream.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReader`1.Errors">
+            <summary>
+            Gets the read-only list of collected errors (when ErrorHandling is Collect).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.#ctor(System.IO.Stream,CsvHandler.CsvOptions,CsvHandler.ICsvTypeHandler{`0},System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.CsvReader`1"/> class.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.Create(System.IO.Stream,CsvHandler.CsvContext,System.Boolean)">
+            <summary>
+            Creates a CSV reader using source-generated type handler (AOT-safe).
+            </summary>
+            <param name="stream">The stream to read CSV data from.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="leaveOpen">Whether to leave the stream open after disposal.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.Create(System.IO.Stream,CsvHandler.CsvContext,CsvHandler.CsvOptions,System.Boolean)">
+            <summary>
+            Creates a CSV reader using source-generated type handler with custom options (AOT-safe).
+            </summary>
+            <param name="stream">The stream to read CSV data from.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="options">The CSV reading options.</param>
+            <param name="leaveOpen">Whether to leave the stream open after disposal.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.Create(System.IO.Stream,System.Boolean)">
+            <summary>
+            Creates a CSV reader using reflection (not AOT-safe).
+            </summary>
+            <param name="stream">The stream to read CSV data from.</param>
+            <param name="leaveOpen">Whether to leave the stream open after disposal.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.Create(System.IO.Stream,CsvHandler.CsvOptions,System.Boolean)">
+            <summary>
+            Creates a CSV reader using reflection with custom options (not AOT-safe).
+            </summary>
+            <param name="stream">The stream to read CSV data from.</param>
+            <param name="options">The CSV reading options.</param>
+            <param name="leaveOpen">Whether to leave the stream open after disposal.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.ReadAllAsync(System.Threading.CancellationToken)">
+            <summary>
+            Reads all CSV rows asynchronously as a stream.
+            </summary>
+            <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+            <returns>An async enumerable of deserialized objects.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.ReadAll">
+            <summary>
+            Reads all CSV rows synchronously.
+            </summary>
+            <returns>An enumerable of deserialized objects.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.ReadNext">
+            <summary>
+            Reads the next CSV row synchronously.
+            </summary>
+            <returns>The deserialized object, or null if end of file.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.TryReadNext(`0@)">
+            <summary>
+            Tries to read the next CSV row synchronously.
+            </summary>
+            <param name="result">The deserialized object, or default if end of file or error.</param>
+            <returns>True if a row was read successfully; otherwise, false.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.Dispose">
+            <summary>
+            Disposes the reader and optionally the underlying stream.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.DisposeAsync">
+            <summary>
+            Asynchronously disposes the reader and optionally the underlying stream.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvReaderExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:CsvHandler.CsvReader`1"/>.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ToListAsync``1(CsvHandler.CsvReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Reads all rows and returns them as a list asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A list of all rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ToArrayAsync``1(CsvHandler.CsvReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Reads all rows and returns them as an array asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An array of all rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.FirstOrDefaultAsync``1(CsvHandler.CsvReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Returns the first row from the CSV file asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The first row, or default if the file is empty.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.FirstAsync``1(CsvHandler.CsvReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Returns the first row from the CSV file asynchronously, or throws if empty.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The first row.</returns>
+            <exception cref="T:System.InvalidOperationException">The CSV file is empty.</exception>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.CountAsync``1(CsvHandler.CsvReader{``0},System.Threading.CancellationToken)">
+            <summary>
+            Counts the number of rows in the CSV file asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The total number of rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.CountAsync``1(CsvHandler.CsvReader{``0},System.Func{``0,System.Boolean},System.Threading.CancellationToken)">
+            <summary>
+            Counts the number of rows in the CSV file that satisfy a condition asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="predicate">The condition to test each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The number of rows that satisfy the condition.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.WhereAsync``1(CsvHandler.CsvReader{``0},System.Func{``0,System.Boolean},System.Threading.CancellationToken)">
+            <summary>
+            Filters rows based on a predicate asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="predicate">The condition to test each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An async enumerable of filtered rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.SelectAsync``2(CsvHandler.CsvReader{``0},System.Func{``0,``1},System.Threading.CancellationToken)">
+            <summary>
+            Projects each row to a new form asynchronously.
+            </summary>
+            <typeparam name="T">The source type.</typeparam>
+            <typeparam name="TResult">The result type.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="selector">A transform function to apply to each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An async enumerable of transformed rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.SkipAsync``1(CsvHandler.CsvReader{``0},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Skips a specified number of rows asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="count">The number of rows to skip.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An async enumerable that skips the specified number of rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.TakeAsync``1(CsvHandler.CsvReader{``0},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Takes a specified number of rows asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="count">The number of rows to take.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>An async enumerable of the specified number of rows.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.AnyAsync``1(CsvHandler.CsvReader{``0},System.Func{``0,System.Boolean},System.Threading.CancellationToken)">
+            <summary>
+            Determines whether any row satisfies a condition asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="predicate">The condition to test each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>True if any row satisfies the condition; otherwise, false.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.AllAsync``1(CsvHandler.CsvReader{``0},System.Func{``0,System.Boolean},System.Threading.CancellationToken)">
+            <summary>
+            Determines whether all rows satisfy a condition asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="predicate">The condition to test each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>True if all rows satisfy the condition; otherwise, false.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ForEachAsync``1(CsvHandler.CsvReader{``0},System.Action{``0},System.Threading.CancellationToken)">
+            <summary>
+            Executes an action for each row asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="action">The action to execute for each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ForEachAsync``1(CsvHandler.CsvReader{``0},System.Func{``0,System.Threading.Tasks.Task},System.Threading.CancellationToken)">
+            <summary>
+            Executes an async action for each row asynchronously.
+            </summary>
+            <typeparam name="T">The type of objects to read.</typeparam>
+            <param name="reader">The CSV reader.</param>
+            <param name="action">The async action to execute for each row.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReaderExtensions.ToListAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.Threading.CancellationToken)">
+            <summary>
+            Converts an async enumerable to a list asynchronously.
+            </summary>
+            <typeparam name="T">The type of elements.</typeparam>
+            <param name="source">The async enumerable source.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A list containing all elements.</returns>
+        </member>
+        <member name="T:CsvHandler.CsvReadError">
+            <summary>
+            Represents an error that occurred while reading CSV data.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.Message">
+            <summary>
+            Gets the error message describing what went wrong.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.LineNumber">
+            <summary>
+            Gets the line number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.ColumnNumber">
+            <summary>
+            Gets the column number where the error occurred (1-based).
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvReadError.RawData">
+            <summary>
+            Gets the raw CSV data that caused the error, if available.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvReadError.#ctor(System.String,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHandler.CsvReadError"/> class.
+            </summary>
+            <param name="message">The error message.</param>
+            <param name="lineNumber">The line number where the error occurred.</param>
+            <param name="columnNumber">The column number where the error occurred.</param>
+            <param name="rawData">The raw CSV data that caused the error.</param>
+        </member>
+        <member name="M:CsvHandler.CsvReadError.ToString">
+            <summary>
+            Returns a string representation of the error.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvStreamReader">
+            <summary>
+            Low-level CSV stream reader that handles parsing CSV format into fields.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvStreamReader.ReadLineAsync(System.Threading.CancellationToken)">
+            <summary>
+            Reads the next line from the CSV file asynchronously.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvStreamReader.ReadLine">
+            <summary>
+            Reads the next line from the CSV file synchronously.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvTypeHandlerFactory">
+            <summary>
+            Factory for creating CSV type handlers via reflection (fallback path).
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvTypeHandlerFactory.CreateReflectionHandler``1(CsvHandler.CsvOptions)">
+            <summary>
+            Creates a reflection-based type handler for the specified type.
+            This is the fallback path when no source-generated context is available.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvTypeInfo">
+            <summary>
+            Non-generic base class for CSV type metadata.
+            </summary>
+            <remarks>
+            Provides common properties and functionality for CSV type metadata without
+            requiring generic type parameters. Used for runtime type access scenarios.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.Type">
+            <summary>
+            Gets the CLR type this metadata represents.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.Fields">
+            <summary>
+            Gets the collection of field metadata for this type.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.Options">
+            <summary>
+            Gets the CSV options specific to this type.
+            May be null to use context defaults.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.CanRead">
+            <summary>
+            Gets whether this type info supports synchronous reading.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.CanWrite">
+            <summary>
+            Gets whether this type info supports synchronous writing.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo.CanStream">
+            <summary>
+            Gets whether this type info supports asynchronous streaming operations.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvTypeInfo`1">
+            <summary>
+            Provides compile-time metadata and serialization delegates for a specific CSV type.
+            </summary>
+            <typeparam name="T">The type being serialized.</typeparam>
+            <remarks>
+            <para>
+            CsvTypeInfo is the core of the AOT-compatible serialization system. It contains:
+            </para>
+            <list type="bullet">
+            <item>Field metadata describing the CSV structure</item>
+            <item>Strongly-typed serialization delegates (no reflection)</item>
+            <item>Both synchronous and asynchronous reading/writing support</item>
+            <item>Type-specific options and configuration</item>
+            </list>
+            <para>
+            Instances are typically created by source generators and registered in a CsvContext.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.Type">
+            <inheritdoc/>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.Fields">
+            <inheritdoc/>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.FieldsList">
+            <summary>
+            Gets or sets the mutable field collection.
+            Used during type info construction by source generators.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.Reader">
+            <summary>
+            Delegate for synchronous reading from a CSV data span.
+            </summary>
+            <remarks>
+            The delegate receives a UTF-8 encoded CSV data span and returns a deserialized instance.
+            This is the most efficient reading path for in-memory scenarios.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.Writer">
+            <summary>
+            Delegate for synchronous writing to a buffer writer.
+            </summary>
+            <remarks>
+            The delegate writes the object to an IBufferWriter, allowing zero-allocation
+            serialization directly to the output buffer.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.AsyncReader">
+            <summary>
+            Delegate for asynchronous streaming reads from a stream.
+            </summary>
+            <remarks>
+            Returns an IAsyncEnumerable that yields objects as they are parsed from the stream.
+            Enables efficient processing of large CSV files without loading everything into memory.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.AsyncWriter">
+            <summary>
+            Delegate for asynchronous writing a single object to a stream.
+            </summary>
+            <remarks>
+            Writes a single object to the stream asynchronously. For writing multiple objects,
+            call this delegate multiple times or use a higher-level writer that buffers output.
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.CanRead">
+            <inheritdoc/>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.CanWrite">
+            <inheritdoc/>
+        </member>
+        <member name="P:CsvHandler.CsvTypeInfo`1.CanStream">
+            <inheritdoc/>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfo`1.#ctor">
+            <summary>
+            Creates a new instance with default configuration.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfo`1.Validate">
+            <summary>
+            Validates that this type info is properly configured.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown if the type info is missing required configuration.
+            </exception>
+        </member>
+        <member name="T:CsvHandler.CsvTypeInfoBuilder`1">
+            <summary>
+            Builder for constructing CsvTypeInfo instances.
+            </summary>
+            <typeparam name="T">The type being configured.</typeparam>
+            <remarks>
+            Provides a fluent API for building type information. Used by source generators
+            to construct type metadata in a type-safe manner.
+            </remarks>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfoBuilder`1.WithReader(CsvHandler.CsvFieldReader{`0})">
+            <summary>
+            Sets the synchronous reader delegate.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfoBuilder`1.WithWriter(System.Action{System.Buffers.IBufferWriter{System.Byte},`0})">
+            <summary>
+            Sets the synchronous writer delegate.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfoBuilder`1.AddField(CsvHandler.CsvFieldInfo)">
+            <summary>
+            Adds a field to the type metadata.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvTypeInfoBuilder`1.Build">
+            <summary>
+            Builds and validates the final CsvTypeInfo instance.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvWriter`1">
+            <summary>
+            High-performance CSV writer with support for both source-generated (AOT-safe)
+            and reflection-based (compatibility) serialization.
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <remarks>
+            Performance characteristics:
+            - Source-generated path: 5+ GB/s on .NET 8.0, zero allocations
+            - Reflection path: 3+ GB/s on .NET 8.0 (marked with RequiresUnreferencedCode)
+            - Configurable buffering with ArrayPool for optimal throughput
+            - Proper RFC 4180 quote escaping with SIMD acceleration
+            </remarks>
+        </member>
+        <member name="P:CsvHandler.CsvWriter`1.RecordsWritten">
+            <summary>
+            Gets the number of records written so far.
+            </summary>
+        </member>
+        <member name="P:CsvHandler.CsvWriter`1.BytesWritten">
+            <summary>
+            Gets the approximate number of bytes written so far.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Create(System.IO.Stream,System.Boolean)">
+            <summary>
+            Creates a new CSV writer with default options (uses reflection, not AOT-safe).
+            </summary>
+            <param name="stream">The stream to write CSV data to.</param>
+            <param name="leaveOpen">Whether to leave the stream open when disposing.</param>
+            <returns>A new CSV writer instance.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Create(System.IO.Stream,CsvHandler.Core.CsvWriterOptions,System.Boolean)">
+            <summary>
+            Creates a new CSV writer with specified options (uses reflection, not AOT-safe).
+            </summary>
+            <param name="stream">The stream to write CSV data to.</param>
+            <param name="options">Writer configuration options.</param>
+            <param name="leaveOpen">Whether to leave the stream open when disposing.</param>
+            <returns>A new CSV writer instance.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Create(System.IO.Stream,CsvHandler.CsvContext,System.Boolean)">
+            <summary>
+            Creates a new CSV writer with a source-generated context (AOT-safe).
+            </summary>
+            <param name="stream">The stream to write CSV data to.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="leaveOpen">Whether to leave the stream open when disposing.</param>
+            <returns>A new CSV writer instance.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Create(System.IO.Stream,CsvHandler.Core.CsvWriterOptions,CsvHandler.CsvContext,System.Boolean)">
+            <summary>
+            Creates a new CSV writer with a source-generated context and custom options (AOT-safe).
+            </summary>
+            <param name="stream">The stream to write CSV data to.</param>
+            <param name="options">Writer configuration options.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="leaveOpen">Whether to leave the stream open when disposing.</param>
+            <returns>A new CSV writer instance.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.WriteHeaderAsync(System.Threading.CancellationToken)">
+            <summary>
+            Writes the CSV header row.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.WriteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Writes a single record asynchronously.
+            </summary>
+            <param name="value">The record to write.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.WriteAllAsync(System.Collections.Generic.IAsyncEnumerable{`0},System.Threading.CancellationToken)">
+            <summary>
+            Writes multiple records asynchronously.
+            </summary>
+            <param name="values">The records to write.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Write(`0)">
+            <summary>
+            Writes a single record synchronously.
+            </summary>
+            <param name="value">The record to write.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.WriteAll(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Writes multiple records synchronously.
+            </summary>
+            <param name="values">The records to write.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.FlushAsync(System.Threading.CancellationToken)">
+            <summary>
+            Flushes any buffered data to the underlying stream.
+            </summary>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.ConvertToWriterOptions(CsvHandler.CsvOptions)">
+            <summary>
+            Converts CsvOptions to CsvWriterOptions by mapping common properties.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.Dispose">
+            <summary>
+            Disposes the writer and flushes any remaining data.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvWriter`1.DisposeAsync">
+            <summary>
+            Asynchronously disposes the writer and flushes any remaining data.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.CsvWriterExtensions">
+            <summary>
+            Extension methods for convenient CSV writing operations.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteCsvAsync``1(System.Collections.Generic.IEnumerable{``0},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a CSV file asynchronously (uses reflection, not AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="filePath">The file path to write to.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteCsvAsync``1(System.Collections.Generic.IEnumerable{``0},System.String,CsvHandler.CsvContext,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a CSV file asynchronously with a source-generated context (AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="filePath">The file path to write to.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteAsync``1(System.Collections.Generic.IEnumerable{``0},System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a stream asynchronously (uses reflection, not AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="stream">The stream to write to.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteAsync``1(System.Collections.Generic.IEnumerable{``0},System.IO.Stream,CsvHandler.CsvContext,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a stream asynchronously with a source-generated context (AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="stream">The stream to write to.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteAsync``1(System.Collections.Generic.IEnumerable{``0},System.IO.Stream,CsvHandler.Core.CsvWriterOptions,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a stream asynchronously with custom options (uses reflection, not AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="stream">The stream to write to.</param>
+            <param name="options">Writer configuration options.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:CsvHandler.CsvWriterExtensions.WriteAsync``1(System.Collections.Generic.IEnumerable{``0},System.IO.Stream,CsvHandler.Core.CsvWriterOptions,CsvHandler.CsvContext,System.Threading.CancellationToken)">
+            <summary>
+            Writes a collection of records to a stream asynchronously with custom options and context (AOT-safe).
+            </summary>
+            <typeparam name="T">The type of records to write.</typeparam>
+            <param name="values">The records to write.</param>
+            <param name="stream">The stream to write to.</param>
+            <param name="options">Writer configuration options.</param>
+            <param name="context">The source-generated CSV context.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:CsvHandler.ICsvConverter`1">
+             <summary>
+             Interface for custom CSV field converters.
+             </summary>
+             <typeparam name="T">The type to convert to/from CSV format.</typeparam>
+             <remarks>
+             <para>
+             Implement this interface to provide custom serialization logic for specific types.
+             Converters can be specified via the [CsvConverter] attribute on properties/fields.
+             </para>
+             <para>
+             Example:
+             </para>
+             <code>
+             public class CustomDateConverter : ICsvConverter&lt;DateTime&gt;
+             {
+                 public DateTime Read(ReadOnlySpan&lt;byte&gt; data)
+                 {
+                     var str = Encoding.UTF8.GetString(data);
+                     return DateTime.ParseExact(str, "yyyyMMdd", CultureInfo.InvariantCulture);
+                 }
+            
+                 public void Write(IBufferWriter&lt;byte&gt; writer, DateTime value)
+                 {
+                     var str = value.ToString("yyyyMMdd");
+                     writer.Write(Encoding.UTF8.GetBytes(str));
+                 }
+             }
+            
+             public class MyClass
+             {
+                 [CsvConverter(typeof(CustomDateConverter))]
+                 public DateTime Date { get; set; }
+             }
+             </code>
+             </remarks>
+        </member>
+        <member name="M:CsvHandler.ICsvConverter`1.Read(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Reads and parses a value from CSV field data.
+            </summary>
+            <param name="data">The UTF-8 encoded CSV field data.</param>
+            <returns>The parsed value.</returns>
+            <exception cref="T:System.FormatException">
+            Thrown when the data cannot be parsed into the target type.
+            </exception>
+        </member>
+        <member name="M:CsvHandler.ICsvConverter`1.Write(System.Buffers.IBufferWriter{System.Byte},`0)">
+            <summary>
+            Writes a value to CSV field format.
+            </summary>
+            <param name="writer">The buffer writer to write to.</param>
+            <param name="value">The value to serialize.</param>
+        </member>
+        <member name="T:CsvHandler.CsvConverter`1">
+            <summary>
+            Base class for CSV converters with common utility methods.
+            </summary>
+            <typeparam name="T">The type to convert.</typeparam>
+        </member>
+        <member name="M:CsvHandler.CsvConverter`1.Read(System.ReadOnlySpan{System.Byte})">
+            <inheritdoc/>
+        </member>
+        <member name="M:CsvHandler.CsvConverter`1.Write(System.Buffers.IBufferWriter{System.Byte},`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:CsvHandler.CsvConverter`1.GetString(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            Helper method to get a string from UTF-8 data.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.CsvConverter`1.WriteString(System.Buffers.IBufferWriter{System.Byte},System.String)">
+            <summary>
+            Helper method to write a string as UTF-8 data.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.ICsvTypeHandler`1">
+            <summary>
+            Provides deserialization logic for a specific type.
+            Implementations are generated by the source generator or created via reflection.
+            </summary>
+            <typeparam name="T">The type to deserialize.</typeparam>
+        </member>
+        <member name="M:CsvHandler.ICsvTypeHandler`1.SetHeaders(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Sets the header names from the CSV file.
+            </summary>
+            <param name="headers">The header field names.</param>
+        </member>
+        <member name="M:CsvHandler.ICsvTypeHandler`1.Deserialize(System.Collections.Generic.IReadOnlyList{System.String},System.Int64)">
+            <summary>
+            Deserializes a row of CSV fields into an object.
+            </summary>
+            <param name="fields">The field values from the CSV row.</param>
+            <param name="lineNumber">The current line number for error reporting.</param>
+            <returns>The deserialized object.</returns>
+        </member>
+        <member name="P:CsvHandler.ICsvTypeHandler`1.ExpectedFieldCount">
+            <summary>
+            Gets the expected field count based on the type definition.
+            </summary>
+        </member>
+        <member name="T:CsvHandler.ReflectionCsvTypeHandler`1">
+            <summary>
+            Reflection-based CSV type handler (fallback when no source-generated context available).
+            </summary>
+        </member>
+        <member name="M:System.ArgumentNullExceptionPolyfill.ThrowIfNull(System.Object,System.String)">
+            <summary>
+            Throws an <see cref="T:System.ArgumentNullException"/> if <paramref name="argument"/> is null.
+            </summary>
+            <param name="argument">The reference type argument to validate as non-null.</param>
+            <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.RequiresDynamicCodeAttribute">
+            <summary>
+            Indicates that the specified method requires dynamic code generation.
+            This code may not work when the application is deployed as native AOT.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiredMemberAttribute">
+            <summary>
+            Indicates that a member is required when initializing an object.
+            Used for required members (C# 11.0).
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute">
+            <summary>
+            Indicates that compiler features are required for a particular element.
+            </summary>
+        </member>
+        <member name="T:System.Buffers.SearchValues`1">
+            <summary>
+            Non-generic holder class for SearchValues instances.
+            This matches the .NET 8.0 API design.
+            </summary>
+            <typeparam name="T">The type of values to search for.</typeparam>
+        </member>
+        <member name="M:System.Buffers.SearchValues`1.Contains(`0)">
+            <summary>
+            Searches for any of the values in the specified span.
+            </summary>
+        </member>
+        <member name="P:System.Buffers.SearchValues`1.Values">
+            <summary>
+            Gets the values being searched for.
+            </summary>
+        </member>
+        <member name="T:System.Buffers.SearchValues">
+            <summary>
+            Static factory class for creating SearchValues instances.
+            This matches the .NET 8.0 API where SearchValues is a non-generic static class.
+            </summary>
+        </member>
+        <member name="M:System.Buffers.SearchValues.Create``1(System.ReadOnlySpan{``0})">
+            <summary>
+            Creates a SearchValues instance for the specified set of values.
+            </summary>
+        </member>
+        <member name="M:System.Buffers.SearchValues.Create``1(``0[])">
+            <summary>
+            Creates a SearchValues instance for the specified set of values.
+            </summary>
+        </member>
+        <member name="T:System.Buffers.SearchValuesExtensions">
+            <summary>
+            Extension methods for SearchValues compatibility.
+            </summary>
+        </member>
+        <member name="M:System.Buffers.SearchValuesExtensions.IndexOfAny``1(System.ReadOnlySpan{``0},System.Buffers.SearchValues{``0})">
+            <summary>
+            Searches for the first index of any value from the SearchValues.
+            </summary>
+        </member>
+        <member name="M:System.Buffers.SearchValuesExtensions.IndexOfAnyExcept``1(System.ReadOnlySpan{``0},System.Buffers.SearchValues{``0})">
+            <summary>
+            Searches for the first index of any value NOT in the SearchValues.
+            </summary>
+        </member>
+    </members>
+</doc>

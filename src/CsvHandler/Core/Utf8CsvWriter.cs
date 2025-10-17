@@ -109,7 +109,11 @@ public ref struct Utf8CsvWriter
 
         try
         {
+#if NETSTANDARD2_0
+            int bytesWritten = Encoding.UTF8.GetBytes(field.ToArray(), 0, field.Length, buffer, 0);
+#else
             int bytesWritten = Encoding.UTF8.GetBytes(field, buffer);
+#endif
             ReadOnlySpan<byte> fieldUtf8 = buffer.AsSpan(0, bytesWritten);
 
             bool needsQuoting = ShouldQuoteField(fieldUtf8);
@@ -156,10 +160,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[11]; // Max digits for int32
+        Span<byte> buffer = _output.GetSpan(11); // Max digits for int32
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString(CultureInfo.InvariantCulture));
@@ -177,10 +182,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[20]; // Max digits for int64
+        Span<byte> buffer = _output.GetSpan(20); // Max digits for int64
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString(CultureInfo.InvariantCulture));
@@ -198,10 +204,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[32]; // Sufficient for double
+        Span<byte> buffer = _output.GetSpan(32); // Sufficient for double
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten, format: 'G'))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString("G", CultureInfo.InvariantCulture));
@@ -219,10 +226,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[31]; // Max digits for decimal
+        Span<byte> buffer = _output.GetSpan(31); // Max digits for decimal
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString(CultureInfo.InvariantCulture));
@@ -240,10 +248,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[33]; // ISO 8601 with timezone
+        Span<byte> buffer = _output.GetSpan(33); // ISO 8601 with timezone
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten, format: 'O'))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString("O", CultureInfo.InvariantCulture));
@@ -261,10 +270,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[33]; // ISO 8601 with timezone
+        Span<byte> buffer = _output.GetSpan(33); // ISO 8601 with timezone
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten, format: 'O'))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString("O", CultureInfo.InvariantCulture));
@@ -282,10 +292,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[5]; // "false" is longest
+        Span<byte> buffer = _output.GetSpan(5); // "false" is longest
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value ? "true" : "false");
@@ -303,10 +314,11 @@ public ref struct Utf8CsvWriter
         WriteDelimiterIfNeeded();
 
 #if NET6_0_OR_GREATER
-        Span<byte> buffer = stackalloc byte[36]; // GUID string length
+        Span<byte> buffer = _output.GetSpan(36); // GUID string length
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
         {
-            WriteRawBytes(buffer.Slice(0, bytesWritten));
+            _output.Advance(bytesWritten);
+            _bytesWritten += bytesWritten;
         }
 #else
         WriteField(value.ToString());
@@ -377,7 +389,8 @@ public ref struct Utf8CsvWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsNumericField(ReadOnlySpan<byte> field)
     {
-        if (field.IsEmpty) return false;
+        if (field.IsEmpty)
+            return false;
 
         // Simple check: all digits, possibly with leading minus or decimal point
         for (int i = 0; i < field.Length; i++)
@@ -450,7 +463,8 @@ public ref struct Utf8CsvWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WriteRawBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.IsEmpty) return;
+        if (bytes.IsEmpty)
+            return;
 
         Span<byte> buffer = _output.GetSpan(bytes.Length);
         bytes.CopyTo(buffer);

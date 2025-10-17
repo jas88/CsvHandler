@@ -53,7 +53,12 @@ namespace CsvHandler.Attributes;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-public sealed class CsvSerializableAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvSerializableAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvSerializableAttribute"/> class.
@@ -65,10 +70,11 @@ public sealed class CsvSerializableAttribute : Attribute
     /// </exception>
     public CsvSerializableAttribute(Type type)
     {
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(type);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(type);
+#endif
 
         Type = type;
     }

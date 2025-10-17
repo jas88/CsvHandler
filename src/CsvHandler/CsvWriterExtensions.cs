@@ -27,11 +27,21 @@ public static class CsvWriterExtensions
         string filePath,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (string.IsNullOrEmpty(filePath)) throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+#endif
+        if (string.IsNullOrEmpty(filePath))
+            throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
 
+#if NETSTANDARD2_0
+        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
+        using var writer = CsvWriter<T>.Create(stream);
+#else
         await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
         await using var writer = CsvWriter<T>.Create(stream);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 
@@ -49,12 +59,23 @@ public static class CsvWriterExtensions
         CsvContext context,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (string.IsNullOrEmpty(filePath)) throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
+        if (string.IsNullOrEmpty(filePath))
+            throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
 
+#if NETSTANDARD2_0
+        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
+        using var writer = CsvWriter<T>.Create(stream, context);
+#else
         await using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
         await using var writer = CsvWriter<T>.Create(stream, context);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 
@@ -72,10 +93,19 @@ public static class CsvWriterExtensions
         Stream stream,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(stream);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
+#endif
 
+#if NETSTANDARD2_0
+        using var writer = CsvWriter<T>.Create(stream, leaveOpen: true);
+#else
         await using var writer = CsvWriter<T>.Create(stream, leaveOpen: true);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 
@@ -93,11 +123,21 @@ public static class CsvWriterExtensions
         CsvContext context,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
+#if NETSTANDARD2_0
+        using var writer = CsvWriter<T>.Create(stream, context, leaveOpen: true);
+#else
         await using var writer = CsvWriter<T>.Create(stream, context, leaveOpen: true);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 
@@ -117,11 +157,21 @@ public static class CsvWriterExtensions
         CsvWriterOptions options,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (options == null) throw new ArgumentNullException(nameof(options));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(options);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(options);
+#endif
 
+#if NETSTANDARD2_0
+        using var writer = CsvWriter<T>.Create(stream, options, leaveOpen: true);
+#else
         await using var writer = CsvWriter<T>.Create(stream, options, leaveOpen: true);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 
@@ -141,12 +191,23 @@ public static class CsvWriterExtensions
         CsvContext context,
         CancellationToken cancellationToken = default) where T : class
     {
-        if (values == null) throw new ArgumentNullException(nameof(values));
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (options == null) throw new ArgumentNullException(nameof(options));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(values);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(stream);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(options);
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
+#if NETSTANDARD2_0
+        using var writer = CsvWriter<T>.Create(stream, options, context, leaveOpen: true);
+#else
         await using var writer = CsvWriter<T>.Create(stream, options, context, leaveOpen: true);
+#endif
         await writer.WriteAllAsync(ToAsyncEnumerable(values), cancellationToken).ConfigureAwait(false);
     }
 

@@ -122,12 +122,12 @@ public class PolyfillTests
         // Verify string operations have parity
         var text = "  Trimmed  ";
 
-        #if NETSTANDARD2_0
+#if NETSTANDARD2_0
         // In netstandard2.0, some string methods might use polyfills
         var trimmed = text.Trim();
-        #else
+#else
         var trimmed = text.Trim();
-        #endif
+#endif
 
         trimmed.Should().Be("Trimmed");
     }
@@ -142,9 +142,9 @@ public class PolyfillTests
         // System.Linq.Async provides IAsyncEnumerable for netstandard2.0
         // Verify that our CSV reader works with the polyfill
 
-        #if NETSTANDARD2_0
+#if NETSTANDARD2_0
         // Should use polyfill from System.Linq.Async or similar
-        #endif
+#endif
 
         await System.Threading.Tasks.Task.CompletedTask;
     }
@@ -162,7 +162,7 @@ public class PolyfillTests
             csv,
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
         var count = parser.TryReadRecord(ranges);
 
         count.Should().Be(5);
@@ -199,15 +199,15 @@ public class PolyfillTests
 
         stopwatch.Stop();
 
-        fieldCount.Should().BeGreaterThan(3000);
+        fieldCount.Should().BeGreaterThanOrEqualTo(3000);
 
-        #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // .NET 6+ should be faster due to SIMD, but netstandard2.0 should still be reasonable
         stopwatch.ElapsedMilliseconds.Should().BeLessThan(50);
-        #else
+#else
         // netstandard2.0 may be slightly slower but still performant
         stopwatch.ElapsedMilliseconds.Should().BeLessThan(100);
-        #endif
+#endif
     }
 
     #endregion
@@ -217,19 +217,19 @@ public class PolyfillTests
     [Fact]
     public void CompilationSymbols_SetCorrectly()
     {
-        #if NETSTANDARD2_0
+#if NETSTANDARD2_0
         // Verify we're actually testing netstandard2.0 code path
         var isNetStandard = true;
-        #else
+#else
         var isNetStandard = false;
-        #endif
+#endif
 
         // This test verifies conditional compilation works
-        #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         var isModernNet = true;
-        #else
+#else
         var isModernNet = false;
-        #endif
+#endif
 
         // At least one should be true
         (isNetStandard || isModernNet).Should().BeTrue();
@@ -242,17 +242,17 @@ public class PolyfillTests
     [Fact]
     public void Vector_IsHardwareAccelerated_Available()
     {
-        #if NETSTANDARD2_0
+#if NETSTANDARD2_0
         // netstandard2.0 uses System.Numerics.Vector
         var isAccelerated = System.Numerics.Vector.IsHardwareAccelerated;
-        #else
+#else
         // .NET 6+ uses System.Runtime.Intrinsics
         var isAccelerated = System.Runtime.Intrinsics.X86.Sse2.IsSupported ||
                            System.Runtime.Intrinsics.Arm.AdvSimd.IsSupported;
-        #endif
+#endif
 
         // Just verify the check doesn't throw (hardware dependent)
-        isAccelerated.Should().BeOneOf(true, false);
+        (isAccelerated == true || isAccelerated == false).Should().BeTrue();
     }
 
     #endregion

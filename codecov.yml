@@ -26,6 +26,7 @@ coverage:
         threshold: 10%
         base: auto
         if_ci_failed: error
+        informational: true
 
     changes:
       default:

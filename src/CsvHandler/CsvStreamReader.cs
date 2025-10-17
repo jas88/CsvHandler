@@ -71,7 +71,11 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             // Refill buffer if needed
             if (_bufferPosition >= _bufferLength)
             {
+#if NETSTANDARD2_0
                 _bufferLength = await _stream.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken).ConfigureAwait(false);
+#else
+                _bufferLength = await _stream.ReadAsync(_buffer.AsMemory(), cancellationToken).ConfigureAwait(false);
+#endif
                 _bufferPosition = 0;
 
                 if (_bufferLength == 0)
@@ -124,7 +128,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
         // Skip comment lines if configured
-        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString()))
+        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString(), StringComparison.Ordinal))
             return await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
         return result;
@@ -193,7 +197,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return ReadRawLine();
 
         // Skip comment lines if configured
-        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString()))
+        if (_options.CommentCharacter.HasValue && result.TrimStart().StartsWith(_options.CommentCharacter.Value.ToString(), StringComparison.Ordinal))
             return ReadRawLine();
 
         return result;
@@ -286,16 +290,36 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
         _disposed = true;
     }
 
-    public async ValueTask DisposeAsync()
+    public
+#if NETSTANDARD2_0
+        ValueTask
+#else
+        async ValueTask
+#endif
+        DisposeAsync()
     {
         if (_disposed)
+#if NETSTANDARD2_0
+            return default;
+#else
             return;
+#endif
 
         ArrayPool<byte>.Shared.Return(_buffer);
 
         if (!_leaveOpen)
+        {
+#if NETSTANDARD2_0
+            _stream.Dispose();
+#else
             await _stream.DisposeAsync().ConfigureAwait(false);
+#endif
+        }
 
         _disposed = true;
+
+#if NETSTANDARD2_0
+        return default;
+#endif
     }
 }

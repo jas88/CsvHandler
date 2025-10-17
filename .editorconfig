@@ -26,9 +26,15 @@ trim_trailing_whitespace = false
 # C# Code Style Rules
 [*.cs]
 
+# C# Language version
+csharp_langversion = 13.0
+
 # Language conventions
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
+
+# Nullable reference types
+csharp_nullable = enable
 
 # Naming conventions
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = warning
@@ -68,9 +74,26 @@ dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 # Code style preferences
-csharp_prefer_braces = true:warning
+csharp_prefer_braces = when_multiline:suggestion
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = file_scoped:warning
+
+# Style rules - suppress where not valuable
+dotnet_diagnostic.IDE0011.severity = none     # Single-line if statements OK (guard clauses)
+dotnet_diagnostic.IDE0161.severity = warning  # Prefer file-scoped namespaces
+
+# Code quality - suppress false positives
+dotnet_diagnostic.CA1000.severity = none      # Static members on generic types OK (factory pattern)
+
+# Code quality - enforce good practices
+dotnet_diagnostic.CA1510.severity = warning   # Use ArgumentNullException.ThrowIfNull
+dotnet_diagnostic.CA1513.severity = suggestion # Use ObjectDisposedException.ThrowIf (NET8+ only)
+dotnet_diagnostic.CA1805.severity = warning   # Don't initialize to default
+dotnet_diagnostic.CA1711.severity = warning   # Don't use "Delegate" suffix
+
+# Suppress AOT warnings in reflection-based code paths (marked with RequiresUnreferencedCode/RequiresDynamicCode)
+dotnet_diagnostic.IL2026.severity = suggestion # Unrecognized types with RequiresUnreferencedCode
+dotnet_diagnostic.IL3050.severity = suggestion # RequiresDynamicCodeAttribute for AOT
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = false:warning
 csharp_style_expression_bodied_methods = false:silent
@@ -135,3 +158,13 @@ csharp_space_between_method_call_empty_parameter_list_parentheses = false
 
 csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = true
+
+# Suppress analyzer warnings for Compat polyfill files
+[src/CsvHandler/Compat/*.cs]
+dotnet_diagnostic.CA1068.severity = none
+dotnet_diagnostic.CA1855.severity = none
+dotnet_diagnostic.CA2201.severity = none
+
+# Allow underscores in test method names (standard test naming pattern)
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none

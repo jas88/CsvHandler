@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using CsvHandler.SourceGenerator.Helpers;
+using CsvHandler.SourceGenerator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CsvHandler.SourceGenerator.Models;
-using CsvHandler.SourceGenerator.Helpers;
 
 namespace CsvHandler.SourceGenerator;
 
@@ -18,16 +18,12 @@ namespace CsvHandler.SourceGenerator;
 [Generator]
 public sealed class CsvSourceGenerator : IIncrementalGenerator
 {
-    private const string CsvRecordAttributeName = "CsvHandler.CsvRecordAttribute";
-    private const string CsvFieldAttributeName = "CsvHandler.CsvFieldAttribute";
+    private const string CsvRecordAttributeName = "CsvHandler.Attributes.CsvRecordAttribute";
+    private const string CsvFieldAttributeName = "CsvHandler.Attributes.CsvFieldAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Register attribute source for consumption
-        context.RegisterPostInitializationOutput(ctx =>
-        {
-            ctx.AddSource("CsvRecordAttribute.g.cs", GenerateAttributeSource());
-        });
+        // Note: We don't generate attribute stubs because the real attributes exist in CsvHandler.Attributes namespace
 
         // Use ForAttributeWithMetadataName for high performance
         var recordTypes = context.SyntaxProvider
@@ -87,7 +83,7 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
         // Extract CsvRecord attribute parameters
         var recordAttribute = context.Attributes.First();
         char delimiter = GetAttributeValue(recordAttribute, "Delimiter", ',');
-        bool hasHeader = GetAttributeValue(recordAttribute, "HasHeader", true);
+        bool hasHeader = GetAttributeValue(recordAttribute, "HasHeaders", true);
         bool strictMode = GetAttributeValue(recordAttribute, "StrictMode", false);
         string? cultureName = GetAttributeValue<string?>(recordAttribute, "CultureName", null);
         bool trimWhitespace = GetAttributeValue(recordAttribute, "TrimWhitespace", true);
@@ -382,7 +378,7 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
 
 using System;
 
-namespace CsvHandler
+namespace CsvHandler.Attributes
 {
     /// <summary>
     /// Marks a type for CSV source generation.
@@ -398,7 +394,7 @@ namespace CsvHandler
         /// <summary>
         /// Whether the CSV includes a header row (default: true).
         /// </summary>
-        public bool HasHeader { get; set; } = true;
+        public bool HasHeaders { get; set; } = true;
 
         /// <summary>
         /// Whether to use strict mode and throw on format errors (default: false).
@@ -441,6 +437,16 @@ namespace CsvHandler
         /// Custom converter type (must implement ICsvConverter of T).
         /// </summary>
         public Type? ConverterType { get; set; }
+
+        /// <summary>
+        /// Whether this field is required during deserialization.
+        /// </summary>
+        public bool Required { get; set; }
+
+        /// <summary>
+        /// Default value when field is empty or missing.
+        /// </summary>
+        public object? DefaultValue { get; set; }
     }
 }
 """;

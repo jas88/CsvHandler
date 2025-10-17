@@ -4,6 +4,29 @@
         <name>CsvHandler.SourceGenerator</name>
     </assembly>
     <members>
+        <member name="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute">
+            <summary>
+            Indicates the name of the parameter that provides the argument.
+            Used for parameter validation messages.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+            Polyfill for init-only properties in netstandard2.0.
+            </summary>
+        </member>
+        <member name="M:System.ArgumentNullExceptionPolyfill.ThrowIfNull(System.Object,System.String)">
+            <summary>
+            Throws an <see cref="T:System.ArgumentNullException"/> if <paramref name="argument"/> is null.
+            </summary>
+            <param name="argument">The reference type argument to validate as non-null.</param>
+            <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        </member>
+        <member name="T:System.HashCode">
+            <summary>
+            Polyfill for HashCode in netstandard2.0.
+            </summary>
+        </member>
         <member name="T:CsvHandler.SourceGenerator.CodeEmitter">
             <summary>
             Encapsulates code generation logic for CSV reading and writing.
@@ -617,7 +640,7 @@
             If both <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> and <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> are specified, <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> takes precedence.
             If neither is specified, fields are ordered by declaration order.
             </remarks>
-            <value>The zero-based column index, or null to use <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> or declaration order.</value>
+            <value>The zero-based column index, or -1 to use <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Order"/> or declaration order.</value>
         </member>
         <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Order">
             <summary>
@@ -628,7 +651,7 @@
             Lower values appear first. Fields with the same order value are ordered by declaration order.
             This is ignored if <see cref="P:CsvHandler.Attributes.CsvFieldAttribute.Index"/> is specified.
             </remarks>
-            <value>The relative order value, or null to use declaration order.</value>
+            <value>The relative order value, or -1 to use declaration order.</value>
         </member>
         <member name="P:CsvHandler.Attributes.CsvFieldAttribute.Format">
             <summary>
@@ -932,16 +955,6 @@
             <value>
             <c>true</c> to generate synchronous methods; otherwise, <c>false</c>. Default is <c>true</c>.
             </value>
-        </member>
-        <member name="T:System.HashCode">
-            <summary>
-            Polyfill for HashCode in netstandard2.0.
-            </summary>
-        </member>
-        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
-            <summary>
-            Polyfill for init-only properties in netstandard2.0.
-            </summary>
         </member>
     </members>
 </doc>

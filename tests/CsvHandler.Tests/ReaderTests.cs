@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
+
 namespace CsvHandler.Tests;
 
 /// <summary>
@@ -20,7 +23,7 @@ public class ReaderTests
 
     #region Basic Reading Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_SimpleCsv_ReturnsExpectedData()
     {
         // Arrange
@@ -40,7 +43,7 @@ public class ReaderTests
         // people[0].City.Should().Be("NYC");
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_EmptyFile_ReturnsEmptyList()
     {
         // Arrange
@@ -57,7 +60,7 @@ public class ReaderTests
         // people.Should().BeEmpty();
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_OnlyHeaders_ReturnsEmptyList()
     {
         // Arrange
@@ -78,7 +81,7 @@ public class ReaderTests
 
     #region Async Streaming Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_IAsyncEnumerable_StreamsData()
     {
         // Arrange
@@ -101,7 +104,7 @@ public class ReaderTests
         // count.Should().Be(1000);
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_CancellationToken_StopsReading()
     {
         // Arrange
@@ -133,7 +136,7 @@ public class ReaderTests
 
     #region Type Conversion Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_AllDataTypes_ConvertsCorrectly()
     {
         // Arrange
@@ -155,7 +158,7 @@ public class ReaderTests
         // record.BoolValue.Should().BeTrue();
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_NullableTypes_HandlesNulls()
     {
         // Arrange
@@ -175,7 +178,7 @@ public class ReaderTests
         // records[1].Salary.Should().BeNull();
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_DateTimeFormats_ParsesCorrectly()
     {
         // Arrange
@@ -196,7 +199,7 @@ public class ReaderTests
 
     #region Error Handling Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_InvalidDataThrowMode_ThrowsException()
     {
         // Arrange
@@ -213,7 +216,7 @@ public class ReaderTests
         // });
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_InvalidDataSkipMode_SkipsInvalidRows()
     {
         // Arrange
@@ -232,7 +235,7 @@ public class ReaderTests
         // people[1].Name.Should().Be("Charlie");
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_InvalidDataCollectMode_CollectsErrors()
     {
         // Arrange
@@ -257,7 +260,7 @@ public class ReaderTests
 
     #region Multi-line and Special Field Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_QuotedFieldsWithNewlines_ParsesCorrectly()
     {
         // Arrange
@@ -275,7 +278,7 @@ public class ReaderTests
         // records[0].Description.Should().Contain("\n");
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_EmptyFields_HandlesCorrectly()
     {
         // Arrange
@@ -298,7 +301,7 @@ public class ReaderTests
 
     #region Header Handling Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_NoHeaders_ReadsDataCorrectly()
     {
         // Arrange
@@ -316,7 +319,7 @@ public class ReaderTests
         // people[0].Name.Should().Be("Alice");
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_CustomHeaderMapping_MapsCorrectly()
     {
         // Arrange
@@ -337,7 +340,7 @@ public class ReaderTests
 
     #region Integration with File System Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_FromFile_ReadsSuccessfully()
     {
         // Arrange
@@ -354,7 +357,7 @@ public class ReaderTests
         // people.Should().HaveCountGreaterThan(0);
     }
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_UnicodeFile_HandlesUtf8()
     {
         // Arrange
@@ -375,7 +378,7 @@ public class ReaderTests
 
     #region Performance Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T>")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_LargeFile_ProcessesEfficiently()
     {
         // Arrange
@@ -401,7 +404,7 @@ public class ReaderTests
 
     #region Custom Converter Tests
 
-    [Fact(Skip = "TODO: Implement CsvReader<T> and custom converters")]
+    [Fact(Skip = "TODO: Uncomment implementation code")]
     public async Task ReadAllAsync_CustomConverter_UsesConverter()
     {
         // Arrange

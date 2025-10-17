@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "pkQA7cVqwOg=",
+  "dgSpecHash": "UYusYjgoFPY=",
   "success": true,
   "projectFilePath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj",
   "expectedPackageFiles": [
@@ -9,6 +9,7 @@
     "/Users/jas88/.nuget/packages/microsoft.bcl.hashcode/1.1.1/microsoft.bcl.hashcode.1.1.1.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.build.tasks.git/8.0.0/microsoft.build.tasks.git.8.0.0.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.net.illink.tasks/8.0.21/microsoft.net.illink.tasks.8.0.21.nupkg.sha512",
+    "/Users/jas88/.nuget/packages/microsoft.net.illink.tasks/9.0.10/microsoft.net.illink.tasks.9.0.10.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.sourcelink.azurerepos.git/1.1.1/microsoft.sourcelink.azurerepos.git.1.1.1.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.sourcelink.bitbucket.git/1.1.1/microsoft.sourcelink.bitbucket.git.1.1.1.nupkg.sha512",

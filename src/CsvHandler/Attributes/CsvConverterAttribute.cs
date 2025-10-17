@@ -101,7 +101,12 @@ namespace CsvHandler.Attributes;
 /// </example>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field,
     AllowMultiple = false, Inherited = true)]
-public sealed class CsvConverterAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvConverterAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvConverterAttribute"/> class.
@@ -110,10 +115,11 @@ public sealed class CsvConverterAttribute : Attribute
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="converterType"/> is null.</exception>
     public CsvConverterAttribute(Type converterType)
     {
-        if (converterType == null)
-        {
-            throw new ArgumentNullException(nameof(converterType));
-        }
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(converterType);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(converterType);
+#endif
 
         ConverterType = converterType;
     }

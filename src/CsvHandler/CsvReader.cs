@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CsvHandler.Core;
 
 namespace CsvHandler;
 
@@ -71,11 +72,16 @@ public sealed class CsvReader<T> : IDisposable, IAsyncDisposable
         CsvContext context,
         bool leaveOpen = false)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
         var typeHandler = context.GetTypeHandler<T>();
-        return new CsvReader<T>(stream, context.Options ?? CsvOptions.Default, typeHandler, leaveOpen);
+        // Use default options for now - context-specific options will be added later
+        var options = CsvOptions.Default;
+        return new CsvReader<T>(stream, options, typeHandler, leaveOpen);
     }
 
     /// <summary>
@@ -91,8 +97,11 @@ public sealed class CsvReader<T> : IDisposable, IAsyncDisposable
         CsvOptions options,
         bool leaveOpen = false)
     {
-        if (context == null)
-            throw new ArgumentNullException(nameof(context));
+#if NET7_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(context);
+#else
+        ArgumentNullExceptionPolyfill.ThrowIfNull(context);
+#endif
 
         var typeHandler = context.GetTypeHandler<T>();
         return new CsvReader<T>(stream, options, typeHandler, leaveOpen);
@@ -357,6 +366,35 @@ public sealed class CsvReader<T> : IDisposable, IAsyncDisposable
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    /// Converts CsvWriterOptions to CsvOptions by mapping common properties.
+    /// </summary>
+    private static CsvOptions ConvertToReaderOptions(CsvWriterOptions? writerOptions)
+    {
+        if (writerOptions == null)
+        {
+            return CsvOptions.Default;
+        }
+
+        return new CsvOptions
+        {
+            Delimiter = writerOptions.Delimiter,
+            Quote = writerOptions.Quote,
+            Escape = writerOptions.Escape,
+            Culture = writerOptions.Culture,
+            BufferSize = writerOptions.BufferSize,
+            HasHeaders = writerOptions.WriteHeaders,
+            // Use sensible defaults for reader-only properties
+            TrimOptions = CsvTrimOptions.None,
+            ParseMode = CsvParseMode.Strict,
+            ErrorHandling = CsvErrorHandling.Throw,
+            AllowJaggedRows = false,
+            SkipEmptyLines = true,
+            CommentCharacter = null,
+            MaxErrorCount = 100
+        };
     }
 
     /// <summary>

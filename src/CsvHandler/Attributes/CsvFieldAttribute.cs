@@ -37,7 +37,12 @@ namespace CsvHandler.Attributes;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-public sealed class CsvFieldAttribute : Attribute
+#if CSVHANDLER_GENERATOR
+internal
+#else
+public
+#endif
+sealed class CsvFieldAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="CsvFieldAttribute"/> class.
@@ -73,8 +78,8 @@ public sealed class CsvFieldAttribute : Attribute
     /// If both <see cref="Index"/> and <see cref="Order"/> are specified, <see cref="Index"/> takes precedence.
     /// If neither is specified, fields are ordered by declaration order.
     /// </remarks>
-    /// <value>The zero-based column index, or null to use <see cref="Order"/> or declaration order.</value>
-    public int? Index { get; set; }
+    /// <value>The zero-based column index, or -1 to use <see cref="Order"/> or declaration order.</value>
+    public int Index { get; set; } = -1;
 
     /// <summary>
     /// Gets or sets the relative order of this field in the CSV output.
@@ -84,8 +89,8 @@ public sealed class CsvFieldAttribute : Attribute
     /// Lower values appear first. Fields with the same order value are ordered by declaration order.
     /// This is ignored if <see cref="Index"/> is specified.
     /// </remarks>
-    /// <value>The relative order value, or null to use declaration order.</value>
-    public int? Order { get; set; }
+    /// <value>The relative order value, or -1 to use declaration order.</value>
+    public int Order { get; set; } = -1;
 
     /// <summary>
     /// Gets or sets the format string for formatting the field value.

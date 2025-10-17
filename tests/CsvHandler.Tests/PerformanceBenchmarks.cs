@@ -123,7 +123,7 @@ public class PerformanceBenchmarks
     public int ParseRecordsMediumCsv()
     {
         var parser = new Utf8CsvParser(_mediumCsv, Utf8CsvParserOptions.Default);
-        Span<Range> ranges = stackalloc Range[10];
+        Range[] ranges = new Range[10];
         var recordCount = 0;
 
         while (parser.TryReadRecord(ranges) > 0)
@@ -167,7 +167,7 @@ public class PerformanceBenchmarks
     [Benchmark(Description = "Ignore Quotes Mode")]
     public int ParseIgnoreQuotesMode()
     {
-        var options = Utf8CsvParserOptions.Default with { Mode = CsvParseMode.IgnoreQuotes };
+        var options = Utf8CsvParserOptions.Default with { Mode = Core.CsvParseMode.IgnoreQuotes };
         var parser = new Utf8CsvParser(_mediumCsv, options);
         var count = 0;
         while (parser.TryReadField(out _))
@@ -273,7 +273,7 @@ public class PerformanceBenchmarks
     }
 
     [Benchmark(Description = "Options Creation Overhead")]
-    public Utf8CsvParserOptions CreateOptions()
+    public static Utf8CsvParserOptions CreateOptions()
     {
         return new Utf8CsvParserOptions
         {

@@ -1,4 +1,0 @@
-/Users/jas88/Developer/CsvHandler/src/CsvHandler/obj/Debug/net8.0/CsvHandler.GeneratedMSBuildEditorConfig.editorconfig
-/Users/jas88/Developer/CsvHandler/src/CsvHandler/obj/Debug/net8.0/CsvHandler.AssemblyInfoInputs.cache
-/Users/jas88/Developer/CsvHandler/src/CsvHandler/obj/Debug/net8.0/CsvHandler.AssemblyInfo.cs
-/Users/jas88/Developer/CsvHandler/src/CsvHandler/obj/Debug/net8.0/CsvHandler.csproj.CoreCompileInputs.cache

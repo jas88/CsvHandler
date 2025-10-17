@@ -33,7 +33,22 @@
       "Bash(git remote add:*)",
       "Bash(git remote set-url:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh label:*)",
+      "Bash(gh pr list:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(dotnet nuget list:*)",
+      "WebFetch(domain:www.nuget.org)",
+      "WebFetch(domain:source.dot.net)",
+      "Bash(tee:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(/Users/jas88/Developer/CsvHandler/tests/CsvHandler.AotTests/bin/Release/net8.0/osx-arm64/publish/CsvHandler.AotTests)",
+      "Bash(dotnet clean:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
