@@ -325,7 +325,7 @@ public class PolyfillTests
 
         try
         {
-            buffer.Length.Should().BeGreaterOrEqualTo(1024);
+            buffer.Length.Should().BeGreaterThanOrEqualTo(1024);
 
             // Use buffer with parser
             var csv = "A,B,C"u8;
