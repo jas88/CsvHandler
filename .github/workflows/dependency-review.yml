@@ -23,9 +23,7 @@ jobs:
       with:
         # Fail the action if there are critical or high vulnerabilities
         fail-on-severity: moderate
-        # Allow licenses
-        allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC, 0BSD
-        # Deny licenses
+        # Deny copyleft licenses (cannot use both allow-licenses and deny-licenses)
         deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1, LGPL-3.0, AGPL-3.0
         # Add comment to PR with results
         comment-summary-in-pr: always
