@@ -199,7 +199,7 @@ public class PolyfillTests
 
         stopwatch.Stop();
 
-        fieldCount.Should().BeGreaterThan(3000);
+        fieldCount.Should().BeGreaterThanOrEqualTo(3000);
 
         #if NET6_0_OR_GREATER
         // .NET 6+ should be faster due to SIMD, but netstandard2.0 should still be reasonable

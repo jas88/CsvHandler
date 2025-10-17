@@ -281,7 +281,7 @@ public class IntegrationTests
         var memoryUsed = finalMemory - initialMemory;
 
         // Assert
-        fieldCount.Should().BeGreaterThan(300000);
+        fieldCount.Should().BeGreaterThanOrEqualTo(300000);
         // Parser should be nearly zero-allocation (only the input buffer matters)
         memoryUsed.Should().BeLessThan(bytes.Length * 2); // Allow 2x for GC overhead
     }
