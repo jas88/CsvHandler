@@ -1,6 +1,8 @@
 // Copyright (c) 2025 CsvHandler Contributors
 // Licensed under the MIT License
 
+#if NETSTANDARD2_0
+
 using System;
 using System.Runtime.CompilerServices;
 
@@ -190,3 +192,4 @@ internal static class Utf8Helpers
         return IsDigit(value) || IsLetter(value);
     }
 }
+#endif
