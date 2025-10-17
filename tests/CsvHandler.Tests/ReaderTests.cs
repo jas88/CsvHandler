@@ -41,7 +41,7 @@ public class ReaderTests
         people[0].City.Should().Be("NYC");
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_EmptyFile_ReturnsEmptyList()
     {
         // Arrange
@@ -49,16 +49,14 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Person>.Create(stream);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // people.Should().BeEmpty();
+        people.Should().BeEmpty();
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_OnlyHeaders_ReturnsEmptyList()
     {
         // Arrange
@@ -66,20 +64,18 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Person>.Create(stream);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // people.Should().BeEmpty();
+        people.Should().BeEmpty();
     }
 
     #endregion
 
     #region Async Streaming Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_IAsyncEnumerable_StreamsData()
     {
         // Arrange
@@ -90,19 +86,18 @@ public class ReaderTests
 
         // Act
         var count = 0;
-        // await foreach (var person in CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync())
-        // {
-        //     count++;
-        //     person.Name.Should().StartWith("Person");
-        // }
+        await using var reader = CsvReader<Person>.Create(stream);
+        await foreach (var person in reader.ReadAllAsync())
+        {
+            count++;
+            person.Name.Should().StartWith("Person");
+        }
 
         // Assert
-        // count.Should().Be(1000);
+        count.Should().Be(1000);
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_CancellationToken_StopsReading()
     {
         // Arrange
@@ -112,29 +107,28 @@ public class ReaderTests
 
         // Act
         var count = 0;
-        // var exception = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
-        // {
-        //     await foreach (var person in CsvReader<Person>
-        //         .Create(stream, new TestCsvContext())
-        //         .ReadAllAsync(cts.Token))
-        //     {
-        //         count++;
-        //         if (count >= 100)
-        //         {
-        //             cts.Cancel();
-        //         }
-        //     }
-        // });
+        await using var reader = CsvReader<Person>.Create(stream);
+        var exception = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await foreach (var person in reader.ReadAllAsync(cts.Token))
+            {
+                count++;
+                if (count >= 100)
+                {
+                    cts.Cancel();
+                }
+            }
+        });
 
         // Assert
-        // count.Should().BeLessThan(1000);
+        count.Should().BeLessThan(1000);
     }
 
     #endregion
 
     #region Type Conversion Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact(Skip = "Reflection handler doesn't support DateTimeOffset parsing yet")]
     public async Task ReadAllAsync_AllDataTypes_ConvertsCorrectly()
     {
         // Arrange
@@ -143,20 +137,18 @@ public class ReaderTests
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
 
         // Act
-        // var records = await CsvReader<DataTypesRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<DataTypesRecord>.Create(stream);
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // var record = records.Should().ContainSingle().Subject;
-        // record.ByteValue.Should().Be(1);
-        // record.IntValue.Should().Be(1000);
-        // record.DecimalValue.Should().Be(3.5m);
-        // record.BoolValue.Should().BeTrue();
+        var record = records.Should().ContainSingle().Subject;
+        record.ByteValue.Should().Be(1);
+        record.IntValue.Should().Be(1000);
+        record.DecimalValue.Should().Be(3.5m);
+        record.BoolValue.Should().BeTrue();
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_NullableTypes_HandlesNulls()
     {
         // Arrange
@@ -164,16 +156,14 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<NullableFieldsRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<NullableFieldsRecord>.Create(stream);
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // records.Should().HaveCount(2);
-        // records[0].Age.Should().Be(30);
-        // records[1].Age.Should().BeNull();
-        // records[1].Salary.Should().BeNull();
+        records.Should().HaveCount(2);
+        records[0].Age.Should().Be(30);
+        records[1].Age.Should().BeNull();
+        records[1].Salary.Should().BeNull();
     }
 
     [Fact(Skip = "TODO: Uncomment implementation code")]
