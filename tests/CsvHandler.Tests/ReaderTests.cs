@@ -128,7 +128,7 @@ public class ReaderTests
 
     #region Type Conversion Tests
 
-    [Fact(Skip = "Reflection handler doesn't support DateTimeOffset parsing yet")]
+    [Fact]
     public async Task ReadAllAsync_AllDataTypes_ConvertsCorrectly()
     {
         // Arrange
@@ -166,21 +166,20 @@ public class ReaderTests
         records[1].Salary.Should().BeNull();
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_DateTimeFormats_ParsesCorrectly()
     {
         // Arrange
-        var csv = "FullName,Department,Salary,HireDate,IsActive\nAlice,Engineering,75000.00,2024-01-15,true"u8.ToArray();
+        // Note: Using property names (not [CsvField] names) since reflection API doesn't support attributes
+        var csv = "Name,Department,Salary,HireDate,IsActive\nAlice,Engineering,75000.00,2024-01-15,true"u8.ToArray();
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<Employee>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Employee>.Create(stream);
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // records[0].HireDate.Should().Be(new DateTime(2024, 1, 15));
+        records[0].HireDate.Should().Be(new DateTime(2024, 1, 15));
     }
 
     #endregion
