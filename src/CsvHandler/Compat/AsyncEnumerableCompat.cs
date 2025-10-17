@@ -1,6 +1,8 @@
 // Copyright (c) 2025 CsvHandler Contributors
 // Licensed under the MIT License
 
+#if NETSTANDARD2_0
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -217,3 +219,4 @@ public readonly struct ConfiguredCancelableAsyncEnumerable<T>
         }
     }
 }
+#endif
