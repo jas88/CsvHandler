@@ -23,14 +23,16 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Pack as Analyzer -->
-  <ItemGroup>
-    <None Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
-
   <!-- Reference shared attributes (compile-time only) -->
   <ItemGroup>
     <Compile Include="..\CsvHandler\Attributes\*.cs" Link="SharedAttributes\%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!-- Pack as Analyzer - use target to ensure DLL exists at pack time -->
+  <Target Name="IncludeAnalyzerDll" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>
