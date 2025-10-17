@@ -210,8 +210,16 @@ internal sealed class ReflectionCsvTypeHandler<T> : ICsvTypeHandler<T>
             throw new FormatException($"Cannot convert '{value}' to boolean");
         }
 
+        // DateTime - requires special handling before Convert.ChangeType
+        if (underlyingType == typeof(DateTime))
+            return DateTime.Parse(value, _options.Culture);
+
+        // DateTimeOffset - Convert.ChangeType doesn't support it
+        if (underlyingType == typeof(DateTimeOffset))
+            return DateTimeOffset.Parse(value, _options.Culture);
+
         // Use IConvertible for primitive types
-        if (underlyingType.IsPrimitive || underlyingType == typeof(decimal) || underlyingType == typeof(DateTime) || underlyingType == typeof(DateTimeOffset))
+        if (underlyingType.IsPrimitive || underlyingType == typeof(decimal))
         {
             return Convert.ChangeType(value, underlyingType, _options.Culture);
         }

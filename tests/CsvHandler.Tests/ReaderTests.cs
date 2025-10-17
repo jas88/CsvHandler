@@ -128,7 +128,7 @@ public class ReaderTests
 
     #region Type Conversion Tests
 
-    [Fact(Skip = "Reflection handler doesn't support DateTimeOffset parsing yet")]
+    [Fact]
     public async Task ReadAllAsync_AllDataTypes_ConvertsCorrectly()
     {
         // Arrange
@@ -166,7 +166,7 @@ public class ReaderTests
         records[1].Salary.Should().BeNull();
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_DateTimeFormats_ParsesCorrectly()
     {
         // Arrange
@@ -174,13 +174,11 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<Employee>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Employee>.Create(stream);
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // records[0].HireDate.Should().Be(new DateTime(2024, 1, 15));
+        records[0].HireDate.Should().Be(new DateTime(2024, 1, 15));
     }
 
     #endregion
