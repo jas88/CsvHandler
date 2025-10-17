@@ -86,10 +86,10 @@ public ref struct Utf8CsvParser
     {
         field = default;
 
-        // Check if we're at a newline - this means end of record was already reached
-        if (!IsEndOfStream && (_input[_position] == '\r' || _input[_position] == '\n'))
+        // Skip any newlines to handle multiple records
+        while (!IsEndOfStream && (_input[_position] == '\r' || _input[_position] == '\n'))
         {
-            return false;
+            SkipNewline();
         }
 
         // Skip leading whitespace if trimming is enabled
