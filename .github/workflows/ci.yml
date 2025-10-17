@@ -113,7 +113,7 @@ jobs:
 
     - name: Pack NuGet Packages
       if: matrix.publish-artifacts
-      run: dotnet pack --configuration Release --no-build --output ./artifacts --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack --configuration Release --output ./artifacts --include-symbols -p:SymbolPackageFormat=snupkg
 
     - name: Upload NuGet Artifacts
       if: matrix.publish-artifacts
