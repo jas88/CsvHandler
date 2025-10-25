@@ -102,7 +102,7 @@ jobs:
 
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: test-results-${{ matrix.os }}-${{ matrix.dotnet }}
         path: '**/test-results.trx'
@@ -117,7 +117,7 @@ jobs:
 
     - name: Upload NuGet Artifacts
       if: matrix.publish-artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: nuget-packages
         path: ./artifacts/*.nupkg
@@ -145,7 +145,7 @@ jobs:
 
     steps:
     - name: Download NuGet Artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: nuget-packages
         path: ./artifacts

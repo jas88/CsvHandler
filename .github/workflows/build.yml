@@ -49,12 +49,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
           6.0.x
@@ -79,7 +79,7 @@ jobs:
 
     - name: Upload coverage reports
       if: matrix.os == 'ubuntu-latest' && matrix.framework == 'net8.0'
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         files: ./TestResults/**/coverage.cobertura.xml
         flags: unittests
@@ -92,7 +92,7 @@ jobs:
 
     - name: Upload NuGet packages
       if: github.event_name == 'release' && matrix.framework == 'net8.0'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: nuget-packages-${{ matrix.rid }}
         path: ./packages/*.nupkg
@@ -105,18 +105,18 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: csharp
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
 
   dependency-review:
     name: Dependency Review
@@ -125,7 +125,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Dependency Review
       uses: actions/dependency-review-action@v4
@@ -139,14 +139,14 @@ jobs:
 
     steps:
     - name: Download NuGet packages
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         pattern: nuget-packages-*
         merge-multiple: true
         path: ./packages
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '8.0.x'
 
