@@ -1,0 +1,122 @@
+# Pre-commit configuration for .NET projects
+# Uses pre-commit framework for cross-platform compatibility
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        args: ['--unsafe'] # Allow custom YAML tags
+      - id: check-added-large-files
+        args: ['--maxkb=1000'] # Alert on files > 1MB
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: trailing-whitespace
+        args: ['--markdown-linebreak-ext=md']
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-xml
+
+  # .NET specific hooks
+  - repo: https://github.com/dotnet/format
+    rev: v6.0.324305
+    hooks:
+      - id: dotnet-format
+        args: ['--fix-whitespace', '--fix-style', 'report']
+        files: \.(cs|vb|fs)$
+        types_or: [file]
+
+  # Security and dependency checks
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+      - id: python-safety-security-check
+
+  # Local hooks for repository-specific checks
+  - repo: local
+    hooks:
+      # .NET build validation
+      - id: dotnet-build
+        name: dotnet build
+        entry: dotnet
+        language: system
+        args: ['build', '--configuration', 'Release', '--no-restore']
+        files: \.(cs|vb|fs|csproj|sln)$
+        pass_filenames: false
+
+      # .NET test runner
+      - id: dotnet-test
+        name: dotnet test
+        entry: dotnet
+        language: system
+        args: ['test', '--configuration', 'Release', '--no-build', '--verbosity', 'minimal']
+        files: \.(cs|vb|fs|csproj|sln)$
+        pass_filenames: false
+        stages: [pre-push] # Only run tests on push, not every commit
+
+      # Validate package references
+      - id: check-packages
+        name: Check package references
+        entry: scripts/check-packages.sh
+        language: script
+        files: \.(csproj|sln)$
+        pass_filenames: false
+
+      # Check for hardcoded secrets
+      - id: detect-secrets
+        name: Detect secrets
+        entry: scripts/detect-secrets.sh
+        language: script
+        files: \.(cs|vb|fs|json|yml|yaml|md|sh|bat|ps1)$
+        pass_filenames: false
+
+      # Validate CLAUDE.md exists and follows standards
+      - id: check-claude-md
+        name: Check CLAUDE.md
+        entry: scripts/check-claude-md.sh
+        language: script
+        files: ^CLAUDE\.md$
+        pass_filenames: false
+
+      # Commit message validation (prevent AI attribution)
+      - id: block-claude-authorship
+        name: Block AI attribution in commit messages
+        entry: scripts/block-claude-authorship.sh
+        language: script
+        stages: [commit-msg]
+
+# Global configuration
+default_language_version:
+  python: python3
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    \.git/.*|
+    \.vs/.*|
+    bin/.*|
+    obj/.*|
+    TestResults/.*|
+    \.vscode/settings\.json|
+    .*\.user\.csproj|
+    .*\.Designer\.cs
+  )$
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [dotnet-test] # Skip slow tests on CI
+  submodules: false
