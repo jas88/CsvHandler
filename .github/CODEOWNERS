@@ -1,0 +1,64 @@
+# CODEOWNERS file for repository governance
+# This file defines individuals or teams that are responsible for code in this repository.
+
+# Global owners - will be default owners for everything in the repo
+* @jas88
+
+# Repository maintainers - can review and approve PRs
+* @jas88
+
+# Documentation
+*.md @jas88
+
+# Source code by language
+*.cs @jas88
+*.vb @jas88
+*.fs @jas88
+
+# Configuration files
+*.json @jas88
+*.yml @jas88
+*.yaml @jas88
+*.xml @jas88
+
+# Build and CI/CD
+.github/ @jas88
+scripts/ @jas88
+Directory.Build.props @jas88
+global.json @jas88
+
+# Project files
+*.csproj @jas88
+*.sln @jas88
+*.props @jas88
+*.targets @jas88
+
+# Test files
+*Tests*.csproj @jas88
+*Test*.csproj @jas88
+test/ @jas88
+tests/ @jas88
+
+# Documentation directories
+docs/ @jas88
+Documentation/ @jas88
+
+# Examples and samples
+examples/ @jas88
+Examples/ @jas88
+
+# Package and distribution
+nuget.config @jas88
+.nuget/ @jas88
+
+# Database schemas and migrations
+**/*.sql @jas88
+
+# Native code (for libarchive.net)
+native/ @jas88
+**/*.c @jas88
+**/*.h @jas88
+**/*.cpp @jas88
+
+# Emergency override - for critical security patches
+SECURITY.md @jas88

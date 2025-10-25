@@ -1,79 +1,139 @@
-# Dependabot configuration for CsvHandler
-# Automatically creates PRs for dependency updates
+# Dependabot configuration for automated dependency updates
+# This file provides consistent dependency management across all repositories
 
 version: 2
 updates:
-  # NuGet package dependencies
+  # Monitor .NET NuGet packages
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-      timezone: "UTC"
     open-pull-requests-limit: 10
     reviewers:
       - "jas88"
     assignees:
       - "jas88"
-    labels:
-      - "dependencies"
-      - "nuget"
     commit-message:
       prefix: "deps"
-      prefix-development: "deps-dev"
       include: "scope"
-    # Group minor and patch updates together
+    labels:
+      - "dependencies"
+      - "dotnet"
     groups:
-      production-dependencies:
+      # Group Microsoft packages together
+      microsoft-packages:
         patterns:
-          - "*"
-        exclude-patterns:
-          - "Microsoft.NET.Test.Sdk"
-          - "xunit*"
-          - "coverlet*"
-        update-types:
-          - "minor"
-          - "patch"
-      test-dependencies:
-        patterns:
-          - "Microsoft.NET.Test.Sdk"
-          - "xunit*"
-          - "coverlet*"
-          - "FluentAssertions"
-          - "BenchmarkDotNet"
-        update-types:
-          - "minor"
-          - "patch"
-    # Ignore specific versions
-    ignore:
-      # Microsoft.CodeAnalysis.CSharp - keep stable version for source generator
-      - dependency-name: "Microsoft.CodeAnalysis.CSharp"
-        update-types: ["version-update:semver-major"]
+          - "Microsoft.*"
+        dependency-type: "development"
 
-  # GitHub Actions dependencies
+      # Group System packages together
+      system-packages:
+        patterns:
+          - "System.*"
+        dependency-type: "development"
+
+      # Group testing packages together
+      testing-packages:
+        patterns:
+          - "xunit*"
+          - "nunit*"
+          - "mstest*"
+          - "coverlet*"
+          - "Moq*"
+        dependency-type: "development"
+
+      # Group AWS SDK packages (relevant for RDMP)
+      aws-packages:
+        patterns:
+          - "AWSSDK.*"
+        dependency-type: "development"
+
+  # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-      timezone: "UTC"
     open-pull-requests-limit: 5
     reviewers:
       - "jas88"
     assignees:
       - "jas88"
-    labels:
-      - "dependencies"
-      - "github-actions"
     commit-message:
       prefix: "ci"
       include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
     groups:
       github-actions:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
+
+  # Monitor Docker base images (if applicable)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jas88"
+    assignees:
+      - "jas88"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Monitor npm packages (for Node.js tooling/build scripts)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jas88"
+    assignees:
+      - "jas88"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "nodejs"
+    groups:
+      npm-packages:
+        patterns:
+          - "*"
+
+  # Monitor pip packages (for Python tooling/scripts)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jas88"
+    assignees:
+      - "jas88"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      python-packages:
+        patterns:
+          - "*"

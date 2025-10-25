@@ -1300,11 +1300,11 @@
   "project": {
     "version": "0.1.0-alpha.1",
     "restore": {
-      "projectUniqueName": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj",
+      "projectUniqueName": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj",
       "projectName": "CsvHandler",
-      "projectPath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj",
+      "projectPath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj",
       "packagesPath": "/Users/jas88/.nuget/packages/",
-      "outputPath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/obj/",
+      "outputPath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/obj/",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "configFilePaths": [

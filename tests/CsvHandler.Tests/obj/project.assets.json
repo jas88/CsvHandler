@@ -4002,11 +4002,11 @@
   "project": {
     "version": "0.1.0-alpha.1",
     "restore": {
-      "projectUniqueName": "/Users/jas88/Developer/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
+      "projectUniqueName": "/Users/jas88/Developer/Github/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
       "projectName": "CsvHandler.Tests",
-      "projectPath": "/Users/jas88/Developer/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
+      "projectPath": "/Users/jas88/Developer/Github/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
       "packagesPath": "/Users/jas88/.nuget/packages/",
-      "outputPath": "/Users/jas88/Developer/CsvHandler/tests/CsvHandler.Tests/obj/",
+      "outputPath": "/Users/jas88/Developer/Github/CsvHandler/tests/CsvHandler.Tests/obj/",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "configFilePaths": [
@@ -4024,16 +4024,16 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj": {
-              "projectPath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj"
+            "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj": {
+              "projectPath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj"
             }
           }
         },
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj": {
-              "projectPath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj"
+            "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj": {
+              "projectPath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj"
             }
           }
         }

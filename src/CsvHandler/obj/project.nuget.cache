@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "uKxtKEjeeMs=",
+  "dgSpecHash": "CLHjAIVgje4=",
   "success": true,
-  "projectFilePath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler/CsvHandler.csproj",
+  "projectFilePath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler/CsvHandler.csproj",
   "expectedPackageFiles": [
     "/Users/jas88/.nuget/packages/dotnet.reproduciblebuilds/1.1.1/dotnet.reproduciblebuilds.1.1.1.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.bcl.asyncinterfaces/8.0.0/microsoft.bcl.asyncinterfaces.8.0.0.nupkg.sha512",
