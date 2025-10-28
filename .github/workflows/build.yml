@@ -20,32 +20,12 @@ env:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }}, ${{ matrix.framework }})
+    name: Build and Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        framework: ['net6.0', 'net8.0']
-        include:
-          - os: ubuntu-latest
-            framework: net6.0
-            rid: linux-x64
-          - os: windows-latest
-            framework: net6.0
-            rid: win-x64
-          - os: macos-latest
-            framework: net6.0
-            rid: osx-x64
-          - os: ubuntu-latest
-            framework: net8.0
-            rid: linux-x64
-          - os: windows-latest
-            framework: net8.0
-            rid: win-x64
-          - os: macos-latest
-            framework: net8.0
-            rid: osx-x64
 
     steps:
     - name: Checkout repository
@@ -59,6 +39,7 @@ jobs:
         dotnet-version: |
           6.0.x
           8.0.x
+          9.0.x
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -71,14 +52,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build solution
-      run: dotnet build --configuration Release --no-restore --framework ${{ matrix.framework }} -p:ContinuousIntegrationBuild=true
+    - name: Build solution (all targets)
+      run: dotnet build --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
 
-    - name: Run tests
-      run: dotnet test --configuration Release --no-build --framework ${{ matrix.framework }} --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults/
+    - name: Run tests on net8.0
+      run: dotnet test --configuration Release --no-build --framework net8.0 --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults/
 
     - name: Upload coverage reports
-      if: matrix.os == 'ubuntu-latest' && matrix.framework == 'net8.0'
+      if: matrix.os == 'ubuntu-latest'
       uses: codecov/codecov-action@v4
       with:
         files: ./TestResults/**/coverage.cobertura.xml
@@ -87,14 +68,14 @@ jobs:
         fail_ci_if_error: false
 
     - name: Pack NuGet packages
-      if: github.event_name == 'release' && matrix.framework == 'net8.0'
-      run: dotnet pack --configuration Release --no-build --output ./packages --framework ${{ matrix.framework }}
+      if: github.event_name == 'release' && matrix.os == 'ubuntu-latest'
+      run: dotnet pack --configuration Release --no-build --output ./packages
 
     - name: Upload NuGet packages
-      if: github.event_name == 'release' && matrix.framework == 'net8.0'
+      if: github.event_name == 'release' && matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: nuget-packages-${{ matrix.rid }}
+        name: nuget-packages
         path: ./packages/*.nupkg
         retention-days: 30
 
@@ -141,8 +122,7 @@ jobs:
     - name: Download NuGet packages
       uses: actions/download-artifact@v4
       with:
-        pattern: nuget-packages-*
-        merge-multiple: true
+        name: nuget-packages
         path: ./packages
 
     - name: Setup .NET SDK
