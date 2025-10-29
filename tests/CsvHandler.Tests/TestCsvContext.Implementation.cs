@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CsvHandler.Core;
 
 namespace CsvHandler.Tests;
@@ -377,5 +380,30 @@ public partial class TestCsvContext : CsvContext
                 IsActive = fields.Count > 4 && bool.TryParse(fields[4], out var isActive) ? isActive : null
             };
         }
+    }
+
+    // Convenience methods for serialization/deserialization
+
+    /// <summary>
+    /// Serializes Person records to a stream asynchronously.
+    /// </summary>
+    public async Task SerializePersonAsync(Stream stream, IEnumerable<Person> records, CancellationToken cancellationToken = default)
+    {
+        await using var writer = CsvWriter<Person>.Create(stream, this, leaveOpen: true);
+        await writer.WriteHeaderAsync(cancellationToken);
+        foreach (var record in records)
+        {
+            await writer.WriteAsync(record, cancellationToken);
+        }
+        await writer.FlushAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Deserializes Person records from a stream asynchronously.
+    /// </summary>
+    public IAsyncEnumerable<Person> DeserializePersonAsync(Stream stream, CancellationToken cancellationToken = default)
+    {
+        var reader = CsvReader<Person>.Create(stream, this, leaveOpen: true);
+        return reader.ReadAllAsync(cancellationToken);
     }
 }

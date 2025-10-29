@@ -6,6 +6,8 @@ namespace CsvHandler;
 /// <summary>
 /// Factory for creating CSV type handlers via reflection (fallback path).
 /// </summary>
+[RequiresUnreferencedCode("Uses reflection to inspect type properties and fields.")]
+[RequiresDynamicCode("May require dynamic code generation for value conversion.")]
 internal static class CsvTypeHandlerFactory
 {
     /// <summary>
