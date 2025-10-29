@@ -11,6 +11,27 @@
             warnings-free code for Native AOT scenarios.
             </summary>
         </member>
+        <member name="M:CsvHandler.Tests.AotCompatibilityTests.Assembly_CoreTypes_DoNotRequireDynamicCode">
+            <summary>
+            Verifies the dual-path AOT strategy:
+            1. Core types (Utf8CsvParser, CsvContext, etc.) are AOT-compatible
+            2. Reflection fallback types are properly marked as incompatible
+            3. Library supports both AOT and reflection-based usage
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Tests.AotCompatibilityTests.CsvReader_AotSafeMethods_DoNotRequireDynamicCode">
+            <summary>
+            Verifies the dual-path API design for CsvReader:
+            1. AOT-safe path: Create(Stream, CsvContext) - no reflection
+            2. Reflection path: Create(Stream) - convenience, marked as incompatible
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Tests.AotCompatibilityTests.AotUsagePattern_Documentation">
+            <summary>
+            Documents the recommended AOT usage pattern for consumers of this library.
+            This test serves as both verification and documentation.
+            </summary>
+        </member>
         <member name="T:CsvHandler.Tests.GeneratorTests.SourceGeneratorTests">
             <summary>
             Tests for source generated CSV handlers.
@@ -432,6 +453,11 @@
             <summary>
             Comprehensive tests for CsvWriter functionality including quote handling,
             escaping, custom delimiters, and async operations.
+            </summary>
+        </member>
+        <member name="M:CsvHandler.Tests.WriterTests.ToAsyncEnumerable``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Helper extension to convert IEnumerable to IAsyncEnumerable for testing.
             </summary>
         </member>
     </members>

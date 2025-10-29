@@ -38,3 +38,5 @@ coverage.*.json
 # Claude Code configuration
 .claude/
 CLAUDE.md
+.claude-flow/
+.swarm/

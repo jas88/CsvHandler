@@ -599,6 +599,14 @@
             <typeparam name="T">The type to get metadata for.</typeparam>
             <returns>The type metadata, or null if the type is not registered in this context.</returns>
         </member>
+        <member name="M:CsvHandler.Core.CsvContext.GetTypeHandler``1">
+            <summary>
+            Gets a type handler for reading CSV data.
+            Source-generated contexts should override this to provide type-specific handlers.
+            </summary>
+            <typeparam name="T">The type to deserialize.</typeparam>
+            <returns>The type handler, or null if not available in this context.</returns>
+        </member>
         <member name="T:CsvHandler.Core.CsvTypeMetadata`1">
             <summary>
             Metadata describing how a type should be serialized to/from CSV.
@@ -1709,6 +1717,11 @@
             </summary>
             <param name="result">The deserialized object, or default if end of file or error.</param>
             <returns>True if a row was read successfully; otherwise, false.</returns>
+        </member>
+        <member name="M:CsvHandler.CsvReader`1.ConvertToReaderOptions(CsvHandler.Core.CsvWriterOptions)">
+            <summary>
+            Converts CsvWriterOptions to CsvOptions by mapping common properties.
+            </summary>
         </member>
         <member name="M:CsvHandler.CsvReader`1.Dispose">
             <summary>

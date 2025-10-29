@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7Spg5LcNr3Y=",
+  "dgSpecHash": "2/EsxUbKaQ4=",
   "success": true,
-  "projectFilePath": "/Users/jas88/Developer/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
+  "projectFilePath": "/Users/jas88/Developer/Github/CsvHandler/tests/CsvHandler.Tests/CsvHandler.Tests.csproj",
   "expectedPackageFiles": [
     "/Users/jas88/.nuget/packages/benchmarkdotnet/0.13.12/benchmarkdotnet.0.13.12.nupkg.sha512",
     "/Users/jas88/.nuget/packages/benchmarkdotnet.annotations/0.13.12/benchmarkdotnet.annotations.0.13.12.nupkg.sha512",

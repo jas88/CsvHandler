@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "EZqeS5JtuM4=",
+  "dgSpecHash": "sVrsytC2vxw=",
   "success": true,
-  "projectFilePath": "/Users/jas88/Developer/CsvHandler/src/CsvHandler.SourceGenerator/CsvHandler.SourceGenerator.csproj",
+  "projectFilePath": "/Users/jas88/Developer/Github/CsvHandler/src/CsvHandler.SourceGenerator/CsvHandler.SourceGenerator.csproj",
   "expectedPackageFiles": [
     "/Users/jas88/.nuget/packages/microsoft.codeanalysis.analyzers/3.3.4/microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
     "/Users/jas88/.nuget/packages/microsoft.codeanalysis.common/4.4.0/microsoft.codeanalysis.common.4.4.0.nupkg.sha512",
