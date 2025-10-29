@@ -32,12 +32,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
           6.0.x
@@ -73,12 +73,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
           6.0.x
@@ -95,7 +95,7 @@ jobs:
 
     - name: Initialize CodeQL
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: csharp
         queries: security-extended,security-and-quality
@@ -109,13 +109,13 @@ jobs:
 
     - name: Perform CodeQL Analysis
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
 
     - name: Run tests (all frameworks)
       run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults/
 
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./TestResults/**/coverage.cobertura.xml
