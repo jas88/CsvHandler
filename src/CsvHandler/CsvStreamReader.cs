@@ -116,16 +116,6 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 continue;
             }
 
-            if (c == _options.Escape && inQuotes)
-            {
-                // Check if this is escaping a quote
-                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
-                {
-                    previousWasEscape = true;
-                    continue;
-                }
-            }
-
             if (c == _options.Quote)
             {
                 if (!inQuotes)
@@ -143,6 +133,15 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                     {
                         inQuotes = false;
                     }
+                }
+            }
+            else if (c == _options.Escape && inQuotes && _options.Escape != _options.Quote)
+            {
+                // Check if this is escaping a quote
+                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                {
+                    previousWasEscape = true;
+                    continue;
                 }
             }
         }
@@ -334,21 +333,6 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 continue;
             }
 
-            if (c == _options.Escape && inQuotes)
-            {
-                // Peek next character
-                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
-                {
-                    // Escaped quote
-                    currentField.Append(_options.Quote);
-                    i++; // Skip next character
-                    continue;
-                }
-
-                previousWasEscape = true;
-                continue;
-            }
-
             if (c == _options.Quote)
             {
                 if (!inQuotes)
@@ -370,6 +354,21 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                         inQuotes = false;
                     }
                 }
+                continue;
+            }
+
+            if (c == _options.Escape && inQuotes && _options.Escape != _options.Quote)
+            {
+                // Peek next character
+                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                {
+                    // Escaped quote
+                    currentField.Append(_options.Quote);
+                    i++; // Skip next character
+                    continue;
+                }
+
+                previousWasEscape = true;
                 continue;
             }
 
