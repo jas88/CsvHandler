@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using FluentAssertions;
 using Xunit;
 
 namespace CsvHandler.Tests;
@@ -26,9 +25,9 @@ public class PolyfillTests
         parser.TryReadField(out var field2);
         parser.TryReadField(out var field3);
 
-        Encoding.UTF8.GetString(field1).Should().Be("A");
-        Encoding.UTF8.GetString(field2).Should().Be("B");
-        Encoding.UTF8.GetString(field3).Should().Be("C");
+        Assert.Equal("A", Encoding.UTF8.GetString(field1));
+        Assert.Equal("B", Encoding.UTF8.GetString(field2));
+        Assert.Equal("C", Encoding.UTF8.GetString(field3));
     }
 
     [Fact]
@@ -42,7 +41,7 @@ public class PolyfillTests
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
         parser.TryReadField(out var field);
-        field.Length.Should().Be(1000);
+        Assert.Equal(1000, field.Length);
     }
 
     #endregion
@@ -61,7 +60,7 @@ public class PolyfillTests
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
         parser.TryReadField(out var field);
-        Encoding.UTF8.GetString(field).Should().Be("Hello");
+        Assert.Equal("Hello", Encoding.UTF8.GetString(field));
     }
 
     [Fact]
@@ -82,7 +81,7 @@ public class PolyfillTests
             count++;
         }
 
-        count.Should().Be(3);
+        Assert.Equal(3, count);
     }
 
     #endregion
@@ -97,8 +96,8 @@ public class PolyfillTests
         var hash2 = HashCode.Combine("Alice", 30);
         var hash3 = HashCode.Combine("Bob", 25);
 
-        hash1.Should().Be(hash2);
-        hash1.Should().NotBe(hash3);
+        Assert.Equal(hash2, hash1);
+        Assert.NotEqual(hash3, hash1);
     }
 
     #endregion
@@ -113,7 +112,7 @@ public class PolyfillTests
         var bytes = Encoding.UTF8.GetBytes(text);
         var roundtrip = Encoding.UTF8.GetString(bytes);
 
-        roundtrip.Should().Be(text);
+        Assert.Equal(text, roundtrip);
     }
 
     [Fact]
@@ -129,7 +128,7 @@ public class PolyfillTests
         var trimmed = text.Trim();
 #endif
 
-        trimmed.Should().Be("Trimmed");
+        Assert.Equal("Trimmed", trimmed);
     }
 
     #endregion
@@ -165,12 +164,12 @@ public class PolyfillTests
         Range[] ranges = new Range[10];
         var count = parser.TryReadRecord(ranges);
 
-        count.Should().Be(5);
+        Assert.Equal(5, count);
 
         // Verify Range works
         var firstRange = ranges[0];
         var slice = csv[firstRange];
-        Encoding.UTF8.GetString(slice).Should().Be("A");
+        Assert.Equal("A", Encoding.UTF8.GetString(slice));
     }
 
     #endregion
@@ -199,14 +198,14 @@ public class PolyfillTests
 
         stopwatch.Stop();
 
-        fieldCount.Should().BeGreaterThanOrEqualTo(3000);
+        Assert.True(fieldCount >= 3000);
 
 #if NET6_0_OR_GREATER
         // .NET 6+ should be faster due to SIMD, but netstandard2.0 should still be reasonable
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(50);
+        Assert.True(stopwatch.ElapsedMilliseconds < 50);
 #else
         // netstandard2.0 may be slightly slower but still performant
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(100);
+        Assert.True(stopwatch.ElapsedMilliseconds < 100);
 #endif
     }
 
@@ -232,7 +231,7 @@ public class PolyfillTests
 #endif
 
         // At least one should be true
-        (isNetStandard || isModernNet).Should().BeTrue();
+        Assert.True(isNetStandard || isModernNet);
     }
 
     #endregion
@@ -252,7 +251,7 @@ public class PolyfillTests
 #endif
 
         // Just verify the check doesn't throw (hardware dependent)
-        (isAccelerated == true || isAccelerated == false).Should().BeTrue();
+        Assert.True(isAccelerated == true || isAccelerated == false);
     }
 
     #endregion
@@ -274,7 +273,7 @@ public class PolyfillTests
         parser.TryReadField(out var field);
 
         // If Unsafe operations work, we can calculate offsets
-        field.Length.Should().BeGreaterThan(0);
+        Assert.True(field.Length > 0);
     }
 
     #endregion
@@ -292,8 +291,8 @@ public class PolyfillTests
             TrimFields = true
         };
 
-        options.Delimiter.Should().Be((byte)'|');
-        options.TrimFields.Should().BeTrue();
+        Assert.Equal((byte)'|', options.Delimiter);
+        Assert.True(options.TrimFields);
     }
 
     #endregion
@@ -308,8 +307,8 @@ public class PolyfillTests
         var options1 = CsvHandler.Core.Utf8CsvParserOptions.Default;
         var options2 = options1 with { Delimiter = (byte)'\t' };
 
-        options1.Delimiter.Should().Be((byte)',');
-        options2.Delimiter.Should().Be((byte)'\t');
+        Assert.Equal((byte)',', options1.Delimiter);
+        Assert.Equal((byte)'\t', options2.Delimiter);
     }
 
     #endregion
@@ -325,7 +324,7 @@ public class PolyfillTests
 
         try
         {
-            buffer.Length.Should().BeGreaterThanOrEqualTo(1024);
+            Assert.True(buffer.Length >= 1024);
 
             // Use buffer with parser
             var csv = "A,B,C"u8;
@@ -336,7 +335,7 @@ public class PolyfillTests
                 CsvHandler.Core.Utf8CsvParserOptions.Default);
 
             parser.TryReadField(out var field);
-            Encoding.UTF8.GetString(field).Should().Be("A");
+            Assert.Equal("A", Encoding.UTF8.GetString(field));
         }
         finally
         {

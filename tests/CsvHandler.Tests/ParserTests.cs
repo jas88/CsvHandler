@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using CsvHandler.Core;
-using FluentAssertions;
 using Xunit;
 
 namespace CsvHandler.Tests;
@@ -26,10 +25,10 @@ public class ParserTests
         var success2 = parser.TryReadField(out var field2);
 
         // Assert
-        success1.Should().BeTrue();
-        Encoding.UTF8.GetString(field1).Should().Be("Alice");
-        success2.Should().BeTrue();
-        Encoding.UTF8.GetString(field2).Should().Be("30");
+        Assert.True(success1);
+        Assert.Equal("Alice", Encoding.UTF8.GetString(field1));
+        Assert.True(success2);
+        Assert.Equal("30", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -44,10 +43,10 @@ public class ParserTests
         var success2 = parser.TryReadField(out var field2);
 
         // Assert
-        success1.Should().BeTrue();
-        Encoding.UTF8.GetString(field1).Should().Be("Smith, John");
-        success2.Should().BeTrue();
-        Encoding.UTF8.GetString(field2).Should().Be("42");
+        Assert.True(success1);
+        Assert.Equal("Smith, John", Encoding.UTF8.GetString(field1));
+        Assert.True(success2);
+        Assert.Equal("42", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -62,10 +61,10 @@ public class ParserTests
         var success2 = parser.TryReadField(out var field2);
 
         // Assert
-        success1.Should().BeTrue();
-        Encoding.UTF8.GetString(field1).Should().Be("Line1\nLine2");
-        success2.Should().BeTrue();
-        Encoding.UTF8.GetString(field2).Should().Be("Value2");
+        Assert.True(success1);
+        Assert.Equal("Line1\nLine2", Encoding.UTF8.GetString(field1));
+        Assert.True(success2);
+        Assert.Equal("Value2", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -80,10 +79,10 @@ public class ParserTests
         var success2 = parser.TryReadField(out var field2);
 
         // Assert
-        success1.Should().BeTrue();
-        Encoding.UTF8.GetString(field1).Should().Be("He said \"\"Hello\"\"");
-        success2.Should().BeTrue();
-        Encoding.UTF8.GetString(field2).Should().Be("42");
+        Assert.True(success1);
+        Assert.Equal("He said \"\"Hello\"\"", Encoding.UTF8.GetString(field1));
+        Assert.True(success2);
+        Assert.Equal("42", Encoding.UTF8.GetString(field2));
     }
 
     #endregion
@@ -105,12 +104,12 @@ public class ParserTests
         for (int i = 0; i < expected.Length; i++)
         {
             var success = parser.TryReadField(out var field);
-            success.Should().BeTrue();
+            Assert.True(success);
             results[i] = Encoding.UTF8.GetString(field);
         }
 
         // Assert
-        results.Should().Equal(expected);
+        Assert.Equal(expected, results);
     }
 
     [Fact]
@@ -121,17 +120,17 @@ public class ParserTests
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
 
         // Act & Assert
-        parser.CurrentLine.Should().Be(1);
+        Assert.Equal(1, parser.CurrentLine);
         parser.TryReadField(out _);
         parser.TryReadField(out _);
-        parser.CurrentLine.Should().Be(1);
+        Assert.Equal(1, parser.CurrentLine);
 
         parser.TryReadField(out _);
-        parser.CurrentLine.Should().Be(2);
+        Assert.Equal(2, parser.CurrentLine);
         parser.TryReadField(out _);
 
         parser.TryReadField(out _);
-        parser.CurrentLine.Should().Be(3);
+        Assert.Equal(3, parser.CurrentLine);
     }
 
     #endregion
@@ -151,9 +150,9 @@ public class ParserTests
         parser.TryReadField(out var field3);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("A");
-        field2.Length.Should().Be(0);
-        Encoding.UTF8.GetString(field3).Should().Be("C");
+        Assert.Equal("A", Encoding.UTF8.GetString(field1));
+        Assert.Equal(0, field2.Length);
+        Assert.Equal("C", Encoding.UTF8.GetString(field3));
     }
 
     [Fact]
@@ -170,10 +169,10 @@ public class ParserTests
         var noMoreFields = parser.TryReadField(out _);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("A");
-        Encoding.UTF8.GetString(field2).Should().Be("B");
-        field3.Length.Should().Be(0);
-        noMoreFields.Should().BeFalse();
+        Assert.Equal("A", Encoding.UTF8.GetString(field1));
+        Assert.Equal("B", Encoding.UTF8.GetString(field2));
+        Assert.Equal(0, field3.Length);
+        Assert.False(noMoreFields);
     }
 
     [Fact]
@@ -187,8 +186,8 @@ public class ParserTests
         var success = parser.TryReadField(out var field);
 
         // Assert
-        success.Should().BeFalse();
-        parser.IsEndOfStream.Should().BeTrue();
+        Assert.False(success);
+        Assert.True(parser.IsEndOfStream);
     }
 
     [Fact]
@@ -201,8 +200,8 @@ public class ParserTests
         // Act & Assert
         for (int i = 0; i < 4; i++)
         {
-            parser.TryReadField(out var field).Should().BeTrue();
-            field.Length.Should().Be(0);
+            Assert.True(parser.TryReadField(out var field));
+            Assert.Equal(0, field.Length);
         }
     }
 
@@ -223,8 +222,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("Alice");
-        Encoding.UTF8.GetString(field2).Should().Be("Bob");
+        Assert.Equal("Alice", Encoding.UTF8.GetString(field1));
+        Assert.Equal("Bob", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -240,8 +239,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("  Alice  ");
-        Encoding.UTF8.GetString(field2).Should().Be("  Bob  ");
+        Assert.Equal("  Alice  ", Encoding.UTF8.GetString(field1));
+        Assert.Equal("  Bob  ", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -257,8 +256,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("  Alice  ");
-        Encoding.UTF8.GetString(field2).Should().Be("  Bob  ");
+        Assert.Equal("  Alice  ", Encoding.UTF8.GetString(field1));
+        Assert.Equal("  Bob  ", Encoding.UTF8.GetString(field2));
     }
 
     #endregion
@@ -282,9 +281,9 @@ public class ParserTests
         catch (FormatException ex)
         {
             exceptionThrown = true;
-            ex.Message.Should().Contain("Unterminated quoted field");
+            Assert.Contains("Unterminated quoted field", ex.Message);
         }
-        exceptionThrown.Should().BeTrue();
+        Assert.True(exceptionThrown);
     }
 
     [Fact]
@@ -299,8 +298,8 @@ public class ParserTests
         var success = parser.TryReadField(out var field);
 
         // Assert
-        success.Should().BeTrue();
-        Encoding.UTF8.GetString(field).Should().Be("Unterminated");
+        Assert.True(success);
+        Assert.Equal("Unterminated", Encoding.UTF8.GetString(field));
     }
 
     [Fact]
@@ -316,8 +315,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Contain("Test");
-        Encoding.UTF8.GetString(field2).Should().Be("Value");
+        Assert.Contains("Test", Encoding.UTF8.GetString(field1));
+        Assert.Equal("Value", Encoding.UTF8.GetString(field2));
     }
 
     #endregion
@@ -337,8 +336,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("A");
-        Encoding.UTF8.GetString(field2).Should().Be("B");
+        Assert.Equal("A", Encoding.UTF8.GetString(field1));
+        Assert.Equal("B", Encoding.UTF8.GetString(field2));
     }
 
     [Fact]
@@ -354,8 +353,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("#NotComment");
-        Encoding.UTF8.GetString(field2).Should().Be("Value");
+        Assert.Equal("#NotComment", Encoding.UTF8.GetString(field1));
+        Assert.Equal("Value", Encoding.UTF8.GetString(field2));
     }
 
     #endregion
@@ -379,9 +378,9 @@ public class ParserTests
         parser.TryReadField(out var v3);
 
         // Assert
-        Encoding.UTF8.GetString(v1).Should().Be("Alice");
-        Encoding.UTF8.GetString(v2).Should().Be("30");
-        Encoding.UTF8.GetString(v3).Should().Be("NYC");
+        Assert.Equal("Alice", Encoding.UTF8.GetString(v1));
+        Assert.Equal("30", Encoding.UTF8.GetString(v2));
+        Assert.Equal("NYC", Encoding.UTF8.GetString(v3));
     }
 
     [Fact]
@@ -398,9 +397,9 @@ public class ParserTests
         parser.TryReadField(out var field3);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("A");
-        Encoding.UTF8.GetString(field2).Should().Be("B");
-        Encoding.UTF8.GetString(field3).Should().Be("C");
+        Assert.Equal("A", Encoding.UTF8.GetString(field1));
+        Assert.Equal("B", Encoding.UTF8.GetString(field2));
+        Assert.Equal("C", Encoding.UTF8.GetString(field3));
     }
 
     #endregion
@@ -420,8 +419,8 @@ public class ParserTests
         var count2 = parser.TryReadRecord(ranges);
 
         // Assert
-        count1.Should().Be(3);
-        count2.Should().Be(3);
+        Assert.Equal(3, count1);
+        Assert.Equal(3, count2);
     }
 
     [Fact]
@@ -437,7 +436,7 @@ public class ParserTests
         var result = parser.TryReadRecord(ranges);
 
         // Assert
-        result.Should().Be(-1);
+        Assert.Equal(-1, result);
     }
 
     [Fact]
@@ -452,9 +451,9 @@ public class ParserTests
         var count = parser.TryReadRecord(ranges);
 
         // Assert
-        count.Should().Be(2);
-        Encoding.UTF8.GetString(csv[ranges[0]]).Should().Be("A");
-        Encoding.UTF8.GetString(csv[ranges[1]]).Should().Be("B");
+        Assert.Equal(2, count);
+        Assert.Equal("A", Encoding.UTF8.GetString(csv[ranges[0]]));
+        Assert.Equal("B", Encoding.UTF8.GetString(csv[ranges[1]]));
     }
 
     #endregion
@@ -474,10 +473,10 @@ public class ParserTests
         parser.Reset();
 
         // Assert
-        parser.Position.Should().Be(0);
-        parser.CurrentLine.Should().Be(1);
+        Assert.Equal(0, parser.Position);
+        Assert.Equal(1, parser.CurrentLine);
         parser.TryReadField(out var field);
-        Encoding.UTF8.GetString(field).Should().Be("A");
+        Assert.Equal("A", Encoding.UTF8.GetString(field));
     }
 
     [Fact]
@@ -492,8 +491,8 @@ public class ParserTests
         parser.TryReadField(out var field);
 
         // Assert
-        Encoding.UTF8.GetString(field).Should().Be("D");
-        parser.CurrentLine.Should().Be(2);
+        Assert.Equal("D", Encoding.UTF8.GetString(field));
+        Assert.Equal(2, parser.CurrentLine);
     }
 
     [Fact]
@@ -504,9 +503,9 @@ public class ParserTests
         var parser = new Utf8CsvParser(csv, Utf8CsvParserOptions.Default);
 
         // Act & Assert
-        parser.IsEndOfStream.Should().BeFalse();
+        Assert.False(parser.IsEndOfStream);
         parser.TryReadField(out _);
-        parser.IsEndOfStream.Should().BeTrue();
+        Assert.True(parser.IsEndOfStream);
     }
 
     #endregion
@@ -525,8 +524,8 @@ public class ParserTests
         var success = parser.TryReadField(out var field);
 
         // Assert
-        success.Should().BeTrue();
-        field.Length.Should().Be(10000);
+        Assert.True(success);
+        Assert.Equal(10000, field.Length);
     }
 
     [Fact]
@@ -545,11 +544,11 @@ public class ParserTests
         for (int i = 0; i < 100; i++)
         {
             parser.TryReadField(out var field);
-            Encoding.UTF8.GetString(field).Should().Be($"Field{i}");
+            Assert.Equal($"Field{i}", Encoding.UTF8.GetString(field));
         }
 
         // Assert
-        parser.IsEndOfStream.Should().BeTrue();
+        Assert.True(parser.IsEndOfStream);
     }
 
     #endregion
@@ -569,8 +568,8 @@ public class ParserTests
         parser.TryReadField(out var field2);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("\"A\"");
-        Encoding.UTF8.GetString(field2).Should().Be("\"B\"");
+        Assert.Equal("\"A\"", Encoding.UTF8.GetString(field1));
+        Assert.Equal("\"B\"", Encoding.UTF8.GetString(field2));
     }
 
     #endregion
@@ -590,9 +589,9 @@ public class ParserTests
         parser.TryReadField(out var field3);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("日本語");
-        Encoding.UTF8.GetString(field2).Should().Be("中文");
-        Encoding.UTF8.GetString(field3).Should().Be("한국어");
+        Assert.Equal("日本語", Encoding.UTF8.GetString(field1));
+        Assert.Equal("中文", Encoding.UTF8.GetString(field2));
+        Assert.Equal("한국어", Encoding.UTF8.GetString(field3));
     }
 
     [Fact]
@@ -608,9 +607,9 @@ public class ParserTests
         parser.TryReadField(out var field3);
 
         // Assert
-        Encoding.UTF8.GetString(field1).Should().Be("😀");
-        Encoding.UTF8.GetString(field2).Should().Be("🎉");
-        Encoding.UTF8.GetString(field3).Should().Be("✨");
+        Assert.Equal("😀", Encoding.UTF8.GetString(field1));
+        Assert.Equal("🎉", Encoding.UTF8.GetString(field2));
+        Assert.Equal("✨", Encoding.UTF8.GetString(field3));
     }
 
     #endregion
