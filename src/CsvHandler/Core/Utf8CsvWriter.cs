@@ -162,8 +162,10 @@ public ref struct Utf8CsvWriter
         // Check if we need to quote this field
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            // For QuoteMode.All, always quote - convert to string first
-            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            // For QuoteMode.All, always quote - write directly to avoid double-delimiter
+            var str = value.ToString(CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -192,7 +194,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            var str = value.ToString(CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -221,7 +225,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value.ToString("G", CultureInfo.InvariantCulture));
+            var str = value.ToString("G", CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -250,7 +256,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            var str = value.ToString(CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -279,7 +287,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value.ToString("O", CultureInfo.InvariantCulture));
+            var str = value.ToString("O", CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -308,7 +318,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value.ToString("O", CultureInfo.InvariantCulture));
+            var str = value.ToString("O", CultureInfo.InvariantCulture);
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
@@ -337,7 +349,9 @@ public ref struct Utf8CsvWriter
 
         if (_options.QuoteMode == CsvQuoteMode.All)
         {
-            WriteField(value ? "true" : "false");
+            var str = value ? "true" : "false";
+            var bytes = Encoding.UTF8.GetBytes(str);
+            WriteQuotedField(bytes);
             _isFirstFieldInRecord = false;
             return;
         }
