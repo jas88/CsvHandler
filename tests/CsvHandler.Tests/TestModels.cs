@@ -170,10 +170,13 @@ public partial class ContactRecord
 public partial class UnicodeRecord
 {
     [CsvField(Order = 0)]
-    public string Language { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [CsvField(Order = 1)]
-    public string Text { get; set; } = string.Empty;
+    public string Language { get; set; } = string.Empty;
+
+    [CsvField(Order = 2)]
+    public string Greeting { get; set; } = string.Empty;
 }
 
 public enum Status

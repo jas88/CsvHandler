@@ -186,10 +186,19 @@ public partial class TestCsvContext : CsvContext
 
         public Person Deserialize(IReadOnlyList<string> fields, long lineNumber)
         {
+            int age = 0;
+            if (fields.Count > 1 && !string.IsNullOrWhiteSpace(fields[1]))
+            {
+                if (!int.TryParse(fields[1], out age))
+                {
+                    throw new FormatException($"Invalid integer value '{fields[1]}' for Age field at line {lineNumber}");
+                }
+            }
+
             return new Person
             {
                 Name = fields.Count > 0 ? fields[0] : string.Empty,
-                Age = fields.Count > 1 && int.TryParse(fields[1], out var age) ? age : 0,
+                Age = age,
                 City = fields.Count > 2 ? fields[2] : null
             };
         }
@@ -289,7 +298,7 @@ public partial class TestCsvContext : CsvContext
     {
         private string[]? _headers;
 
-        public int ExpectedFieldCount => 2;
+        public int ExpectedFieldCount => 3;
 
         public void SetHeaders(IReadOnlyList<string> headers)
         {
@@ -300,8 +309,9 @@ public partial class TestCsvContext : CsvContext
         {
             return new UnicodeRecord
             {
-                Language = fields.Count > 0 ? fields[0] : string.Empty,
-                Text = fields.Count > 1 ? fields[1] : string.Empty
+                Name = fields.Count > 0 ? fields[0] : string.Empty,
+                Language = fields.Count > 1 ? fields[1] : string.Empty,
+                Greeting = fields.Count > 2 ? fields[2] : string.Empty
             };
         }
     }

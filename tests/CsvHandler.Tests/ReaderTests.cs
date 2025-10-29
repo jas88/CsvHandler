@@ -195,7 +195,7 @@ public class ReaderTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<FormatException>(async () =>
         {
-            var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Throw };
+            var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Throw, HasHeaders = true };
             await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
             await reader.ReadAllAsync().ToListAsync();
         });
@@ -209,7 +209,7 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Skip };
+        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Skip, HasHeaders = true };
         await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
         var people = await reader.ReadAllAsync().ToListAsync();
 
@@ -227,7 +227,7 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Collect };
+        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Collect, HasHeaders = true };
         await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
         var people = await reader.ReadAllAsync().ToListAsync();
 
@@ -250,7 +250,8 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        await using var reader = CsvReader<SimpleRecord>.Create(stream, new TestCsvContext());
+        var options = new CsvOptions { HasHeaders = true };
+        await using var reader = CsvReader<SimpleRecord>.Create(stream, new TestCsvContext(), options);
         var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
@@ -342,7 +343,9 @@ public class ReaderTests
         var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
+        Assert.Equal(4, records.Count);
         Assert.Contains(records, r => r.Language == "日本語");
+        Assert.Contains(records, r => r.Name == "田中太郎");
     }
 
     #endregion

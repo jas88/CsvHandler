@@ -120,7 +120,7 @@ public class EncodingTests
         var csvContent = "Name,Description,Value\n\"John\nDoe\",\"Line1\nLine2\nLine3\",100";
         var bytes = Encoding.UTF8.GetBytes(csvContent);
         var stream = new MemoryStream(bytes);
-        var options = new CsvOptions { Encoding = Encoding.UTF8 };
+        var options = new CsvOptions { Encoding = Encoding.UTF8, HasHeaders = true };
 
         // Act
         await using var reader = CsvReader<TestRecord>.Create(stream, options);
@@ -142,7 +142,7 @@ public class EncodingTests
         var contentBytes = Encoding.UTF8.GetBytes(csvContent);
         var bytes = preamble.Concat(contentBytes).ToArray();
         var stream = new MemoryStream(bytes);
-        var options = new CsvOptions { Encoding = Encoding.UTF8 };
+        var options = new CsvOptions { Encoding = Encoding.UTF8, HasHeaders = true };
 
         // Act
         await using var reader = CsvReader<TestRecord>.Create(stream, options);

@@ -556,8 +556,9 @@ Eve,Simple again,500";
 
         // Act - Read
         stream.Position = 0;
+        var options = new CsvOptions { HasHeaders = true };
         var readBack = await CsvReader<Person>
-            .Create(stream, new TestCsvContext())
+            .Create(stream, new TestCsvContext(), options)
             .ReadAllAsync()
             .ToListAsync();
 

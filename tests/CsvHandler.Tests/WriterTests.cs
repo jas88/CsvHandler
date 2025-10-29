@@ -241,9 +241,10 @@ public class WriterTests
             new TsvRecord { Field1 = "A", Field2 = "B", Field3 = "C" }
         };
         var stream = new MemoryStream();
+        var options = new CsvWriterOptions { Delimiter = '\t' };
 
         // Act
-        await using var writer = CsvWriter<TsvRecord>.Create(stream);
+        await using var writer = CsvWriter<TsvRecord>.Create(stream, options);
         await writer.WriteAllAsync(ToAsyncEnumerable(records));
         await writer.FlushAsync();
 
@@ -406,7 +407,10 @@ public class WriterTests
         // Assert
         Assert.True(stopwatch.ElapsedMilliseconds < 3000); // Should write 100k rows in < 3 seconds
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        Assert.Equal(100001, csv.Split('\n').Length); // 100k data rows + 1 header
+        // Count lines by splitting on newlines (normalize line endings first)
+        var normalizedCsv = csv.Replace("\r\n", "\n").Replace("\r", "\n");
+        var lines = normalizedCsv.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal(100001, lines.Length); // 100k data rows + 1 header
     }
 
     #endregion
@@ -439,8 +443,9 @@ public class WriterTests
         stream.Position = 0;
 
         // Act - Read
+        var options = new CsvOptions { HasHeaders = true };
         var readBack = await CsvReader<Employee>
-            .Create(stream, new TestCsvContext())
+            .Create(stream, new TestCsvContext(), options)
             .ReadAllAsync()
             .ToListAsync();
 
