@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CsvHandler.Compat;
 
 namespace CsvHandler;
 
@@ -24,6 +25,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
     private int _bufferLength;
     private long _bytesRead;
     private bool _disposed;
+    private bool _firstLineRead; // Track if we've read the first line for BOM handling
 
     public long BytesRead => _bytesRead;
 
@@ -38,29 +40,114 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Reads the next line from the CSV file asynchronously.
+    /// Reads the next CSV record from the file asynchronously.
+    /// A CSV record may span multiple physical lines if it contains quoted newlines.
     /// </summary>
     public async ValueTask<IReadOnlyList<string>?> ReadLineAsync(CancellationToken cancellationToken = default)
     {
-        var line = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
+        var firstLine = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
-        if (line == null)
+        if (firstLine == null)
             return null;
 
-        return ParseLine(line);
+        // Check if we need to read more lines for multiline quoted fields
+        var completeLine = firstLine;
+        while (HasUnclosedQuote(completeLine))
+        {
+            var nextLine = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
+            if (nextLine == null)
+            {
+                // File ended with unclosed quote - parse what we have
+                break;
+            }
+
+            // Append with actual newline to preserve multiline field content
+            completeLine += "\n" + nextLine;
+        }
+
+        return ParseLine(completeLine);
     }
 
     /// <summary>
-    /// Reads the next line from the CSV file synchronously.
+    /// Reads the next CSV record from the file synchronously.
+    /// A CSV record may span multiple physical lines if it contains quoted newlines.
     /// </summary>
     public IReadOnlyList<string>? ReadLine()
     {
-        var line = ReadRawLine();
+        var firstLine = ReadRawLine();
 
-        if (line == null)
+        if (firstLine == null)
             return null;
 
-        return ParseLine(line);
+        // Check if we need to read more lines for multiline quoted fields
+        var completeLine = firstLine;
+        while (HasUnclosedQuote(completeLine))
+        {
+            var nextLine = ReadRawLine();
+            if (nextLine == null)
+            {
+                // File ended with unclosed quote - parse what we have
+                break;
+            }
+
+            // Append with actual newline to preserve multiline field content
+            completeLine += "\n" + nextLine;
+        }
+
+        return ParseLine(completeLine);
+    }
+
+    /// <summary>
+    /// Check if a line has an unclosed quote (odd number of unescaped quotes).
+    /// This is a simplified check - the full parsing logic is in ParseLine.
+    /// </summary>
+    private bool HasUnclosedQuote(string line)
+    {
+        bool inQuotes = false;
+        bool previousWasEscape = false;
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            var c = line[i];
+
+            if (previousWasEscape)
+            {
+                previousWasEscape = false;
+                continue;
+            }
+
+            if (c == _options.Escape && inQuotes)
+            {
+                // Check if this is escaping a quote
+                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                {
+                    previousWasEscape = true;
+                    continue;
+                }
+            }
+
+            if (c == _options.Quote)
+            {
+                if (!inQuotes)
+                {
+                    inQuotes = true;
+                }
+                else
+                {
+                    // Check for doubled quote
+                    if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                    {
+                        i++; // Skip the doubled quote
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                    }
+                }
+            }
+        }
+
+        return inQuotes;
     }
 
     private async ValueTask<string?> ReadRawLineAsync(CancellationToken cancellationToken)
@@ -84,7 +171,10 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 {
                     // End of stream
                     if (lineBytes.Count > 0)
-                        return _encoding.GetString(lineBytes.ToArray());
+                    {
+                        var finalLine = _encoding.GetString(lineBytes.ToArray());
+                        return StripBomIfFirstLine(finalLine);
+                    }
 
                     return null;
                 }
@@ -124,6 +214,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
         }
 
         var result = _encoding.GetString(lineBytes.ToArray());
+        result = StripBomIfFirstLine(result);
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
@@ -153,7 +244,10 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 {
                     // End of stream
                     if (lineBytes.Count > 0)
-                        return _encoding.GetString(lineBytes.ToArray());
+                    {
+                        var finalLine = _encoding.GetString(lineBytes.ToArray());
+                        return StripBomIfFirstLine(finalLine);
+                    }
 
                     return null;
                 }
@@ -193,6 +287,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
         }
 
         var result = _encoding.GetString(lineBytes.ToArray());
+        result = StripBomIfFirstLine(result);
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
@@ -203,6 +298,22 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return ReadRawLine();
 
         return result;
+    }
+
+    /// <summary>
+    /// Strip UTF-8 BOM from the first line if present.
+    /// The BOM is the Unicode character U+FEFF.
+    /// </summary>
+    private string StripBomIfFirstLine(string line)
+    {
+        if (!_firstLineRead && line.Length > 0 && line[0] == '\uFEFF')
+        {
+            _firstLineRead = true;
+            return line.Substring(1);
+        }
+
+        _firstLineRead = true;
+        return line;
     }
 
     private List<string> ParseLine(string line)
