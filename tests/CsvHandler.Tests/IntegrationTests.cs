@@ -531,7 +531,7 @@ Eve,Simple again,500";
 
     #region Round-trip Integration Tests
 
-    [Fact(Skip = "TODO: Implement CsvWriter and CsvReader")]
+    [Fact]
     public async Task WriteAndRead_RealWorldData_MaintainsIntegrity()
     {
         // Arrange
@@ -545,25 +545,31 @@ Eve,Simple again,500";
         var stream = new MemoryStream();
 
         // Act - Write
-        // await CsvWriter<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .WriteAllAsync(testData);
+        await using (var writer = CsvWriter<Person>.Create(stream, new TestCsvContext(), leaveOpen: true))
+        {
+            await writer.WriteHeaderAsync();
+            foreach (var person in testData)
+            {
+                await writer.WriteAsync(person);
+            }
+        }
 
         // Act - Read
         stream.Position = 0;
-        // var readBack = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        var options = new CsvOptions { HasHeaders = true };
+        var readBack = await CsvReader<Person>
+            .Create(stream, new TestCsvContext(), options)
+            .ReadAllAsync()
+            .ToListAsync();
 
         // Assert
-        // readBack.Should().HaveCount(3);
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     readBack[i].Name.Should().Be(testData[i].Name);
-        //     readBack[i].Age.Should().Be(testData[i].Age);
-        //     readBack[i].City.Should().Be(testData[i].City);
-        // }
+        Assert.Equal(3, readBack.Count);
+        for (int i = 0; i < 3; i++)
+        {
+            Assert.Equal(testData[i].Name, readBack[i].Name);
+            Assert.Equal(testData[i].Age, readBack[i].Age);
+            Assert.Equal(testData[i].City, readBack[i].City);
+        }
     }
 
     #endregion

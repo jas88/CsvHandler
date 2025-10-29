@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -383,16 +384,172 @@ public sealed class CsvWriter<T> : IDisposable, IAsyncDisposable
     [RequiresDynamicCode("Reflection-based serialization")]
     private void WriteHeaderReflection()
     {
-        // TODO: Implement reflection-based header writing
-        throw new NotImplementedException("Reflection-based serialization will be implemented in a future update. Please use source-generated contexts for now.");
+        var writer = new Utf8CsvWriter(_bufferWriter, _options);
+        var properties = GetSerializableProperties();
+
+        foreach (var (prop, attr) in properties)
+        {
+            var headerName = attr?.Name ?? prop.Name;
+            writer.WriteField(headerName);
+        }
+
+        writer.WriteEndOfRecord();
+        _bytesWritten += writer.BytesWritten;
     }
 
     [RequiresUnreferencedCode("Reflection-based serialization")]
     [RequiresDynamicCode("Reflection-based serialization")]
     private void WriteValueReflection(T value)
     {
-        // TODO: Implement reflection-based value writing
-        throw new NotImplementedException("Reflection-based serialization will be implemented in a future update. Please use source-generated contexts for now.");
+        var writer = new Utf8CsvWriter(_bufferWriter, _options);
+        var properties = GetSerializableProperties();
+
+        foreach (var (prop, attr) in properties)
+        {
+            var propValue = prop.GetValue(value);
+            WritePropertyValue(ref writer, propValue, prop.PropertyType, attr);
+        }
+
+        writer.WriteEndOfRecord();
+        _bytesWritten += writer.BytesWritten;
+        _recordsWritten++;
+    }
+
+    [RequiresUnreferencedCode("Reflection-based serialization")]
+    [RequiresDynamicCode("Reflection-based serialization")]
+    private static System.Collections.Generic.List<(System.Reflection.PropertyInfo Property, Attributes.CsvFieldAttribute? Attribute)> GetSerializableProperties()
+    {
+        var type = typeof(T);
+        var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        var result = new System.Collections.Generic.List<(System.Reflection.PropertyInfo, Attributes.CsvFieldAttribute?)>();
+
+        foreach (var prop in properties)
+        {
+            // Skip properties with CsvIgnoreAttribute
+            if (prop.GetCustomAttributes(typeof(Attributes.CsvIgnoreAttribute), true).Length > 0)
+                continue;
+
+            // Get CsvFieldAttribute if present
+            var csvFieldAttr = prop.GetCustomAttributes(typeof(Attributes.CsvFieldAttribute), true)
+                .Cast<Attributes.CsvFieldAttribute>()
+                .FirstOrDefault();
+
+            // Skip if Ignore flag is set
+            if (csvFieldAttr?.Ignore == true)
+                continue;
+
+            result.Add((prop, csvFieldAttr));
+        }
+
+        // Sort by Order, Index, then declaration order
+        result.Sort((a, b) =>
+        {
+            var aAttr = a.Item2;
+            var bAttr = b.Item2;
+
+            // Index takes precedence over Order
+            if (aAttr?.Index >= 0 && bAttr?.Index >= 0)
+                return aAttr.Index.CompareTo(bAttr.Index);
+            if (aAttr?.Index >= 0)
+                return -1;
+            if (bAttr?.Index >= 0)
+                return 1;
+
+            // Then Order
+            if (aAttr?.Order >= 0 && bAttr?.Order >= 0)
+                return aAttr.Order.CompareTo(bAttr.Order);
+            if (aAttr?.Order >= 0)
+                return -1;
+            if (bAttr?.Order >= 0)
+                return 1;
+
+            // Finally declaration order (MetadataToken is stable)
+            return a.Item1.MetadataToken.CompareTo(b.Item1.MetadataToken);
+        });
+
+        return result;
+    }
+
+    [RequiresUnreferencedCode("Reflection-based serialization")]
+    [RequiresDynamicCode("Reflection-based serialization")]
+    private static void WritePropertyValue(ref Utf8CsvWriter writer, object? value, Type propertyType, Attributes.CsvFieldAttribute? attr)
+    {
+        // Handle null values
+        if (value == null)
+        {
+            writer.WriteField(string.Empty);
+            return;
+        }
+
+        // Get the underlying type if nullable
+        var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+
+        // Handle formatted output
+        if (attr?.Format != null && value is IFormattable formattable)
+        {
+            var formatted = formattable.ToString(attr.Format, System.Globalization.CultureInfo.InvariantCulture);
+            writer.WriteField(formatted);
+            return;
+        }
+
+        // Write based on type
+        if (underlyingType == typeof(string))
+        {
+            writer.WriteField((string)value);
+        }
+        else if (underlyingType == typeof(int))
+        {
+            writer.WriteField((int)value);
+        }
+        else if (underlyingType == typeof(long))
+        {
+            writer.WriteField((long)value);
+        }
+        else if (underlyingType == typeof(double))
+        {
+            writer.WriteField((double)value);
+        }
+        else if (underlyingType == typeof(decimal))
+        {
+            writer.WriteField((decimal)value);
+        }
+        else if (underlyingType == typeof(bool))
+        {
+            writer.WriteField((bool)value);
+        }
+        else if (underlyingType == typeof(DateTime))
+        {
+            writer.WriteField((DateTime)value);
+        }
+        else if (underlyingType == typeof(DateTimeOffset))
+        {
+            writer.WriteField((DateTimeOffset)value);
+        }
+        else if (underlyingType == typeof(Guid))
+        {
+            writer.WriteField((Guid)value);
+        }
+        else if (underlyingType == typeof(byte))
+        {
+            writer.WriteField((int)(byte)value);
+        }
+        else if (underlyingType == typeof(short))
+        {
+            writer.WriteField((int)(short)value);
+        }
+        else if (underlyingType == typeof(float))
+        {
+            writer.WriteField((double)(float)value);
+        }
+        else if (underlyingType == typeof(char))
+        {
+            writer.WriteField(value.ToString()!);
+        }
+        else
+        {
+            // Fallback to ToString() for unsupported types
+            writer.WriteField(value.ToString() ?? string.Empty);
+        }
     }
 
     /// <summary>

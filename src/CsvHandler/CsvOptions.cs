@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Text;
 
 namespace CsvHandler;
 
@@ -85,6 +86,13 @@ public sealed class CsvOptions
     public int MaxErrorCount { get; set; } = 100;
 
     /// <summary>
+    /// Gets or sets the text encoding to use for reading CSV files. Default is UTF8.
+    /// Note: Line-ending detection works at the byte level, so multi-byte encodings like UTF16 may not work correctly.
+    /// Recommended encodings: UTF8, ASCII, Latin1 (ISO-8859-1), and other single-byte encodings.
+    /// </summary>
+    public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+    /// <summary>
     /// Validates the options and throws if invalid.
     /// </summary>
     public void Validate()
@@ -103,6 +111,9 @@ public sealed class CsvOptions
 
         if (Culture == null)
             throw new ArgumentNullException(nameof(Culture));
+
+        if (Encoding == null)
+            throw new ArgumentNullException(nameof(Encoding));
     }
 
     /// <summary>

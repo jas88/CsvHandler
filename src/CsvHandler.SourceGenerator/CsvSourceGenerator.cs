@@ -20,6 +20,7 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
 {
     private const string CsvRecordAttributeName = "CsvHandler.Attributes.CsvRecordAttribute";
     private const string CsvFieldAttributeName = "CsvHandler.Attributes.CsvFieldAttribute";
+    private const string CsvSerializableAttributeName = "CsvHandler.Attributes.CsvSerializableAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -36,6 +37,21 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
 
         // Register source output for each record type
         context.RegisterSourceOutput(recordTypes, GenerateSource);
+
+        // Handle context types with [CsvSerializable] attributes
+        // Note: Context generation is currently disabled because it conflicts with manual implementations
+        // TODO: Add conditional generation that skips types with manual implementations
+        // var contextTypes = context.SyntaxProvider
+        //     .ForAttributeWithMetadataName(
+        //         fullyQualifiedMetadataName: CsvSerializableAttributeName,
+        //         predicate: static (node, _) => IsCandidateSyntax(node),
+        //         transform: static (context, cancellationToken) => TransformContext(context, cancellationToken))
+        //     .Where(static model => model.HasValue)
+        //     .Select(static (model, _) => model!.Value)
+        //     .Collect();
+
+        // Register source output for context types
+        // context.RegisterSourceOutput(contextTypes, GenerateContextSource);
     }
 
     /// <summary>
@@ -44,6 +60,68 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
     private static bool IsCandidateSyntax(SyntaxNode node)
     {
         return node is ClassDeclarationSyntax or RecordDeclarationSyntax;
+    }
+
+    /// <summary>
+    /// Transforms semantic model into a ContextModel for context types.
+    /// </summary>
+    private static ContextModel? TransformContext(GeneratorAttributeSyntaxContext context, System.Threading.CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (context.TargetSymbol is not INamedTypeSymbol typeSymbol)
+        {
+            return null;
+        }
+
+        // Validate type is a class
+        if (typeSymbol.TypeKind != TypeKind.Class)
+        {
+            return null;
+        }
+
+        // Check if type is partial
+        bool isPartial = IsPartial(context.TargetNode);
+        if (!isPartial)
+        {
+            return null;
+        }
+
+        // Check if type is nested
+        if (typeSymbol.ContainingType != null)
+        {
+            return null;
+        }
+
+        // Extract all CsvSerializable attributes
+        var registeredTypes = ImmutableArray.CreateBuilder<INamedTypeSymbol>();
+        foreach (var attr in typeSymbol.GetAttributes())
+        {
+            if (attr.AttributeClass?.ToDisplayString() == CsvSerializableAttributeName)
+            {
+                // Get the Type parameter from the attribute
+                if (attr.ConstructorArguments.Length > 0 &&
+                    attr.ConstructorArguments[0].Value is INamedTypeSymbol registeredType)
+                {
+                    registeredTypes.Add(registeredType);
+                }
+            }
+        }
+
+        if (registeredTypes.Count == 0)
+        {
+            return null;
+        }
+
+        return new ContextModel
+        {
+            TypeName = typeSymbol.Name,
+            Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
+            TypeSymbol = typeSymbol,
+            RegisteredTypes = registeredTypes.ToImmutable(),
+            IsPartial = isPartial,
+            Location = context.TargetNode.GetLocation()
+        };
     }
 
     /// <summary>
@@ -365,6 +443,183 @@ public sealed class CsvSourceGenerator : IIncrementalGenerator
         }
 
         return isValid;
+    }
+
+    /// <summary>
+    /// Generates the context source code for a collection of context models.
+    /// </summary>
+    private static void GenerateContextSource(SourceProductionContext context, ImmutableArray<ContextModel> models)
+    {
+        // Group by context type (multiple [CsvSerializable] attributes can be on the same context)
+        var contextGroups = models
+            .GroupBy(m => m.TypeSymbol, SymbolEqualityComparer.Default)
+            .ToList();
+
+        foreach (var group in contextGroups)
+        {
+            var model = group.First();
+            var allTypes = group
+                .SelectMany(m => m.RegisteredTypes)
+                .Distinct(SymbolEqualityComparer.Default)
+                .Cast<INamedTypeSymbol>()
+                .ToList();
+
+            var code = new CodeBuilder();
+
+            // Generate usings
+            var usings = new System.Collections.Generic.HashSet<string>
+            {
+                "System",
+                "System.Collections.Generic",
+                "CsvHandler",
+                "CsvHandler.Core"
+            };
+
+            foreach (var type in allTypes)
+            {
+                if (type.ContainingNamespace != null)
+                {
+                    var typeNamespace = type.ContainingNamespace.ToDisplayString();
+                    if (!string.IsNullOrEmpty(typeNamespace) && typeNamespace != model.Namespace)
+                    {
+                        usings.Add(typeNamespace);
+                    }
+                }
+            }
+
+            code.AppendNamespace(model.Namespace, usings.OrderBy(u => u));
+
+            // Generate context class
+            code.AppendXmlDoc($"Auto-generated CSV context for {model.TypeName}.");
+            code.AppendLine($"partial class {model.TypeName} : global::CsvHandler.CsvContext");
+            code.OpenBrace();
+
+            // Generate Default property
+            code.AppendXmlDoc("Gets the default instance of this context.");
+            code.AppendLine($"private static {model.TypeName}? s_default;");
+            code.AppendLine($"public static {model.TypeName} Default => s_default ??= new {model.TypeName}();");
+            code.AppendLine();
+
+            // Generate GetTypeInfo method
+            EmitGetTypeInfo(code, allTypes);
+            code.AppendLine();
+
+            // Generate GetTypeHandler method
+            EmitGetTypeHandler(code, allTypes);
+            code.AppendLine();
+
+            // Generate GetTypeMetadata method
+            EmitGetTypeMetadata(code, allTypes);
+
+            code.CloseBrace();
+            code.CloseBrace();
+
+            var fileName = $"{model.TypeName}.CsvContext.g.cs";
+            context.AddSource(fileName, code.ToString());
+        }
+    }
+
+    private static void EmitGetTypeInfo(CodeBuilder code, System.Collections.Generic.List<INamedTypeSymbol> types)
+    {
+        code.AppendXmlDoc("Gets type metadata and serialization delegates for the specified type.");
+        code.AppendLine("public override global::CsvHandler.CsvTypeInfo<T>? GetTypeInfo<T>() where T : class");
+        code.OpenBrace();
+        code.AppendLine("// Not implemented - use GetTypeHandler or GetTypeMetadata");
+        code.AppendLine("return null;");
+        code.CloseBrace();
+    }
+
+    private static void EmitGetTypeHandler(CodeBuilder code, System.Collections.Generic.List<INamedTypeSymbol> types)
+    {
+        code.AppendXmlDoc("Gets a type handler for CSV serialization/deserialization.");
+        code.AppendLine("public override global::CsvHandler.ICsvTypeHandler<T>? GetTypeHandler<T>()");
+        code.OpenBrace();
+        code.AppendLine("var type = typeof(T);");
+        code.AppendLine();
+
+        foreach (var type in types)
+        {
+            var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var simpleName = type.Name;
+
+            code.AppendLine($"if (type == typeof({typeName}))");
+            code.OpenBrace();
+            code.AppendLine($"return (global::CsvHandler.ICsvTypeHandler<T>)(object)new {simpleName}TypeHandler();");
+            code.CloseBrace();
+            code.AppendLine();
+        }
+
+        code.AppendLine("return null;");
+        code.CloseBrace();
+        code.AppendLine();
+
+        // Generate type handlers
+        foreach (var type in types)
+        {
+            EmitTypeHandler(code, type);
+        }
+    }
+
+    private static void EmitTypeHandler(CodeBuilder code, INamedTypeSymbol type)
+    {
+        var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var simpleName = type.Name;
+
+        code.AppendLine($"private sealed class {simpleName}TypeHandler : global::CsvHandler.ICsvTypeHandler<{typeName}>");
+        code.OpenBrace();
+
+        // Get fields from the type
+        var fields = type.GetMembers()
+            .Where(m => m is IPropertySymbol or IFieldSymbol)
+            .Where(m => m.GetAttributes().Any(a => a.AttributeClass?.Name == "CsvFieldAttribute"))
+            .OrderBy(m => GetFieldOrder(m))
+            .ToList();
+
+        code.AppendLine($"public int ExpectedFieldCount => {fields.Count};");
+        code.AppendLine();
+
+        code.AppendLine("public void SetHeaders(global::System.Collections.Generic.IReadOnlyList<string> headers)");
+        code.OpenBrace();
+        code.AppendLine("// Headers not used in generated code");
+        code.CloseBrace();
+        code.AppendLine();
+
+        code.AppendLine($"public {typeName} Deserialize(global::System.Collections.Generic.IReadOnlyList<string> fields, long lineNumber)");
+        code.OpenBrace();
+        code.AppendLine($"return {typeName}.ReadFromCsv(global::System.Text.Encoding.UTF8.GetBytes(string.Join(\",\", fields)));");
+        code.CloseBrace();
+
+        code.CloseBrace();
+        code.AppendLine();
+    }
+
+    private static int GetFieldOrder(ISymbol member)
+    {
+        var attr = member.GetAttributes()
+            .FirstOrDefault(a => a.AttributeClass?.Name == "CsvFieldAttribute");
+
+        if (attr != null)
+        {
+            foreach (var arg in attr.NamedArguments)
+            {
+                if (arg.Key == "Order" && arg.Value.Value is int order)
+                {
+                    return order;
+                }
+            }
+        }
+
+        return int.MaxValue;
+    }
+
+    private static void EmitGetTypeMetadata(CodeBuilder code, System.Collections.Generic.List<INamedTypeSymbol> types)
+    {
+        code.AppendXmlDoc("Gets type metadata for CSV writing operations.");
+        code.AppendLine("public override global::CsvHandler.Core.CsvTypeMetadata<T>? GetTypeMetadata<T>() where T : class");
+        code.OpenBrace();
+        code.AppendLine("// Not fully implemented - using manual implementation in TestCsvContext.Implementation.cs");
+        code.AppendLine("return null;");
+        code.CloseBrace();
     }
 
     /// <summary>

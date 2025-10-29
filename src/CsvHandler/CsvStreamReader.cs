@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CsvHandler.Compat;
 
 namespace CsvHandler;
 
@@ -18,11 +19,13 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
     private readonly bool _leaveOpen;
     private readonly byte[] _buffer;
     private readonly Encoding _encoding;
+    private readonly Decoder _decoder;
 
     private int _bufferPosition;
     private int _bufferLength;
     private long _bytesRead;
     private bool _disposed;
+    private bool _firstLineRead; // Track if we've read the first line for BOM handling
 
     public long BytesRead => _bytesRead;
 
@@ -32,38 +35,123 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _leaveOpen = leaveOpen;
         _buffer = ArrayPool<byte>.Shared.Rent(options.BufferSize);
-        _encoding = Encoding.UTF8; // TODO: Make configurable
+        _encoding = options.Encoding ?? Encoding.UTF8;
+        _decoder = _encoding.GetDecoder();
     }
 
     /// <summary>
-    /// Reads the next line from the CSV file asynchronously.
+    /// Reads the next CSV record from the file asynchronously.
+    /// A CSV record may span multiple physical lines if it contains quoted newlines.
     /// </summary>
     public async ValueTask<IReadOnlyList<string>?> ReadLineAsync(CancellationToken cancellationToken = default)
     {
-        var line = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
+        var firstLine = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
 
-        if (line == null)
+        if (firstLine == null)
             return null;
 
-        return ParseLine(line);
+        // Check if we need to read more lines for multiline quoted fields
+        var completeLine = firstLine;
+        while (HasUnclosedQuote(completeLine))
+        {
+            var nextLine = await ReadRawLineAsync(cancellationToken).ConfigureAwait(false);
+            if (nextLine == null)
+            {
+                // File ended with unclosed quote - parse what we have
+                break;
+            }
+
+            // Append with actual newline to preserve multiline field content
+            completeLine += "\n" + nextLine;
+        }
+
+        return ParseLine(completeLine);
     }
 
     /// <summary>
-    /// Reads the next line from the CSV file synchronously.
+    /// Reads the next CSV record from the file synchronously.
+    /// A CSV record may span multiple physical lines if it contains quoted newlines.
     /// </summary>
     public IReadOnlyList<string>? ReadLine()
     {
-        var line = ReadRawLine();
+        var firstLine = ReadRawLine();
 
-        if (line == null)
+        if (firstLine == null)
             return null;
 
-        return ParseLine(line);
+        // Check if we need to read more lines for multiline quoted fields
+        var completeLine = firstLine;
+        while (HasUnclosedQuote(completeLine))
+        {
+            var nextLine = ReadRawLine();
+            if (nextLine == null)
+            {
+                // File ended with unclosed quote - parse what we have
+                break;
+            }
+
+            // Append with actual newline to preserve multiline field content
+            completeLine += "\n" + nextLine;
+        }
+
+        return ParseLine(completeLine);
+    }
+
+    /// <summary>
+    /// Check if a line has an unclosed quote (odd number of unescaped quotes).
+    /// This is a simplified check - the full parsing logic is in ParseLine.
+    /// </summary>
+    private bool HasUnclosedQuote(string line)
+    {
+        bool inQuotes = false;
+        bool previousWasEscape = false;
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            var c = line[i];
+
+            if (previousWasEscape)
+            {
+                previousWasEscape = false;
+                continue;
+            }
+
+            if (c == _options.Quote)
+            {
+                if (!inQuotes)
+                {
+                    inQuotes = true;
+                }
+                else
+                {
+                    // Check for doubled quote
+                    if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                    {
+                        i++; // Skip the doubled quote
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                    }
+                }
+            }
+            else if (c == _options.Escape && inQuotes && _options.Escape != _options.Quote)
+            {
+                // Check if this is escaping a quote
+                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                {
+                    previousWasEscape = true;
+                    continue;
+                }
+            }
+        }
+
+        return inQuotes;
     }
 
     private async ValueTask<string?> ReadRawLineAsync(CancellationToken cancellationToken)
     {
-        var sb = new StringBuilder();
+        var lineBytes = new List<byte>();
         bool foundLine = false;
 
         while (true)
@@ -81,8 +169,11 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 if (_bufferLength == 0)
                 {
                     // End of stream
-                    if (sb.Length > 0)
-                        return sb.ToString();
+                    if (lineBytes.Count > 0)
+                    {
+                        var finalLine = _encoding.GetString(lineBytes.ToArray());
+                        return StripBomIfFirstLine(finalLine);
+                    }
 
                     return null;
                 }
@@ -114,14 +205,15 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                     break;
                 }
 
-                sb.Append((char)b);
+                lineBytes.Add(b);
             }
 
             if (foundLine)
                 break;
         }
 
-        var result = sb.ToString();
+        var result = _encoding.GetString(lineBytes.ToArray());
+        result = StripBomIfFirstLine(result);
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
@@ -136,7 +228,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
 
     private string? ReadRawLine()
     {
-        var sb = new StringBuilder();
+        var lineBytes = new List<byte>();
         bool foundLine = false;
 
         while (true)
@@ -150,8 +242,11 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 if (_bufferLength == 0)
                 {
                     // End of stream
-                    if (sb.Length > 0)
-                        return sb.ToString();
+                    if (lineBytes.Count > 0)
+                    {
+                        var finalLine = _encoding.GetString(lineBytes.ToArray());
+                        return StripBomIfFirstLine(finalLine);
+                    }
 
                     return null;
                 }
@@ -183,14 +278,15 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                     break;
                 }
 
-                sb.Append((char)b);
+                lineBytes.Add(b);
             }
 
             if (foundLine)
                 break;
         }
 
-        var result = sb.ToString();
+        var result = _encoding.GetString(lineBytes.ToArray());
+        result = StripBomIfFirstLine(result);
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
@@ -201,6 +297,22 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             return ReadRawLine();
 
         return result;
+    }
+
+    /// <summary>
+    /// Strip UTF-8 BOM from the first line if present.
+    /// The BOM is the Unicode character U+FEFF.
+    /// </summary>
+    private string StripBomIfFirstLine(string line)
+    {
+        if (!_firstLineRead && line.Length > 0 && line[0] == '\uFEFF')
+        {
+            _firstLineRead = true;
+            return line.Substring(1);
+        }
+
+        _firstLineRead = true;
+        return line;
     }
 
     private List<string> ParseLine(string line)
@@ -218,21 +330,6 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
             {
                 currentField.Append(c);
                 previousWasEscape = false;
-                continue;
-            }
-
-            if (c == _options.Escape && inQuotes)
-            {
-                // Peek next character
-                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
-                {
-                    // Escaped quote
-                    currentField.Append(_options.Quote);
-                    i++; // Skip next character
-                    continue;
-                }
-
-                previousWasEscape = true;
                 continue;
             }
 
@@ -257,6 +354,21 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                         inQuotes = false;
                     }
                 }
+                continue;
+            }
+
+            if (c == _options.Escape && inQuotes && _options.Escape != _options.Quote)
+            {
+                // Peek next character
+                if (i + 1 < line.Length && line[i + 1] == _options.Quote)
+                {
+                    // Escaped quote
+                    currentField.Append(_options.Quote);
+                    i++; // Skip next character
+                    continue;
+                }
+
+                previousWasEscape = true;
                 continue;
             }
 

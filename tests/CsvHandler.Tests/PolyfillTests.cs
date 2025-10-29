@@ -135,17 +135,31 @@ public class PolyfillTests
 
     #region Async Enumerable Polyfills
 
-    [Fact(Skip = "TODO: Verify IAsyncEnumerable polyfill")]
+    [Fact]
     public async System.Threading.Tasks.Task AsyncEnumerable_WorksOnNetStandard20()
     {
-        // System.Linq.Async provides IAsyncEnumerable for netstandard2.0
+        // Microsoft.Bcl.AsyncInterfaces provides IAsyncEnumerable for netstandard2.0
         // Verify that our CSV reader works with the polyfill
 
-#if NETSTANDARD2_0
-        // Should use polyfill from System.Linq.Async or similar
-#endif
+        var csv = "Name,Age,City\nAlice,30,NYC\nBob,25,LA"u8.ToArray();
+        var stream = new System.IO.MemoryStream(csv);
+        var context = new TestCsvContext();
 
-        await System.Threading.Tasks.Task.CompletedTask;
+        var reader = CsvReader<Person>.Create(stream, context);
+        var people = new System.Collections.Generic.List<Person>();
+
+        await foreach (var person in reader.ReadAllAsync())
+        {
+            people.Add(person);
+        }
+
+        Assert.Equal(2, people.Count);
+        Assert.Equal("Alice", people[0].Name);
+        Assert.Equal(30, people[0].Age);
+        Assert.Equal("NYC", people[0].City);
+        Assert.Equal("Bob", people[1].Name);
+        Assert.Equal(25, people[1].Age);
+        Assert.Equal("LA", people[1].City);
     }
 
     #endregion

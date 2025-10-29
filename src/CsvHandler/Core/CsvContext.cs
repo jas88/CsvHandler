@@ -17,7 +17,7 @@ public abstract class CsvContext
     /// <summary>
     /// Gets the default options for this context.
     /// </summary>
-    public virtual CsvWriterOptions Options { get; } = CsvWriterOptions.Default;
+    public virtual CsvOptions Options { get; } = CsvOptions.Default;
 
     /// <summary>
     /// Gets metadata for a specific type in this context.

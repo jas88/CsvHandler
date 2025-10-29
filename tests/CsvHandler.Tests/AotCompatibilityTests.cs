@@ -31,7 +31,7 @@ public class AotCompatibilityTests
         // In AOT scenarios, this would fail at compile time if reflection is used
     }
 
-    [Fact(Skip = "TODO: Implement CsvContext methods")]
+    [Fact]
     public async Task CsvContext_SerializeWithContext_WorksWithoutReflection()
     {
         // Arrange
@@ -40,13 +40,13 @@ public class AotCompatibilityTests
         var stream = new MemoryStream();
 
         // Act
-        // await context.SerializePersonAsync(stream, new[] { person });
+        await context.SerializePersonAsync(stream, new[] { person });
 
         // Assert
         Assert.True(stream.Length > 0);
     }
 
-    [Fact(Skip = "TODO: Implement CsvContext methods")]
+    [Fact]
     public async Task CsvContext_DeserializeWithContext_WorksWithoutReflection()
     {
         // Arrange
@@ -55,11 +55,17 @@ public class AotCompatibilityTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var people = await context.DeserializePersonAsync(stream).ToListAsync();
+        var people = new List<Person>();
+        await foreach (var person in context.DeserializePersonAsync(stream))
+        {
+            people.Add(person);
+        }
 
         // Assert
-        // people.Should().HaveCount(1);
-        // people[0].Name.Should().Be("Alice");
+        Assert.Single(people);
+        Assert.Equal("Alice", people[0].Name);
+        Assert.Equal(30, people[0].Age);
+        Assert.Equal("NYC", people[0].City);
     }
 
     #endregion
@@ -244,7 +250,7 @@ public class AotCompatibilityTests
     /// 2. Reflection fallback types are properly marked as incompatible
     /// 3. Library supports both AOT and reflection-based usage
     /// </summary>
-    [Fact(Skip = "TODO: Add RequiresDynamicCodeAttribute to reflection-based types once implemented")]
+    [Fact]
     public void Assembly_CoreTypes_DoNotRequireDynamicCode()
     {
         // Verify that core AOT-compatible types don't require dynamic code
@@ -340,7 +346,7 @@ public class AotCompatibilityTests
     /// Documents the recommended AOT usage pattern for consumers of this library.
     /// This test serves as both verification and documentation.
     /// </summary>
-    [Fact(Skip = "TODO: Implement complete source generator")]
+    [Fact]
     public void AotUsagePattern_Documentation()
     {
         // This test demonstrates the correct AOT usage pattern:
@@ -349,8 +355,15 @@ public class AotCompatibilityTests
         // 2. Use source-generated context with CsvReader/CsvWriter
         // 3. Entire code path is AOT-compatible (no reflection)
         //
-        // Example:
-        // var context = TestCsvContext.Default;
+        // Example pattern (TestCsvContext uses manual implementation):
+        var context = new TestCsvContext();
+        Assert.NotNull(context);
+
+        // The context provides type handlers without reflection:
+        var personHandler = context.GetTypeHandler<Person>();
+        Assert.NotNull(personHandler);
+
+        // The recommended usage for source-generated contexts:
         // var reader = CsvReader<Person>.Create(stream, context);
         // await foreach (var person in reader.ReadAllAsync())
         // {
@@ -397,22 +410,26 @@ public class AotCompatibilityTests
 
     #region IAsyncEnumerable AOT Compatibility
 
-    [Fact(Skip = "TODO: Implement CsvReader with IAsyncEnumerable")]
+    [Fact]
     public async Task AsyncEnumerable_WorksWithAot()
     {
         // IAsyncEnumerable should work in AOT scenarios
-        var csv = "Name,Age\nAlice,30"u8.ToArray();
+        var csv = "Name,Age,City\nAlice,30,NYC"u8.ToArray();
         var stream = new MemoryStream(csv);
+        var context = new TestCsvContext();
 
         var count = 0;
-        // await foreach (var person in CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync())
-        // {
-        //     count++;
-        // }
+        await foreach (var person in CsvReader<Person>
+            .Create(stream, context)
+            .ReadAllAsync())
+        {
+            count++;
+            Assert.Equal("Alice", person.Name);
+            Assert.Equal(30, person.Age);
+            Assert.Equal("NYC", person.City);
+        }
 
-        // count.Should().Be(1);
+        Assert.Equal(1, count);
     }
 
     #endregion

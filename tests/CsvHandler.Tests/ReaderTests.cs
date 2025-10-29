@@ -185,7 +185,7 @@ public class ReaderTests
 
     #region Error Handling Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_InvalidDataThrowMode_ThrowsException()
     {
         // Arrange
@@ -193,16 +193,15 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act & Assert
-        // var exception = await Assert.ThrowsAsync<FormatException>(async () =>
-        // {
-        //     await CsvReader<Person>
-        //         .Create(stream, new TestCsvContext(), errorMode: ErrorMode.Throw)
-        //         .ReadAllAsync()
-        //         .ToListAsync();
-        // });
+        var exception = await Assert.ThrowsAsync<FormatException>(async () =>
+        {
+            var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Throw, HasHeaders = true };
+            await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
+            await reader.ReadAllAsync().ToListAsync();
+        });
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_InvalidDataSkipMode_SkipsInvalidRows()
     {
         // Arrange
@@ -210,43 +209,40 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext(), errorMode: ErrorMode.Skip)
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Skip, HasHeaders = true };
+        await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // Assert.Equal(2, people.Count);
-        // people[Assert.Equal("Alice", 0].Name);
-        // people[Assert.Equal("Charlie", 1].Name);
+        Assert.Equal(2, people.Count);
+        Assert.Equal("Alice", people[0].Name);
+        Assert.Equal("Charlie", people[1].Name);
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_InvalidDataCollectMode_CollectsErrors()
     {
         // Arrange
         var csv = "Name,Age,City\nAlice,30,NYC\nBob,Invalid,LA\nCharlie,NotInt,Chicago"u8.ToArray();
         var stream = new MemoryStream(csv);
-        var errors = new List<CsvReadError>();
 
         // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext(), errorMode: ErrorMode.Collect, errors: errors)
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        var options = new CsvOptions { ErrorHandling = CsvErrorHandling.Collect, HasHeaders = true };
+        await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // Assert.Equal(1, people.Count);
-        // errors.Should().HaveCount(2);
-        // errors[0].LineNumber.Should().Be(2);
-        // errors[1].LineNumber.Should().Be(3);
+        Assert.Single(people);
+        Assert.Equal(2, reader.Errors.Count);
+        Assert.Equal(3, reader.Errors[0].LineNumber); // Line 3: Bob,Invalid,LA (line 1 is header)
+        Assert.Equal(4, reader.Errors[1].LineNumber); // Line 4: Charlie,NotInt,Chicago
     }
 
     #endregion
 
     #region Multi-line and Special Field Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_QuotedFieldsWithNewlines_ParsesCorrectly()
     {
         // Arrange
@@ -254,17 +250,16 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<SimpleRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        var options = new CsvOptions { HasHeaders = true };
+        await using var reader = CsvReader<SimpleRecord>.Create(stream, new TestCsvContext(), options);
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // Assert.Equal(2, records.Count);
-        // records[0].Description.Should().Contain("\n");
+        Assert.Equal(2, records.Count);
+        Assert.Contains("\n", records[0].Description);
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_EmptyFields_HandlesCorrectly()
     {
         // Arrange
@@ -272,22 +267,20 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<ContactRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<ContactRecord>.Create(stream, new TestCsvContext());
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // Assert.Equal(4, records.Count);
-        // records[1].Email.Should().BeNullOrEmpty();
-        // records[2].Phone.Should().BeNullOrEmpty();
+        Assert.Equal(4, records.Count);
+        Assert.True(string.IsNullOrEmpty(records[1].Email));
+        Assert.True(string.IsNullOrEmpty(records[2].Phone));
     }
 
     #endregion
 
     #region Header Handling Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_NoHeaders_ReadsDataCorrectly()
     {
         // Arrange
@@ -295,17 +288,16 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext(), hasHeaders: false)
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        var options = new CsvOptions { HasHeaders = false };
+        await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext(), options);
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // Assert.Equal(2, people.Count);
-        // people[Assert.Equal("Alice", 0].Name);
+        Assert.Equal(2, people.Count);
+        Assert.Equal("Alice", people[0].Name);
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_CustomHeaderMapping_MapsCorrectly()
     {
         // Arrange
@@ -313,51 +305,47 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var employees = await CsvReader<Employee>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<Employee>.Create(stream, new TestCsvContext());
+        var employees = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // employees[Assert.Equal("Alice", 0].Name); // Maps from FullName
+        Assert.Equal("Alice", employees[0].Name); // Maps from FullName
     }
 
     #endregion
 
     #region Integration with File System Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_FromFile_ReadsSuccessfully()
     {
         // Arrange
         var filePath = "TestData/simple.csv";
 
         // Act
-        // using var stream = File.OpenRead(filePath);
-        // var people = await CsvReader<Person>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        using var stream = File.OpenRead(filePath);
+        await using var reader = CsvReader<Person>.Create(stream, new TestCsvContext());
+        var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // people.Should().HaveCountGreaterThan(0);
+        Assert.True(people.Count > 0);
     }
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_UnicodeFile_HandlesUtf8()
     {
         // Arrange
         var filePath = "TestData/unicode.csv";
 
         // Act
-        // using var stream = File.OpenRead(filePath);
-        // var records = await CsvReader<UnicodeRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        using var stream = File.OpenRead(filePath);
+        await using var reader = CsvReader<UnicodeRecord>.Create(stream, new TestCsvContext());
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // records.Should().Contain(r => r.Language == "日本語");
+        Assert.Equal(4, records.Count);
+        Assert.Contains(records, r => r.Language == "日本語");
+        Assert.Contains(records, r => r.Name == "田中太郎");
     }
 
     #endregion
@@ -388,7 +376,7 @@ public class ReaderTests
 
     #region Custom Converter Tests
 
-    [Fact(Skip = "TODO: Uncomment implementation code")]
+    [Fact]
     public async Task ReadAllAsync_CustomConverter_UsesConverter()
     {
         // Arrange
@@ -396,14 +384,12 @@ public class ReaderTests
         var stream = new MemoryStream(csv);
 
         // Act
-        // var records = await CsvReader<StatusRecord>
-        //     .Create(stream, new TestCsvContext())
-        //     .ReadAllAsync()
-        //     .ToListAsync();
+        await using var reader = CsvReader<StatusRecord>.Create(stream, new TestCsvContext());
+        var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        // records[0].Status.Should().Be(Status.Active);
-        // records[1].Status.Should().Be(Status.Inactive);
+        Assert.Equal(Status.Active, records[0].Status);
+        Assert.Equal(Status.Inactive, records[1].Status);
     }
 
     #endregion
