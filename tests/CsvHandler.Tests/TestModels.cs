@@ -143,6 +143,55 @@ public partial class RequiredFieldsRecord
     public int ValueWithDefault { get; set; }
 }
 
+[CsvRecord]
+public partial class SimpleRecord
+{
+    [CsvField(Order = 0)]
+    public string Name { get; set; } = string.Empty;
+
+    [CsvField(Order = 1)]
+    public string Description { get; set; } = string.Empty;
+}
+
+[CsvRecord]
+public partial class ContactRecord
+{
+    [CsvField(Order = 0)]
+    public string Name { get; set; } = string.Empty;
+
+    [CsvField(Order = 1)]
+    public string? Email { get; set; }
+
+    [CsvField(Order = 2)]
+    public string? Phone { get; set; }
+}
+
+[CsvRecord]
+public partial class UnicodeRecord
+{
+    [CsvField(Order = 0)]
+    public string Language { get; set; } = string.Empty;
+
+    [CsvField(Order = 1)]
+    public string Text { get; set; } = string.Empty;
+}
+
+public enum Status
+{
+    Active,
+    Inactive
+}
+
+[CsvRecord]
+public partial class StatusRecord
+{
+    [CsvField(Order = 0)]
+    public int Id { get; set; }
+
+    [CsvField(Order = 1)]
+    public Status Status { get; set; }
+}
+
 /// <summary>
 /// CSV context for testing source generation.
 /// </summary>
@@ -153,6 +202,10 @@ public partial class RequiredFieldsRecord
 [CsvSerializable(typeof(NullableFieldsRecord))]
 [CsvSerializable(typeof(DataTypesRecord))]
 [CsvSerializable(typeof(RequiredFieldsRecord))]
+[CsvSerializable(typeof(SimpleRecord))]
+[CsvSerializable(typeof(ContactRecord))]
+[CsvSerializable(typeof(UnicodeRecord))]
+[CsvSerializable(typeof(StatusRecord))]
 public partial class TestCsvContext
 {
     // Source generator will add serialization methods

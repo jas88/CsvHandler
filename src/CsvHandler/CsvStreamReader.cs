@@ -18,6 +18,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
     private readonly bool _leaveOpen;
     private readonly byte[] _buffer;
     private readonly Encoding _encoding;
+    private readonly Decoder _decoder;
 
     private int _bufferPosition;
     private int _bufferLength;
@@ -32,7 +33,8 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _leaveOpen = leaveOpen;
         _buffer = ArrayPool<byte>.Shared.Rent(options.BufferSize);
-        _encoding = Encoding.UTF8; // TODO: Make configurable
+        _encoding = options.Encoding ?? Encoding.UTF8;
+        _decoder = _encoding.GetDecoder();
     }
 
     /// <summary>
@@ -63,7 +65,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
 
     private async ValueTask<string?> ReadRawLineAsync(CancellationToken cancellationToken)
     {
-        var sb = new StringBuilder();
+        var lineBytes = new List<byte>();
         bool foundLine = false;
 
         while (true)
@@ -81,8 +83,8 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 if (_bufferLength == 0)
                 {
                     // End of stream
-                    if (sb.Length > 0)
-                        return sb.ToString();
+                    if (lineBytes.Count > 0)
+                        return _encoding.GetString(lineBytes.ToArray());
 
                     return null;
                 }
@@ -114,14 +116,14 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                     break;
                 }
 
-                sb.Append((char)b);
+                lineBytes.Add(b);
             }
 
             if (foundLine)
                 break;
         }
 
-        var result = sb.ToString();
+        var result = _encoding.GetString(lineBytes.ToArray());
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
@@ -136,7 +138,7 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
 
     private string? ReadRawLine()
     {
-        var sb = new StringBuilder();
+        var lineBytes = new List<byte>();
         bool foundLine = false;
 
         while (true)
@@ -150,8 +152,8 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                 if (_bufferLength == 0)
                 {
                     // End of stream
-                    if (sb.Length > 0)
-                        return sb.ToString();
+                    if (lineBytes.Count > 0)
+                        return _encoding.GetString(lineBytes.ToArray());
 
                     return null;
                 }
@@ -183,14 +185,14 @@ internal sealed class CsvStreamReader : IDisposable, IAsyncDisposable
                     break;
                 }
 
-                sb.Append((char)b);
+                lineBytes.Add(b);
             }
 
             if (foundLine)
                 break;
         }
 
-        var result = sb.ToString();
+        var result = _encoding.GetString(lineBytes.ToArray());
 
         // Skip empty lines if configured
         if (_options.SkipEmptyLines && string.IsNullOrWhiteSpace(result))
