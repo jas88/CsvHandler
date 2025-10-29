@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHandler.Attributes;
-using FluentAssertions;
 using Xunit;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators
@@ -28,7 +27,7 @@ public class AotCompatibilityTests
         var context = new TestCsvContext();
 
         // Assert
-        context.Should().NotBeNull();
+        Assert.NotNull(context);
         // In AOT scenarios, this would fail at compile time if reflection is used
     }
 
@@ -44,7 +43,7 @@ public class AotCompatibilityTests
         // await context.SerializePersonAsync(stream, new[] { person });
 
         // Assert
-        stream.Length.Should().BeGreaterThan(0);
+        Assert.True(stream.Length > 0);
     }
 
     [Fact(Skip = "TODO: Implement CsvContext methods")]
@@ -72,8 +71,8 @@ public class AotCompatibilityTests
     {
         // Verify that the source generator has created the expected methods
         var contextType = typeof(TestCsvContext);
-        contextType.Should().NotBeNull();
-        contextType.IsClass.Should().BeTrue();
+        Assert.NotNull(contextType);
+        Assert.True(contextType.IsClass);
     }
 
     [Fact]
@@ -81,10 +80,10 @@ public class AotCompatibilityTests
     {
         // Verify that CsvRecord types are properly marked
         var personType = typeof(Person);
-        personType.Should().NotBeNull();
+        Assert.NotNull(personType);
 
         var attributes = personType.GetCustomAttributes(typeof(CsvRecordAttribute), false);
-        attributes.Should().NotBeEmpty();
+        Assert.NotEmpty(attributes);
     }
 
     [Fact]
@@ -94,9 +93,9 @@ public class AotCompatibilityTests
         var personType = typeof(Person);
         var nameProperty = personType.GetProperty("Name");
 
-        nameProperty.Should().NotBeNull();
+        Assert.NotNull(nameProperty);
         var attributes = nameProperty!.GetCustomAttributes(typeof(CsvFieldAttribute), false);
-        attributes.Should().NotBeEmpty();
+        Assert.NotEmpty(attributes);
     }
 
     #endregion
@@ -110,8 +109,8 @@ public class AotCompatibilityTests
         var parserType = typeof(CsvHandler.Core.Utf8CsvParser);
 
         // ref structs cannot be used in certain contexts
-        parserType.IsValueType.Should().BeTrue();
-        parserType.IsByRefLike.Should().BeTrue(); // ref struct
+        Assert.True(parserType.IsValueType);
+        Assert.True(parserType.IsByRefLike); // ref struct
     }
 
     [Fact]
@@ -119,7 +118,7 @@ public class AotCompatibilityTests
     {
         // Verify that options are value types (no heap allocation)
         var optionsType = typeof(CsvHandler.Core.Utf8CsvParserOptions);
-        optionsType.IsValueType.Should().BeTrue();
+        Assert.True(optionsType.IsValueType);
     }
 
     #endregion
@@ -142,7 +141,7 @@ public class AotCompatibilityTests
         var success = parser.TryReadField(out var field);
 
         // Assert - If this works, no dynamic type creation was used
-        success.Should().BeTrue();
+        Assert.True(success);
     }
 
     [Fact]
@@ -155,7 +154,7 @@ public class AotCompatibilityTests
         var options = CsvHandler.Core.Utf8CsvParserOptions.Default;
 
         // Assert - If this constructs successfully, no dynamic invocation is used
-        options.Delimiter.Should().Be((byte)',');
+        Assert.Equal((byte)',', options.Delimiter);
     }
 
     #endregion
@@ -168,7 +167,7 @@ public class AotCompatibilityTests
         // Verify code works on .NET 6
 #if NET6_0
         var context = new TestCsvContext();
-        context.Should().NotBeNull();
+        Assert.NotNull(context);
 #endif
     }
 
@@ -178,7 +177,7 @@ public class AotCompatibilityTests
         // Verify code works on .NET 8
 #if NET8_0
         var context = new TestCsvContext();
-        context.Should().NotBeNull();
+        Assert.NotNull(context);
 #endif
     }
 
@@ -188,7 +187,7 @@ public class AotCompatibilityTests
         // Verify code works on .NET Standard 2.0
 #if NETSTANDARD2_0
         var context = new TestCsvContext();
-        context.Should().NotBeNull();
+        Assert.NotNull(context);
 #endif
     }
 
@@ -218,8 +217,8 @@ public class AotCompatibilityTests
 
         stopwatch.Stop();
 
-        fieldCount.Should().BeGreaterThanOrEqualTo(30000); // 10k rows * 3 fields
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(300); // Allow 300ms for CI variance on Windows
+        Assert.True(fieldCount >= 30000); // 10k rows * 3 fields
+        Assert.True(stopwatch.ElapsedMilliseconds < 300); // Allow 300ms for CI variance on Windows
     }
 
     #endregion
@@ -231,7 +230,7 @@ public class AotCompatibilityTests
     {
         // Verify the assembly has the correct trimming attributes
         var assembly = typeof(CsvHandler.Core.Utf8CsvParser).Assembly;
-        assembly.Should().NotBeNull();
+        Assert.NotNull(assembly);
 
         // The assembly should be marked with:
         // - IsTrimmable
@@ -272,10 +271,9 @@ public class AotCompatibilityTests
         foreach (var type in coreAotTypes)
         {
             var attributes = type.GetCustomAttributes(false);
-            attributes.Should().NotContain(a =>
+            Assert.DoesNotContain(attributes, a =>
                 a.GetType().Name == "RequiresDynamicCodeAttribute" ||
-                a.GetType().Name == "RequiresUnreferencedCodeAttribute",
-                $"Core type {type.Name} should not require dynamic code or unreferenced code for AOT compatibility");
+                a.GetType().Name == "RequiresUnreferencedCodeAttribute");
         }
 
         // Verify reflection-based fallback types ARE properly marked
@@ -292,9 +290,8 @@ public class AotCompatibilityTests
                 continue;
 
             var attributes = type.GetCustomAttributes(false);
-            attributes.Should().Contain(a =>
-                a.GetType().Name == "RequiresDynamicCodeAttribute",
-                $"Reflection-based type {type.Name} should be marked with RequiresDynamicCode");
+            Assert.Contains(attributes, a =>
+                a.GetType().Name == "RequiresDynamicCodeAttribute");
         }
     }
 
@@ -315,31 +312,28 @@ public class AotCompatibilityTests
 
         var readAllAsyncMethod = readerType.GetMethod("ReadAllAsync");
 
-        createWithContextMethod.Should().NotBeNull();
-        readAllAsyncMethod.Should().NotBeNull();
+        Assert.NotNull(createWithContextMethod);
+        Assert.NotNull(readAllAsyncMethod);
 
         // These methods should NOT have RequiresDynamicCode or RequiresUnreferencedCode
         var createAttributes = createWithContextMethod!.GetCustomAttributes(false);
-        createAttributes.Should().NotContain(a =>
+        Assert.DoesNotContain(createAttributes, a =>
             a.GetType().Name == "RequiresDynamicCodeAttribute" ||
-            a.GetType().Name == "RequiresUnreferencedCodeAttribute",
-            "CsvReader.Create(Stream, CsvContext) should be AOT-compatible");
+            a.GetType().Name == "RequiresUnreferencedCodeAttribute");
 
         var readAttributes = readAllAsyncMethod!.GetCustomAttributes(false);
-        readAttributes.Should().NotContain(a =>
+        Assert.DoesNotContain(readAttributes, a =>
             a.GetType().Name == "RequiresDynamicCodeAttribute" ||
-            a.GetType().Name == "RequiresUnreferencedCodeAttribute",
-            "CsvReader.ReadAllAsync() should be AOT-compatible");
+            a.GetType().Name == "RequiresUnreferencedCodeAttribute");
 
         // Verify reflection-based methods ARE marked
         var createReflectionMethod = readerType.GetMethod("Create",
             new[] { typeof(Stream), typeof(bool) });
 
-        createReflectionMethod.Should().NotBeNull();
+        Assert.NotNull(createReflectionMethod);
         var reflectionAttributes = createReflectionMethod!.GetCustomAttributes(false);
-        reflectionAttributes.Should().Contain(a =>
-            a.GetType().Name == "RequiresDynamicCodeAttribute",
-            "CsvReader.Create(Stream) without context should be marked as requiring dynamic code");
+        Assert.Contains(reflectionAttributes, a =>
+            a.GetType().Name == "RequiresDynamicCodeAttribute");
     }
 
     /// <summary>
@@ -381,7 +375,7 @@ public class AotCompatibilityTests
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
         var success = parser.TryReadField(out var field);
-        success.Should().BeTrue();
+        Assert.True(success);
     }
 
     [Fact]
@@ -396,7 +390,7 @@ public class AotCompatibilityTests
         Range[] ranges = new Range[10];
         var count = parser.TryReadRecord(ranges);
 
-        count.Should().Be(3);
+        Assert.Equal(3, count);
     }
 
     #endregion
@@ -437,7 +431,7 @@ public class AotCompatibilityTests
             CsvHandler.Core.Utf8CsvParserOptions.Default);
 
         parser.TryReadField(out var field);
-        Encoding.UTF8.GetString(field).Should().Be("A");
+        Assert.Equal("A", Encoding.UTF8.GetString(field));
     }
 
     #endregion
@@ -452,7 +446,7 @@ public class AotCompatibilityTests
 
         // All these types should be registered without conflicts
         // Person, Employee, Product, TsvRecord, NullableFieldsRecord, etc.
-        context.Should().NotBeNull();
+        Assert.NotNull(context);
     }
 
     #endregion

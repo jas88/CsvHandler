@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHandler.Core;
-using FluentAssertions;
 using Xunit;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators
@@ -50,9 +49,9 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Name,Age,City");
-        csv.Should().Contain("Alice,30,NYC");
-        csv.Should().Contain("Bob,25,LA");
+        Assert.Contains("Name,Age,City", csv);
+        Assert.Contains("Alice,30,NYC", csv);
+        Assert.Contains("Bob,25,LA", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -69,7 +68,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Be("Name,Age,City\n");
+        Assert.Equal("Name,Age,City\n", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -90,8 +89,8 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().NotContain("Name,Age,City");
-        csv.Should().StartWith("Alice,30,NYC");
+        Assert.DoesNotContain("Name,Age,City", csv);
+        Assert.StartsWith("Alice,30,NYC", csv);
     }
 
     #endregion
@@ -115,7 +114,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("\"Smith, John\"");
+        Assert.Contains("\"Smith, John\"", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -135,7 +134,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("\"He said \"\"Hello\"\"\"");
+        Assert.Contains("\"He said \"\"Hello\"\"\"", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -155,7 +154,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("\"Line1\nLine2\"");
+        Assert.Contains("\"Line1\nLine2\"", csv);
     }
 
     #endregion
@@ -180,7 +179,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().NotContain("\"");
+        Assert.DoesNotContain("\"", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -202,8 +201,8 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Alice,30,NYC"); // No quotes
-        csv.Should().Contain("\"Smith, John\""); // Quoted due to comma
+        Assert.Contains("Alice,30,NYC", csv); // No quotes
+        Assert.Contains("\"Smith, John\"", csv); // Quoted due to comma
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -224,7 +223,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("\"Alice\",\"30\",\"NYC\"");
+        Assert.Contains("\"Alice\",\"30\",\"NYC\"", csv);
     }
 
     #endregion
@@ -248,7 +247,7 @@ public class WriterTests
 
         // Assert
         var tsv = Encoding.UTF8.GetString(stream.ToArray());
-        tsv.Should().Contain("A\tB\tC");
+        Assert.Contains("A\tB\tC", tsv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -269,7 +268,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Alice|30|NYC");
+        Assert.Contains("Alice|30|NYC", csv);
     }
 
     #endregion
@@ -300,7 +299,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("2024-01-15");
+        Assert.Contains("2024-01-15", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -320,7 +319,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("19.99");
+        Assert.Contains("19.99", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -340,7 +339,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Alice,30,");
+        Assert.Contains("Alice,30,", csv);
     }
 
     #endregion
@@ -361,7 +360,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Alice,30,NYC");
+        Assert.Contains("Alice,30,NYC", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -378,8 +377,8 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("Alice");
-        csv.Should().Contain("Bob");
+        Assert.Contains("Alice", csv);
+        Assert.Contains("Bob", csv);
     }
 
     #endregion
@@ -403,9 +402,9 @@ public class WriterTests
         stopwatch.Stop();
 
         // Assert
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(3000); // Should write 100k rows in < 3 seconds
+        Assert.True(stopwatch.ElapsedMilliseconds < 3000); // Should write 100k rows in < 3 seconds
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Split('\n').Length.Should().Be(100001); // 100k data rows + 1 header
+        Assert.Equal(100001, csv.Split('\n').Length); // 100k data rows + 1 header
     }
 
     #endregion
@@ -469,7 +468,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("FullName"); // Custom header name from CsvField attribute
+        Assert.Contains("FullName", csv); // Custom header name from CsvField attribute
     }
 
     #endregion
@@ -494,8 +493,8 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("田中太郎");
-        csv.Should().Contain("José García");
+        Assert.Contains("田中太郎", csv);
+        Assert.Contains("José García", csv);
     }
 
     [Fact(Skip = "TODO: Debug reflection-based writer")]
@@ -515,7 +514,7 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        csv.Should().Contain("😀");
+        Assert.Contains("😀", csv);
     }
 
     #endregion

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators
@@ -35,10 +34,10 @@ public class ReaderTests
         var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        people.Should().HaveCount(2);
-        people[0].Name.Should().Be("Alice");
-        people[0].Age.Should().Be(30);
-        people[0].City.Should().Be("NYC");
+        Assert.Equal(2, people.Count);
+        Assert.Equal("Alice", people[0].Name);
+        Assert.Equal(30, people[0].Age);
+        Assert.Equal("NYC", people[0].City);
     }
 
     [Fact]
@@ -53,7 +52,7 @@ public class ReaderTests
         var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        people.Should().BeEmpty();
+        Assert.Empty(people);
     }
 
     [Fact]
@@ -68,7 +67,7 @@ public class ReaderTests
         var people = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        people.Should().BeEmpty();
+        Assert.Empty(people);
     }
 
     #endregion
@@ -90,11 +89,11 @@ public class ReaderTests
         await foreach (var person in reader.ReadAllAsync())
         {
             count++;
-            person.Name.Should().StartWith("Person");
+            Assert.StartsWith("Person", person.Name);
         }
 
         // Assert
-        count.Should().Be(1000);
+        Assert.Equal(1000, count);
     }
 
     [Fact]
@@ -121,7 +120,7 @@ public class ReaderTests
         });
 
         // Assert
-        count.Should().BeLessThan(1000);
+        Assert.True(count < 1000);
     }
 
     #endregion
@@ -141,11 +140,11 @@ public class ReaderTests
         var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        var record = records.Should().ContainSingle().Subject;
-        record.ByteValue.Should().Be(1);
-        record.IntValue.Should().Be(1000);
-        record.DecimalValue.Should().Be(3.5m);
-        record.BoolValue.Should().BeTrue();
+        var record = Assert.Single(records);
+        Assert.Equal(1, record.ByteValue);
+        Assert.Equal(1000, record.IntValue);
+        Assert.Equal(3.5m, record.DecimalValue);
+        Assert.True(record.BoolValue);
     }
 
     [Fact]
@@ -160,10 +159,10 @@ public class ReaderTests
         var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        records.Should().HaveCount(2);
-        records[0].Age.Should().Be(30);
-        records[1].Age.Should().BeNull();
-        records[1].Salary.Should().BeNull();
+        Assert.Equal(2, records.Count);
+        Assert.Equal(30, records[0].Age);
+        Assert.Null(records[1].Age);
+        Assert.Null(records[1].Salary);
     }
 
     [Fact]
@@ -179,7 +178,7 @@ public class ReaderTests
         var records = await reader.ReadAllAsync().ToListAsync();
 
         // Assert
-        records[0].HireDate.Should().Be(new DateTime(2024, 1, 15));
+        Assert.Equal(new DateTime(2024, 1, 15), records[0].HireDate);
     }
 
     #endregion
@@ -217,9 +216,9 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // people.Should().HaveCount(2);
-        // people[0].Name.Should().Be("Alice");
-        // people[1].Name.Should().Be("Charlie");
+        // Assert.Equal(2, people.Count);
+        // people[Assert.Equal("Alice", 0].Name);
+        // people[Assert.Equal("Charlie", 1].Name);
     }
 
     [Fact(Skip = "TODO: Uncomment implementation code")]
@@ -237,7 +236,7 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // people.Should().HaveCount(1);
+        // Assert.Equal(1, people.Count);
         // errors.Should().HaveCount(2);
         // errors[0].LineNumber.Should().Be(2);
         // errors[1].LineNumber.Should().Be(3);
@@ -261,7 +260,7 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // records.Should().HaveCount(2);
+        // Assert.Equal(2, records.Count);
         // records[0].Description.Should().Contain("\n");
     }
 
@@ -279,7 +278,7 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // records.Should().HaveCount(4);
+        // Assert.Equal(4, records.Count);
         // records[1].Email.Should().BeNullOrEmpty();
         // records[2].Phone.Should().BeNullOrEmpty();
     }
@@ -302,8 +301,8 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // people.Should().HaveCount(2);
-        // people[0].Name.Should().Be("Alice");
+        // Assert.Equal(2, people.Count);
+        // people[Assert.Equal("Alice", 0].Name);
     }
 
     [Fact(Skip = "TODO: Uncomment implementation code")]
@@ -320,7 +319,7 @@ public class ReaderTests
         //     .ToListAsync();
 
         // Assert
-        // employees[0].Name.Should().Be("Alice"); // Maps from FullName
+        // employees[Assert.Equal("Alice", 0].Name); // Maps from FullName
     }
 
     #endregion
@@ -381,8 +380,8 @@ public class ReaderTests
         stopwatch.Stop();
 
         // Assert
-        people.Should().HaveCount(100000);
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(5000); // Should process 100k rows in < 5 seconds
+        Assert.Equal(100000, people.Count);
+        Assert.True(stopwatch.ElapsedMilliseconds < 5000); // Should process 100k rows in < 5 seconds
     }
 
     #endregion

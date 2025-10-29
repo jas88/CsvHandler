@@ -47,6 +47,7 @@ ignore:
   - "**/*.AotTests/**/*"
   - "**/GeneratorTest/**/*"
   - "**/StandaloneGeneratorTest/**/*"
+  - "src/CsvHandler.SourceGenerator/**/*"
   - "examples/**/*"
   - "docs/**/*"
   - "**/*.AssemblyInfo.cs"
@@ -71,8 +72,3 @@ component_management:
       name: CsvHandler Core
       paths:
         - src/CsvHandler/**
-
-    - component_id: source_generator
-      name: Source Generator
-      paths:
-        - src/CsvHandler.SourceGenerator/**

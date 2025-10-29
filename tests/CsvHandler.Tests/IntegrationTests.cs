@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators
@@ -56,8 +55,8 @@ public class IntegrationTests
         }
 
         // Assert
-        records.Should().NotBeEmpty();
-        records[0].Should().Contain("Name");
+        Assert.NotEmpty(records);
+        Assert.Contains("Name", records[0]);
     }
 
     [Fact]
@@ -83,7 +82,7 @@ public class IntegrationTests
         }
 
         // Assert
-        fieldCount.Should().BeGreaterThan(0);
+        Assert.True(fieldCount > 0);
     }
 
     [Fact]
@@ -117,8 +116,8 @@ public class IntegrationTests
         }
 
         // Assert
-        exceptionThrown.Should().BeFalse(); // Lenient mode should not throw
-        fieldCount.Should().BeGreaterThan(0);
+        Assert.False(exceptionThrown); // Lenient mode should not throw
+        Assert.True(fieldCount > 0);
     }
 
     [Fact]
@@ -144,7 +143,7 @@ public class IntegrationTests
         }
 
         // Assert
-        fields.Should().Contain(f => f.Contains("日本語") || f.Contains("中文") || f.Contains("한국어"));
+        Assert.Contains(fields, f => f.Contains("日本語") || f.Contains("中文") || f.Contains("한국어"));
     }
 
     [Fact]
@@ -181,8 +180,8 @@ public class IntegrationTests
         }
 
         // Assert
-        records.Should().HaveCountGreaterThan(1);
-        records.Should().Contain(r => r.Any(f => string.IsNullOrEmpty(f)));
+        Assert.True(records.Count > 1);
+        Assert.Contains(records, r => r.Any(f => string.IsNullOrEmpty(f)));
     }
 
     #endregion
@@ -198,7 +197,7 @@ public class IntegrationTests
         var csv = "Name,Age,City,Email\n" + string.Join("\n", lines);
         var bytes = Encoding.UTF8.GetBytes(csv);
 
-        bytes.Length.Should().BeGreaterThan(1_000_000); // > 1MB
+        Assert.True(bytes.Length > 1_000_000); // > 1MB
 
         var parser = new CsvHandler.Core.Utf8CsvParser(
             bytes,
@@ -216,8 +215,8 @@ public class IntegrationTests
         stopwatch.Stop();
 
         // Assert
-        fieldCount.Should().BeGreaterThan(200000); // 50k rows * 4 fields + headers
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(500); // Should process 1MB in < 500ms
+        Assert.True(fieldCount > 200000); // 50k rows * 4 fields + headers
+        Assert.True(stopwatch.ElapsedMilliseconds < 500); // Should process 1MB in < 500ms
     }
 
     [Fact]
@@ -229,7 +228,7 @@ public class IntegrationTests
         var csv = "Name,Age,City\n" + string.Join("\n", lines);
         var bytes = Encoding.UTF8.GetBytes(csv);
 
-        bytes.Length.Should().BeGreaterThan(10_000_000); // > 10MB
+        Assert.True(bytes.Length > 10_000_000); // > 10MB
 
         var parser = new CsvHandler.Core.Utf8CsvParser(
             bytes,
@@ -250,8 +249,8 @@ public class IntegrationTests
         stopwatch.Stop();
 
         // Assert
-        recordCount.Should().BeGreaterThan(500000);
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(3000); // Should process 10MB in < 3s
+        Assert.True(recordCount > 500000);
+        Assert.True(stopwatch.ElapsedMilliseconds < 3000); // Should process 10MB in < 3s
     }
 
     #endregion
@@ -284,10 +283,10 @@ public class IntegrationTests
         var memoryUsed = finalMemory - initialMemory;
 
         // Assert
-        fieldCount.Should().BeGreaterThanOrEqualTo(300000);
+        Assert.True(fieldCount >= 300000);
         // Parser should be nearly zero-allocation (only the input buffer matters)
         // Allow 4x for GC overhead and CI environment variance
-        memoryUsed.Should().BeLessThan(bytes.Length * 4);
+        Assert.True(memoryUsed < bytes.Length * 4);
     }
 
     #endregion
@@ -330,10 +329,10 @@ Eve,Simple again,500";
         }
 
         // Assert
-        records.Should().HaveCount(6); // Header + 5 data rows
-        records[2].Should().Contain(f => f.Contains("Quoted, field with comma"));
-        records[3].Should().Contain(f => f.Contains("embedded"));
-        records[4].Should().Contain(f => f.Contains('\n'));
+        Assert.Equal(6, records.Count); // Header + 5 data rows
+        Assert.Contains(records[2], f => f.Contains("Quoted, field with comma"));
+        Assert.Contains(records[3], f => f.Contains("embedded"));
+        Assert.Contains(records[4], f => f.Contains('\n'));
     }
 
     [Fact]
@@ -366,7 +365,7 @@ Eve,Simple again,500";
             }
 
             // Assert
-            fields.Should().Equal(["A", "B", "C"], $"Failed for {testCase.Name}");
+            Assert.Equal(["A", "B", "C"], fields);
         }
     }
 
@@ -391,7 +390,7 @@ Eve,Simple again,500";
         }
 
         // Assert
-        fields.Should().Equal(["Name", "Age", "City"]);
+        Assert.Equal(["Name", "Age", "City"], fields);
     }
 
     [Fact]
@@ -411,7 +410,7 @@ Eve,Simple again,500";
         }
 
         // Assert
-        values.Should().Equal(["Column1", "Value1", "Value2", "Value3"]);
+        Assert.Equal(["Column1", "Value1", "Value2", "Value3"], values);
     }
 
     [Fact]
@@ -442,10 +441,10 @@ Eve,Simple again,500";
         }
 
         // Assert
-        records.Should().HaveCount(3);
-        records[0].Should().HaveCount(3);
-        records[1].Should().HaveCount(2);
-        records[2].Should().HaveCount(4);
+        Assert.Equal(3, records.Count);
+        Assert.Equal(3, records[0].Count);
+        Assert.Equal(2, records[1].Count);
+        Assert.Equal(4, records[2].Count);
     }
 
     #endregion
@@ -470,8 +469,8 @@ Eve,Simple again,500";
         parser.TryReadField(out var field2);
 
         // Assert
-        field1.Length.Should().Be(100000);
-        field2.Length.Should().Be(100000);
+        Assert.Equal(100000, field1.Length);
+        Assert.Equal(100000, field2.Length);
     }
 
     [Fact]
@@ -494,7 +493,7 @@ Eve,Simple again,500";
         }
 
         // Assert
-        count.Should().Be(1000);
+        Assert.Equal(1000, count);
     }
 
     [Fact]
@@ -525,7 +524,7 @@ Eve,Simple again,500";
         // At least 90% of runs should be within 5x of average (tolerant of CI spikes)
         var consistentRuns = times.Count(t => Math.Abs(t - avgTime) < avgTime * 5);
         var consistencyRate = (double)consistentRuns / times.Count;
-        consistencyRate.Should().BeGreaterThanOrEqualTo(0.90); // 90% within 5x tolerance
+        Assert.True(consistencyRate >= 0.90); // 90% within 5x tolerance
     }
 
     #endregion
@@ -590,8 +589,8 @@ Eve,Simple again,500";
         }
 
         // Assert
-        fields.Should().Contain("Name");
-        fields.Should().Contain("Alice");
+        Assert.Contains("Name", fields);
+        Assert.Contains("Alice", fields);
     }
 
     #endregion
