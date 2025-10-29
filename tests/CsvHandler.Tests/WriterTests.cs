@@ -68,7 +68,9 @@ public class WriterTests
 
         // Assert
         var csv = Encoding.UTF8.GetString(stream.ToArray());
-        Assert.Equal("Name,Age,City\n", csv);
+        // Normalize line endings for cross-platform compatibility
+        var normalized = csv.Replace("\r\n", "\n").Replace("\r", "\n");
+        Assert.Equal("Name,Age,City\n", normalized);
     }
 
     [Fact]

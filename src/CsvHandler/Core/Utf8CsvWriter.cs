@@ -159,6 +159,15 @@ public ref struct Utf8CsvWriter
     {
         WriteDelimiterIfNeeded();
 
+        // Check if we need to quote this field
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            // For QuoteMode.All, always quote - convert to string first
+            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
+
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(11); // Max digits for int32
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
@@ -180,6 +189,13 @@ public ref struct Utf8CsvWriter
     public void WriteField(long value)
     {
         WriteDelimiterIfNeeded();
+
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
 
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(20); // Max digits for int64
@@ -203,6 +219,13 @@ public ref struct Utf8CsvWriter
     {
         WriteDelimiterIfNeeded();
 
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString("G", CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
+
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(32); // Sufficient for double
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten, format: 'G'))
@@ -224,6 +247,13 @@ public ref struct Utf8CsvWriter
     public void WriteField(decimal value)
     {
         WriteDelimiterIfNeeded();
+
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString(CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
 
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(31); // Max digits for decimal
@@ -247,6 +277,13 @@ public ref struct Utf8CsvWriter
     {
         WriteDelimiterIfNeeded();
 
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString("O", CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
+
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(33); // ISO 8601 with timezone
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten, format: 'O'))
@@ -268,6 +305,13 @@ public ref struct Utf8CsvWriter
     public void WriteField(DateTimeOffset value)
     {
         WriteDelimiterIfNeeded();
+
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString("O", CultureInfo.InvariantCulture));
+            _isFirstFieldInRecord = false;
+            return;
+        }
 
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(33); // ISO 8601 with timezone
@@ -291,6 +335,13 @@ public ref struct Utf8CsvWriter
     {
         WriteDelimiterIfNeeded();
 
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value ? "true" : "false");
+            _isFirstFieldInRecord = false;
+            return;
+        }
+
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(5); // "false" is longest
         if (Utf8Formatter.TryFormat(value, buffer, out int bytesWritten))
@@ -312,6 +363,13 @@ public ref struct Utf8CsvWriter
     public void WriteField(Guid value)
     {
         WriteDelimiterIfNeeded();
+
+        if (_options.QuoteMode == CsvQuoteMode.All)
+        {
+            WriteField(value.ToString());
+            _isFirstFieldInRecord = false;
+            return;
+        }
 
 #if NET6_0_OR_GREATER
         Span<byte> buffer = _output.GetSpan(36); // GUID string length

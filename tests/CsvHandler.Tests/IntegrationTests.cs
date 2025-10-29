@@ -547,6 +547,7 @@ Eve,Simple again,500";
         // Act - Write
         await using (var writer = CsvWriter<Person>.Create(stream, new TestCsvContext(), leaveOpen: true))
         {
+            await writer.WriteHeaderAsync();
             foreach (var person in testData)
             {
                 await writer.WriteAsync(person);
