@@ -22,6 +22,10 @@ jobs:
   build:
     name: Build and Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -68,6 +72,14 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
 
+    - name: Run format check
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet format --verify-no-changes --verbosity diagnostic
+
+    - name: Test AOT compilation
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet publish tests/CsvHandler.AotTests/CsvHandler.AotTests.csproj -c Release -r linux-x64
+
     - name: Pack NuGet packages
       if: github.event_name == 'release' && matrix.os == 'ubuntu-latest'
       run: dotnet pack --configuration Release --no-build --output ./packages
@@ -93,24 +105,14 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: csharp
+        queries: security-extended,security-and-quality
+        ram: 8192
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
-
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v4
 
   publish:
     name: Publish NuGet Packages
