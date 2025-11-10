@@ -50,6 +50,25 @@ updates:
           - "AWSSDK.*"
         dependency-type: "development"
 
+  # Monitor .NET SDK version in global.json
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jas88"
+    assignees:
+      - "jas88"
+    commit-message:
+      prefix: "sdk"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "dotnet-sdk"
+
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
