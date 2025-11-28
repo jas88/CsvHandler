@@ -24,3 +24,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Manual version properties from Directory.Build.props (now managed by MinVer)
 - Explicit package versions from .csproj files (now centrally managed)
 - net6.0 target framework (reached end of life November 12, 2024)
+
+[Unreleased]: https://github.com/jas88/CsvHandler/compare/v0.1.0...main
