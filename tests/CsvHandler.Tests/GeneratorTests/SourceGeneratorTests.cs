@@ -89,7 +89,7 @@ public class SourceGeneratorTests
         var csv = @"Name,Age,Email
 John Doe,30,john@example.com
 Jane Smith,25,jane@example.com";
-        var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(csv));
+        using var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(csv));
 
         // Act
         var people = await TestPerson.ReadAllFromCsvAsync(stream).ToListAsync();
@@ -112,7 +112,7 @@ Jane Smith,25,jane@example.com";
             Age = 28,
             Email = "charlie@example.com"
         };
-        var stream = new System.IO.MemoryStream();
+        using var stream = new System.IO.MemoryStream();
 
         // Act
         await TestPerson.WriteToCsvAsync(stream, person);

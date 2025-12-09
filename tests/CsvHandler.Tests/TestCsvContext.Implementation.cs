@@ -223,7 +223,7 @@ public partial class TestCsvContext : CsvContext
                 Department = fields.Count > 1 ? fields[1] : string.Empty,
                 Salary = fields.Count > 2 && decimal.TryParse(fields[2], out var salary) ? salary : 0m,
                 HireDate = fields.Count > 3 && DateTime.TryParse(fields[3], out var hireDate) ? hireDate : DateTime.MinValue,
-                IsActive = fields.Count > 4 && bool.TryParse(fields[4], out var isActive) ? isActive : false
+                IsActive = fields.Count > 4 && bool.TryParse(fields[4], out var isActive) && isActive
             };
         }
     }
@@ -359,7 +359,7 @@ public partial class TestCsvContext : CsvContext
                 FloatValue = fields.Count > 4 && float.TryParse(fields[4], out var f) ? f : 0f,
                 DoubleValue = fields.Count > 5 && double.TryParse(fields[5], out var d) ? d : 0.0,
                 DecimalValue = fields.Count > 6 && decimal.TryParse(fields[6], out var dec) ? dec : 0m,
-                BoolValue = fields.Count > 7 && bool.TryParse(fields[7], out var bo) ? bo : false,
+                BoolValue = fields.Count > 7 && bool.TryParse(fields[7], out var bo) && bo,
                 CharValue = fields.Count > 8 && fields[8].Length > 0 ? fields[8][0] : '\0',
                 GuidValue = fields.Count > 9 && Guid.TryParse(fields[9], out var g) ? g : Guid.Empty,
                 DateTimeValue = fields.Count > 10 && DateTime.TryParse(fields[10], out var dt) ? dt : DateTime.MinValue,
