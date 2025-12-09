@@ -33,6 +33,7 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        submodules: recursive
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v5
@@ -58,6 +59,26 @@ jobs:
     - name: Perform CodeQL Analysis
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
       uses: github/codeql-action/analyze@v4
+      with:
+        output: sarif-results
+        upload: failure-only
+
+    - name: Filter SARIF to exclude generated code
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: advanced-security/filter-sarif@v1
+      with:
+        patterns: |
+          -**/*.g.cs
+          -**/*.Designer.cs
+          -**/obj/**
+        input: sarif-results/csharp.sarif
+        output: sarif-results/csharp.sarif
+
+    - name: Upload CodeQL SARIF
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: sarif-results/csharp.sarif
 
     - name: Run tests with coverage
       run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults/

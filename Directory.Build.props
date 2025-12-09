@@ -1,61 +1,18 @@
 <Project>
-  <PropertyGroup>
-    <LangVersion>12.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
-  </PropertyGroup>
+  <!-- Import shared build standards -->
+  <Import Project="build-standards/Directory.Build.props.shared" />
 
-  <!-- MinVer Versioning -->
+  <!-- CsvHandler-specific configuration -->
   <PropertyGroup>
-    <MinVerTagPrefix>v</MinVerTagPrefix>
     <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
-    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
-    <MinVerVerbosity>minimal</MinVerVerbosity>
-  </PropertyGroup>
-
-  <!-- Package Metadata -->
-  <PropertyGroup>
-    <Authors>James A Sutherland</Authors>
-    <Company>James A Sutherland</Company>
     <Product>CsvHandler</Product>
+    <Company>James A Sutherland</Company>
     <Copyright>Copyright © 2025 James A Sutherland</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>High-performance CSV reader/writer with source generation support, AOT compilation, and trimming compatibility</Description>
     <PackageProjectUrl>https://github.com/jas88/CsvHandler</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jas88/CsvHandler</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>csv;parser;serialization;source-generator;aot;trimming;performance</PackageTags>
-    <Description>High-performance CSV reader/writer with source generation support, AOT compilation, and trimming compatibility</Description>
   </PropertyGroup>
-
-  <!-- Build Configuration -->
-  <PropertyGroup>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
-
-  <!-- SourceLink (now built into .NET SDK 8+) -->
-  <PropertyGroup>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedAllSources>true</EmbedAllSources>
-  </PropertyGroup>
-
-  <!-- Documentation -->
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-  </PropertyGroup>
-
-  <!-- Common Package References -->
-  <ItemGroup Condition="'$(IsPackable)' == 'true'">
-    <PackageReference Include="MinVer" PrivateAssets="All" />
-    <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All" />
-  </ItemGroup>
 </Project>
