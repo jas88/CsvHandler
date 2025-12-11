@@ -1,7 +1,7 @@
 # CsvHandler
 
 [![CI/CD](https://github.com/jas88/CsvHandler/workflows/CI%2FCD/badge.svg)](https://github.com/jas88/CsvHandler/actions)
-[![codecov](https://codecov.io/gh/jas88/CsvHandler/branch/main/graph/badge.svg?token=YOUR_CODECOV_TOKEN)](https://codecov.io/gh/jas88/CsvHandler)
+[![codecov](https://codecov.io/gh/jas88/CsvHandler/graph/badge.svg)](https://codecov.io/gh/jas88/CsvHandler)
 [![NuGet Version](https://img.shields.io/nuget/v/CsvHandler.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/CsvHandler/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/CsvHandler.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/CsvHandler/)
 [![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
