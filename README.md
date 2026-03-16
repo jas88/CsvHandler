@@ -5,7 +5,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jas88_CsvHandler&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jas88_CsvHandler)
 [![NuGet Version](https://img.shields.io/nuget/v/CsvHandler.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/CsvHandler/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/CsvHandler.svg?style=flat-square&logo=nuget)](https://www.nuget.org/packages/CsvHandler/)
-[![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET_Standard_2.0%20%7C%20.NET_8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 **Modern, high-performance CSV library for .NET with source generators and Native AOT support**
@@ -338,8 +338,8 @@ Contributions are welcome! To contribute:
 6. **Submit a pull request** with a clear description
 
 ### Build Requirements
-- .NET 8.0 SDK
-- C# 12.0
+- .NET 10.0 SDK
+- C# 13.0
 - Visual Studio 2022 or JetBrains Rider (optional)
 
 ### Running Tests
