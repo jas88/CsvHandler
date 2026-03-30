@@ -9,7 +9,7 @@
     <PackageVersion Include="MinVer" Version="6.0.0" />
 
     <!-- Build Tools -->
-    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.39" />
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2" />
 
     <!-- Testing -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
